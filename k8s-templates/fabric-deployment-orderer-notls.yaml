@@ -1,0 +1,128 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: %DOMAIN%
+  name: orderer%NUM%-%ORG%
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+       app: hyperledger
+       role: orderer
+       org: %ORG%
+       name: orderer%NUM%-%ORG%
+  template:
+    metadata:
+      labels:
+       app: hyperledger
+       role: orderer
+       org: %ORG%
+       name: orderer%NUM%-%ORG%
+    spec:
+     containers:
+       - name: orderer%NUM%-%ORG%
+         image: hyperledger/fabric-ca-orderer:x86_64-1.1.0
+         env:
+          - name: FABRIC_CA_CLIENT_HOME
+            value: /etc/hyperledger/orderer
+          - name: FABRIC_CA_CLIENT_TLS_CERTFILES
+            value: /data/%ORG%-ca-chain.pem
+          - name: ENROLLMENT_URL
+            value: https://orderer%NUM%-%ORG%:orderer%NUM%-%ORG%pw@ica-%ORG%.%DOMAIN%:7054
+          - name: ORDERER_HOME
+            value: /etc/hyperledger/orderer
+          - name: ORDERER_HOST
+            value: orderer%NUM%-%ORG%.%DOMAIN%
+          - name: ORDERER_GENERAL_LISTENADDRESS
+            value: 0.0.0.0
+          - name: ORDERER_GENERAL_GENESISMETHOD
+            value: file
+          - name: ORDERER_GENERAL_GENESISFILE
+            value: /data/genesis.block
+          - name: ORDERER_GENERAL_LOCALMSPID
+            value: %ORG%MSP
+          - name: ORDERER_GENERAL_LOCALMSPDIR
+            value: /etc/hyperledger/orderer/msp
+          - name: ORDERER_GENERAL_TLS_ENABLED
+            value: "false"
+          - name: ORDERER_GENERAL_TLS_CLIENTAUTHREQUIRED
+            value: "false"
+          - name: ORDERER_GENERAL_TLS_PRIVATEKEY
+            value: /etc/hyperledger/orderer/tls/server.key
+          - name: ORDERER_GENERAL_TLS_CERTIFICATE
+            value: /etc/hyperledger/orderer/tls/server.crt
+          - name: ORDERER_GENERAL_LOGLEVEL
+            value: debug
+          - name: ORDERER_DEBUG_BROADCASTTRACEDIR
+            value: data/logs
+          - name: ORG
+            value: %ORG%
+          - name: ORG_ADMIN_CERT
+            value: /data/orgs/%ORG%/msp/admincerts/cert.pem
+          - name: ORDERER_GENERAL_TLS_ROOTCAS
+            value: '[/data/%ORG%-ca-chain.pem]'
+          - name: ORDERER_GENERAL_TLS_CLIENTROOTCAS
+            value: '[/data/%ORG%-ca-chain.pem]'
+          - name: ORDERER_KAFKA_VERBOSE
+            value: "true"
+          - name: ORDERER_KAFKA_VERSION
+            value: 1.0.0
+          - name: GODEBUG
+            value: "netdns=go"
+         ports:
+          - containerPort: 7050
+         command: ["sh"]
+         args:  ["-c", "/scripts/start-orderer.sh 2>&1"]
+         volumeMounts:
+          - mountPath: /etc/hyperledger/fabric-ca
+            name: orderer
+          - mountPath: /scripts
+            name: rca-scripts
+          - mountPath: /data
+            name: rca-data
+     volumes:
+       - name: orderer
+         persistentVolumeClaim:
+             claimName: orderer-%ORG%-pvc
+       - name: rca-scripts
+         persistentVolumeClaim:
+             claimName: rca-scripts-%ORG%-pvc
+       - name: rca-data
+         persistentVolumeClaim:
+             claimName: rca-data-%ORG%-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: %DOMAIN%
+  name: orderer%NUM%-%ORG%
+spec:
+ selector:
+   app: hyperledger
+   role: orderer
+   org: %ORG%
+   name: orderer%NUM%-%ORG%
+ type: NodePort
+ ports:
+   - name: endpoint
+     protocol: TCP
+     port: 7050
+     targetPort: 7050
+     nodePort: %PORT%

@@ -1,0 +1,98 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: %DOMAIN%
+  name: rca-%ORG%
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+       app: hyperledger
+       role: ca
+       org: %ORG%
+       name: rca-%ORG%
+  template:
+    metadata:
+      labels:
+       app: hyperledger
+       role: ca
+       org: %ORG%
+       name: rca-%ORG%
+    spec:
+     containers:
+       - name: rca-%ORG%
+         image: hyperledger/fabric-ca:x86_64-1.1.0
+         env:
+         - name:  FABRIC_CA_SERVER_HOME
+           value: /etc/hyperledger/fabric-ca
+         - name:  FABRIC_CA_SERVER_TLS_ENABLED
+           value: "true"
+         - name:  FABRIC_CA_SERVER_CSR_CN
+           value: rca-%ORG%.%DOMAIN%
+         - name:  FABRIC_CA_SERVER_CSR_HOSTS
+           value: rca-%ORG%.%DOMAIN%
+         - name:  FABRIC_CA_SERVER_DEBUG
+           value: "true"
+         - name:  BOOTSTRAP_USER_PASS
+           value: rca-%ORG%-admin:rca-%ORG%-adminpw
+         - name:  TARGET_CERTFILE
+           value: /data/%ORG%-ca-cert.pem
+         - name:  FABRIC_ORGS
+           value: %FABRICORGS%
+         ports:
+          - containerPort: 7054
+         command: ["sh"]
+         args:  ["-c", "/scripts/start-root-ca.sh 2>&1"]
+         volumeMounts:
+          - mountPath: /etc/hyperledger/fabric-ca
+            name: rca
+          - mountPath: /scripts
+            name: rca-scripts
+          - mountPath: /data
+            name: rca-data
+     volumes:
+       - name: rca
+         persistentVolumeClaim:
+             claimName: rca-%ORG%-pvc
+       - name: rca-scripts
+         persistentVolumeClaim:
+             claimName: rca-scripts-%ORG%-pvc
+       - name: rca-data
+         persistentVolumeClaim:
+             claimName: rca-data-%ORG%-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: %DOMAIN%
+  name: rca-%ORG%
+spec:
+ selector:
+   app: hyperledger
+   role: ca
+   org: %ORG%
+   name: rca-%ORG%
+ type: NodePort
+ ports:
+   - name: endpoint
+     protocol: TCP
+     port: 7054
+     targetPort: 7054
+     nodePort: %PORT%

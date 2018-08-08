@@ -1,0 +1,85 @@
+{
+    "name": "Marbles config",
+    "x-networkId": "not-important",
+    "x-type": "hlfv1",
+    "description": "Connection Profile for Hyperledger Fabric running on EKS",
+    "version": "1.0.0",
+    "client": {
+        "organization": "org1MSP"
+    },
+    "channels": {
+        "mychannel": {
+            "orderers": [
+                "orderer3-org0.org0"
+            ],
+            "peers": {
+                "michaelpeer1-org1.org1": {
+                    "endorsingPeer": true,
+                    "chaincodeQuery": true,
+                    "ledgerQuery": true,
+                    "eventSource": true
+                }
+            },
+            "chaincodes": [
+                "marbles:v1"
+            ],
+            "x-blockDelay": 1000
+        }
+    },
+    "organizations": {
+        "org1MSP": {
+            "mspid": "org1MSP",
+            "peers": [
+                "michaelpeer1-org1.org1"
+            ],
+            "certificateAuthorities": [
+                "ica-org1"
+            ]
+        }
+    },
+    "orderers": {
+        "orderer3-org0.org0": {
+            "url": "grpc://a8a50caf493b511e8834f06b86f026a6-77ab14764e60b4a1.elb.us-west-2.amazonaws.com:7050",
+            "grpcOptions": {
+                "ssl-target-name-override": null,
+                "grpc.http2.keepalive_time": 300,
+                "grpc.keepalive_time_ms": 300000,
+                "grpc.http2.keepalive_timeout": 35,
+                "grpc.keepalive_timeout_ms": 3500,
+                "verify": false
+            }
+        }
+    },
+    "peers": {
+        "michaelpeer1-org1.org1": {
+            "url": "grpc://a55e52d7d93c511e8a5200a2330c2ef3-25d11c6db68acd98.elb.us-east-1.amazonaws.com:7051",
+            "eventUrl": "grpc://a55e52d7d93c511e8a5200a2330c2ef3-25d11c6db68acd98.elb.us-east-1.amazonaws.com:7052",
+            "httpOptions": {
+                "verify": false
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": null,
+                "grpc.http2.keepalive_time": 300,
+                "grpc.keepalive_time_ms": 300000,
+                "grpc.http2.keepalive_timeout": 35,
+                "grpc.keepalive_timeout_ms": 3500,
+                "verify": false
+            }
+        }
+    },
+    "certificateAuthorities": {
+        "ica-org1": {
+            "url": "http://a4572233e93c511e8a5200a2330c2ef3-6cd15c4b453d4003.elb.us-east-1.amazonaws.com:7054",
+            "httpOptions": {
+                "verify": false
+            },
+            "registrar": [
+                {
+                    "enrollId": "admin-org1",
+                    "enrollSecret": "admin-org1pw"
+                }
+            ],
+            "caName": null
+        }
+    }
+}

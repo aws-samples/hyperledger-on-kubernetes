@@ -1,0 +1,51 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fabric-signconf
+spec:
+  template:
+    metadata:
+      labels:
+       app: hyperledger
+       role: client
+       org: %ORG%
+       name: fabric-signconf
+    spec:
+     containers:
+       - name: fabric-signconf
+         image: hyperledger/fabric-ca-tools:x86_64-1.1.0
+         env:
+          - name: GOPATH
+            value: /opt/gopath
+          - name: PEERORG
+            value: %ORG%
+         command: ["sh"]
+         args:  ["-c", "/scripts/fabric-signconf.sh 2>&1;"]
+         volumeMounts:
+          - mountPath: /scripts
+            name: rca-scripts
+          - mountPath: /data
+            name: rca-data
+     restartPolicy: Never
+     volumes:
+       - name: rca-scripts
+         persistentVolumeClaim:
+             claimName: rca-scripts-%ORG%-pvc
+       - name: rca-data
+         persistentVolumeClaim:
+             claimName: rca-data-%ORG%-pvc

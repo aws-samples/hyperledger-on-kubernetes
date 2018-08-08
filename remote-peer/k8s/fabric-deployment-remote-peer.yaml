@@ -1,0 +1,159 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: %DOMAIN%
+  name: %PEER_PREFIX%%NUM%-%ORG%
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+       app: hyperledger
+       role: peer
+       org: %ORG%
+       name: %PEER_PREFIX%%NUM%-%ORG%
+  template:
+    metadata:
+      labels:
+       app: hyperledger
+       role: peer
+       org: %ORG%
+       name: %PEER_PREFIX%%NUM%-%ORG%
+    spec:
+     containers:
+       - name: couchdb
+         image: hyperledger/fabric-couchdb:latest
+         ports:
+          - containerPort: 5984
+       - name: %PEER_PREFIX%%NUM%-%ORG%
+         image: hyperledger/fabric-ca-peer:x86_64-1.1.0
+         env:
+          - name: FABRIC_CA_CLIENT_HOME
+            value: /opt/gopath/src/github.com/hyperledger/fabric/peer
+          - name: FABRIC_CA_CLIENT_TLS_CERTFILES
+            value: /data/%ORG%-ca-chain.pem
+          - name: ENROLLMENT_URL
+            value: https://%PEER_PREFIX%%NUM%-%ORG%:%PEER_PREFIX%%NUM%-%ORG%pw@ica-%ORG%.%DOMAIN%:7054
+          - name: PEER_NAME
+            value: %PEER_PREFIX%%NUM%-%ORG%
+          - name: PEER_HOME
+            value: /opt/gopath/src/github.com/hyperledger/fabric/peer
+          - name: PEER_HOST
+            value: %PEER_PREFIX%%NUM%-%ORG%.%DOMAIN%
+          - name: PEER_NAME_PASS
+            value: %PEER_PREFIX%%NUM%-%ORG%:%PEER_PREFIX%%NUM%-%ORG%pw
+          - name: CORE_PEER_ADDRESSAUTODETECT
+            value: "true"
+          - name: CORE_PEER_ID
+            value: %PEER_PREFIX%%NUM%-%ORG%
+          - name: CORE_PEER_ADDRESS
+            value: %PEER_PREFIX%%NUM%-%ORG%.%DOMAIN%:7051
+          - name: CORE_PEER_LOCALMSPID
+            value: %ORG%MSP
+          - name: CORE_PEER_MSPCONFIGPATH
+            value: /opt/gopath/src/github.com/hyperledger/fabric/peer/msp
+          - name: CORE_VM_ENDPOINT
+            value: unix:///host/var/run/docker.sock
+          - name: CORE_VM_DOCKER_ATTACHSTDOUT
+            value: "true"
+          - name: CORE_LOGGING_LEVEL
+            value: DEBUG
+          - name: CORE_PEER_TLS_ENABLED
+            value: "true"
+          - name: CORE_PEER_TLS_CERT_FILE
+            value: /opt/gopath/src/github.com/hyperledger/fabric/peer/tls/server.crt
+          - name: CORE_PEER_TLS_KEY_FILE
+            value: /opt/gopath/src/github.com/hyperledger/fabric/peer/tls/server.key
+          - name: CORE_PEER_TLS_ROOTCERT_FILE
+            value: /data/%ORG%-ca-chain.pem
+          - name: CORE_PEER_TLS_CLIENTAUTHREQUIRED
+            value: "true"
+          - name: CORE_PEER_TLS_CLIENTROOTCAS_FILES
+            value: /data/%ORG%-ca-chain.pem
+          - name: CORE_PEER_TLS_CLIENTCERT_FILE
+            value: /data/tls/%PEER_PREFIX%%NUM%-%ORG%-client.crt
+          - name: CORE_PEER_TLS_CLIENTKEY_FILE
+            value: /data/tls/%PEER_PREFIX%%NUM%-%ORG%-client.key
+          - name: CORE_PEER_GOSSIP_USELEADERELECTION
+            value: "true"
+          - name: CORE_PEER_GOSSIP_ORGLEADER
+            value: "false"
+          - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
+            value: %PEER_PREFIX%%NUM%-%ORG%.%DOMAIN%:7051
+          - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
+            value: "true"
+          - name: CORE_PEER_CHAINCODELISTENADDRESS
+            value: 0.0.0.0:7052
+          - name: CORE_LEDGER_STATE_STATEDATABASE
+            value: CouchDB
+          - name: CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS
+            value: localhost:5984
+          - name: ORG
+            value: %ORG%
+          - name: ORG_ADMIN_CERT
+            value: /data/orgs/%ORG%/msp/admincerts/cert.pem
+          - name: GODEBUG
+            value: "netdns=go"
+         ports:
+          - containerPort: 7051
+          - containerPort: 7052
+          - containerPort: 7053
+         command: ["sh"]
+         args:  ["-c", "/scripts/start-peer.sh 2>&1"]
+         volumeMounts:
+          - mountPath: /scripts
+            name: rca-scripts
+          - mountPath: /data
+            name: rca-data
+          - mountPath: /host/var/run/
+            name: run
+     volumes:
+       - name: rca-scripts
+         persistentVolumeClaim:
+             claimName: rca-scripts-%ORG%-pvc
+       - name: rca-data
+         persistentVolumeClaim:
+             claimName: rca-data-%ORG%-pvc
+       - name: run
+         hostPath:
+           path: /run
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: %DOMAIN%
+  name: %PEER_PREFIX%%NUM%-%ORG%
+spec:
+ selector:
+   app: hyperledger
+   role: peer
+   org: %ORG%
+   name: %PEER_PREFIX%%NUM%-%ORG%
+ type: NodePort
+ ports:
+   - name: endpoint
+     protocol: TCP
+     port: 7051
+     targetPort: 7051
+     nodePort: %PORTEND%
+   - name: endpoint-chaincode
+     protocol: TCP
+     port: 7052
+     targetPort: 7052
+     nodePort: %PORTCHAIN%

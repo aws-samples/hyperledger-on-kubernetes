@@ -1,0 +1,54 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rca-scripts-%ORG%-pv
+  labels:
+    pv-name: rca-scripts-%ORG%-pv
+spec:
+  capacity:
+    storage: 500Mi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.1
+    - rsize=1048576
+    - wsize=1048576
+    - hard
+    - timeo=600
+    - retrans=2
+  nfs:
+    server: %EFSSERVER%
+    path: /rca-scripts
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  namespace: %DOMAIN%
+  name: rca-scripts-%ORG%-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  selector:
+    matchLabels:
+      pv-name: rca-scripts-%ORG%-pv
+  resources:
+    requests:
+      storage: 10Mi
+
