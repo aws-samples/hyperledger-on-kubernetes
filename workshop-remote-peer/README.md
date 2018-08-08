@@ -109,7 +109,11 @@ Once all the parameters are set, in a terminal window, run
 ```
 
 Check the CloudFormation console for completion. Once the CFN stack is complete, SSH to the EC2 bastion instance using the keypair 
-above. 
+above. Replace the public DNS of your EC2 bastion instance and the path to your keypair file in the statement below:
+
+```bash
+ssh ec2-user@ec2-34-216-209-127.us-west-2.compute.amazonaws.com -i eks/eksctl-keypair.pem
+```
 
 ### Step 3: Prepare the EC2 instance for use
 The EC2 instance you created in Step 2 should already have kubectl and the AWS CLI installed. However, kubectl will have no

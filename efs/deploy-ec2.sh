@@ -29,4 +29,4 @@ aws cloudformation deploy --stack-name ec2-cmd-client --template-file efs/ec2-fo
 --capabilities CAPABILITY_NAMED_IAM \
 --parameter-overrides VPCId=$vpcid SubnetA=$subneta SubnetB=$subnetb SubnetC=$subnetc \
 KeyName=$keypairname VolumeName=$volumename MountPoint=$mountpoint \
---region $region --profile account2
+--region $region
