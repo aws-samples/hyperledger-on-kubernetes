@@ -65,6 +65,13 @@ sufficient. You can use [~/.aws/credentials file](https://docs.aws.amazon.com/cl
 or [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html). For more information 
 read the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html).
 
+If you used 'brew' to install eksctl, it should automatically install the Heptio authenticator, which is required
+to access EKS using kubectl. If you used the 'curl' method above, install the Heptio authenticator manually:
+
+```bash
+curl -o heptio-authenticator-aws https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws && chmod +x heptio-authenticator-aws && mkdir ~/bin && export PATH=~/bin:$PATH && echo 'export PATH=~/bin:$PATH' >> ~/.bashrc && mv heptio-authenticator-aws ~/bin/
+```
+
 Create a keypair, then create the EKS cluster:
 
 * Create a keypair, using the details in the section below titled 'Creating a keypair'
