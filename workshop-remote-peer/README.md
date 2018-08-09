@@ -305,6 +305,8 @@ a Fabric network have identities (Fabric is a private, permissioned blockchain n
 by a CA. This step will start Fabric CA and register our peer:
 
 ```bash
+cd
+cd hyperledger-on-kubernetes
 ./workshop-remote-peer/start-remote-fabric-setup.sh
 ```
 
@@ -459,7 +461,27 @@ channel genesis block. The channel genesis block is stored on the EFS drive, and
 ls -l /data
 ```
 
-Look for the file titled mychannel.block. The channel genesis block provides the configuration for the channel. It's the 
+You should see something similar to this:
+
+```bash
+# ls -l /data
+total 84
+-rw-r--r-- 1 500 500   296 Jul 30 05:16 channel.tx
+-rw-r--r-- 1 500 500  4703 Jul 30 05:16 configtx.yaml
+-rw-r--r-- 1 500 500 14819 Jul 30 05:16 genesis.block
+-rw-r--r-- 1 500 500  1470 Jul 30 05:21 log.txt
+-rw-r--r-- 1 500 500 18537 Jul 30 05:20 mychannel.block
+-rw-r--r-- 1 500 500   778 Aug  9 03:29 org0-ca-cert.pem
+-rw-r--r-- 1 500 500  1600 Aug  9 03:29 org0-ca-chain.pem
+-rw-r--r-- 1 500 500   778 Aug  9 03:28 org1-ca-cert.pem
+-rw-r--r-- 1 500 500  1600 Aug  9 03:29 org1-ca-chain.pem
+-rw-r--r-- 1 500 500   778 Jul 30 05:00 org2-ca-cert.pem
+-rw-r--r-- 1 500 500  1600 Jul 30 05:00 org2-ca-chain.pem
+drwx------ 5 500 500  6144 Jul 30 05:15 orgs
+drwxr-xr-x 2 500 500  6144 Aug  9 03:34 tls
+```
+
+Look for the file titled `mychannel.block`. The channel genesis block provides the configuration for the channel. It's the 
 first block added to a channel, and forms 'block 0' in the Fabric blockchain for that channel. As a matter of interest,
 Fabric supports multiple blockchains within the same Fabric network, each blockchain associated with a Fabric channel.
 
@@ -654,7 +676,7 @@ state of the ledger. World state is stored in either a CouchDB or LevelDB key-va
 return the latest marble owners. 
 
 When we say 'run a query', we really mean 'execute chaincode that queries the world state'. In Fabric, chaincode executes
-inside a Docker container. The first time you run chaincode it may take a few seconds as the Docker container that hosts 
+inside a Docker container. The first time you run chaincode it may take around 30 seconds as the Docker container that hosts 
 the chaincode is downloaded and created.
 
 ```bash
@@ -797,8 +819,8 @@ to download the files you'll need. If using the cURL method, make sure you are i
 
 ```bash
 cd config
-curl  https://raw.githubusercontent.com/MCLDG/hyperledger-on-kubernetes/master/workshop-remote-peer/marbles/connection_profile_eks.json -o connection_profile_eks.json
-curl  https://raw.githubusercontent.com/MCLDG/hyperledger-on-kubernetes/master/workshop-remote-peer/marbles/marbles_eks.json -o marbles_eks.json
+curl  https://raw.githubusercontent.com/aws-samples/hyperledger-on-kubernetes/master/workshop-remote-peer/marbles/connection_profile_eks.json -o connection_profile_eks.json
+curl  https://raw.githubusercontent.com/aws-samples/hyperledger-on-kubernetes/master/workshop-remote-peer/marbles/marbles_eks.json -o marbles_eks.json
 ```
 
 Still in the config directory, edit connection_profile_eks.json:
