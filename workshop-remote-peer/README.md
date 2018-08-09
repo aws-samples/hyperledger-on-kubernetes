@@ -36,6 +36,17 @@ The pre-requisites are as follows:
 
 * An AWS account where you can create a Kubernetes cluster (either your own Kubernetes cluster or EKS)
 * It's preferable that you have some basic Kubernetes experience
+
+You have a choice to run this workshop either on your own laptop or on a Cloud9 instance. I recommend using the Cloud9
+instance as it comes pre-installed with most of the packages we need, plus it also has the AWS CLI already installed. If
+you have a Windows laptop I'd strongly recommend using Cloud9 as this workshop has not been tested on a Windows machine.
+
+If you choose to run the workshop from your laptop, you'll need to install the following:
+
+* AWS CLI with the appropriate AWS API credentials pointing to the AWS account and region where you will deploy Kubernetes. You can use 
+an [~/.aws/credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html) 
+or [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html). For more information 
+read the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html).
 * Git installed locally. See https://git-scm.com/downloads
 * Node JS installed. You'll need version > 6.10.1, but it must be 6.x.x. See https://nodejs.org/en/download/. If you have a different 
 version, you can uninstall it (on Mac), and install the correct version using homebrew:
@@ -61,12 +72,7 @@ $ npm -v
 3.10.10
 ```
 
-* npm installed locally on your laptop. It should have been installed together with node in the step above. If not, see https://www.npmjs.com/get-npm
-* AWS CLI installed - either on your laptop or on the Cloud9 server you create in Step 1 - with the appropriate AWS API credentials 
-pointing to the account and region where you will deploy Kubernetes. You can use 
-[~/.aws/credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html) 
-or [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html). For more information 
-read the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html).
+* npm installed. It should have been installed together with node in the step above. If not, see https://www.npmjs.com/get-npm
 
 ## Getting Started
 We create the Kubernetes cluster first, in Step 1. This has the advantage that we can deploy the EC2 bastion (created in Step 2)
@@ -883,6 +889,9 @@ gulp.task('env_eks', function () {
 ```
 
 ### Step 16: Running and using the marbles application
+You can run the Marbles application either on your laptop or on your Cloud9 instance.
+
+#### Running Marbles on your laptop
 NOTE: Marbles running locally cannot connect to the ELB port 7054 if you are running your VPN software. Please
 stop the VPN before connecting.
 
@@ -893,9 +902,67 @@ the repo, run the following:
 gulp marbles_eks
 ```
 
+You should see something similar to this:
+
+```bash
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+debug: Detected that we have launched successfully before
+debug: Welcome back - Marbles is ready
+debug: Open your browser to http://localhost:32001 and login as "admin"
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+```
+
 If this fails, ensure your VPN is not running.
 
-In a browser, navigate to: http://localhost:32001/home. Before doing anything else, configure the UI:
+In a browser, navigate to: http://localhost:32001/home. You should see the Marbles UI.
+
+#### Running Marbles on Cloud9
+NOTE: Marbles will run on Cloud9, but if you use the default port you won't be able to connect to the Marbles application.
+Do the following to fix this:
+
+In the `marbles` directory:
+
+```bash
+vi config/marbles_eks.json 
+```
+
+Change this line as follows:
+
+```bash
+"port": 32001
+```
+
+to
+
+```bash
+"port": 8080
+```
+
+In Cloud9, in the marbles repo directory (not the config directory, which you may be in), in the root folder of 
+the repo, run the following:
+
+```bash
+gulp marbles_eks
+```
+
+You should see something similar to this:
+
+```bash
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+debug: Detected that we have launched successfully before
+debug: Welcome back - Marbles is ready
+debug: Open your browser to http://localhost:8080 and login as "admin"
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+```
+
+At the top of your Cloud9 page you'll see a menu with the option `AWS Cloud9` at the top left. Top right you will
+see a link titled `Preview`. Select this, then select `Preview Running Application`. This will open the Marbles UI
+in a browser window within the Cloud9 page. You can also open this in a browser. In the Cloud9 browser window, on the
+right hand side next to the URL box, there is a square with an arrow. Clicking this will open the page in your 
+default browser.
+
+###$ Running Marbles
+After completing one of the steps above, continue with the following steps in the Marbles UI.
 
 * Click 'Settings' and set Story Mode ON. This will show you what Fabric is doing behind the scenes when you create
 new marbles or transfer them.
@@ -961,6 +1028,7 @@ Cleanup your Hyperledger Fabric nodes:
 
 Don't forget to remove your EKS cluster. Instructions can be found here:
 
+* eksctl: eksctl delete cluster —name=<CLUSTER_NAME>
 * EKS: https://docs.aws.amazon.com/eks/latest/userguide/delete-cluster.html
 * Kops: https://github.com/kubernetes/kops/blob/master/docs/cli/kops_delete_cluster.md
 
