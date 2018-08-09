@@ -151,7 +151,7 @@ when you SSH into the instance.
 Now SSH into each worker node and install the EFS utils, using the keypair you created earlier, as follows:
 
 ```bash
-ssh ec2-user@ec2-54-244-69-254.us-west-2.compute.amazonaws.com -i eks/eksctl-keypair.pem
+ssh ec2-user@ec2-54-244-69-254.us-west-2.compute.amazonaws.com -i eks-c9-keypair.pem
 ```
 
 After SSH'ing into the worker node, run:
