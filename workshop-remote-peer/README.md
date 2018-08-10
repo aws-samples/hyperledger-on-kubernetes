@@ -149,6 +149,7 @@ scp -i eks-c9-keypair.pem  ./kubeconfig.eks-fabric.yaml  ec2-user@ec2-52-206-72-
 Do the same for your AWS config files:
 
 ```bash
+mkdir -p /home/ec2-user/.aws
 scp -i eks-c9-keypair.pem  ~/.aws/config  ec2-user@ec2-52-206-72-54.compute-1.amazonaws.com:/home/ec2-user/.aws/config                                                                     
 scp -i eks-c9-keypair.pem  ~/.aws/credentials  ec2-user@ec2-52-206-72-54.compute-1.amazonaws.com:/home/ec2-user/.aws/credentials                                                                     
 ```
@@ -170,7 +171,7 @@ You may or may not see S3 buckets, but you shouldn't receive an error.
 Copy the kube config file:
 
 ```bash
-mkdir /home/ec2-user/.kube
+mkdir -p /home/ec2-user/.kube
 cd /home/ec2-user/.kube
 mv /home/ec2-user/kubeconfig.eks-fabric.yaml  ./config
 ```
