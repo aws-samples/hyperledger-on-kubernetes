@@ -21,4 +21,7 @@ copy the crypto material to S3. Here are the steps to do this:
     and store these in S3. This will allow them to be downloaded by the workshop participants who are going to connect to your network. 
     Note that this will only work if you have the AWS CLI configured on your EC2 bastion (which you would have if you are using EKS).
     If this script indicates it's unable to copy the 'tar', you can do it manually following the steps in `./start-workshop-marbles.sh`
-* Orderer connection URL must be obtained and made available to all participants
+* Orderer connection URL must be obtained and made available to all participants. I suggest you get the Orderer endpoint,
+as exposed by NLB, and then update the README.md in this directory (the README used by the workshop participants) so that
+each place the orderer endpoint is used it points to the correct DNS. You can use `kubectl get svc -n org0` to view the
+orderer endpoint, and `kubectl describe` to see the details of a specific service.
