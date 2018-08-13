@@ -764,11 +764,12 @@ you see <pending>, rerun the 'get svc' command until you see the DNS name.
 ```bash
 $ kubectl get svc -n org1
 NAME                    TYPE           CLUSTER-IP       EXTERNAL-IP        PORT(S)                         AGE
-ica-org1                NodePort       100.69.223.117   <none>             7054:30820/TCP                  1h
-ica-org1-nlb            LoadBalancer   100.67.187.247   a4572233e93c5...   7054:30786/TCP                  33s
-michaelpeer1-org1       NodePort       100.71.189.75    <none>             7051:30751/TCP,7052:30752/TCP   1h
-michaelpeer1-org1-nlb   LoadBalancer   100.64.236.245   a55e52d7d93c5...   7051:31701/TCP                  5s
-rca-org1                NodePort       100.65.85.156    <none>             7054:30800/TCP                  1h
+ica-notls-org1          NodePort       10.100.5.225     <none>             7054:30822/TCP                  1d
+ica-notls-org1-nlb      LoadBalancer   10.100.186.98    a6a8a76dd9dec...   7054:30874/TCP                  1d
+ica-org1                NodePort       10.100.17.167    <none>             7054:30821/TCP                  1d
+michaelpeer1-org1       NodePort       10.100.104.218   <none>             7051:30751/TCP,7052:30752/TCP   1d
+michaelpeer1-org1-nlb   LoadBalancer   10.100.103.133   a6abb6a419dec...   7051:32703/TCP                  1d
+rca-org1                NodePort       10.100.34.72     <none>             7054:30800/TCP                  1d
 ```
 
 You can see the full endpoint using `kubectl describe`, as follows. The 'LoadBalancer Ingress' attribute shows the AWS DNS representing
@@ -780,22 +781,17 @@ Name:                     ica-notls-org1-nlb
 Namespace:                org1
 Labels:                   <none>
 Annotations:              kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Service","metadata":{"annotations":{"service.beta.kubernetes.io/aws-load-balancer-type":"nlb"},"name":"ica-notls-org1-nlb","...
-                          service.beta.kubernetes.io/aws-load-balancer-type=nlb
-Selector:                 app=hyperledger,name=ica-notls-org1,org=org1,role=ca
+                          service.beta.kubernetes.io/aws-load-balancer-type=nlbSelector:                 app=hyperledger,name=ica-notls-org1,org=org1,role=ca
 Type:                     LoadBalancer
-IP:                       100.71.98.239
-LoadBalancer Ingress:     a0a212d7b948511e8a5200a2330c2ef3-4cccceb9bd78e9cd.elb.us-east-1.amazonaws.com
+IP:                       10.100.186.98
+LoadBalancer Ingress:     a6a8a76dd9dec11e8916b0ad49a0d9da-a9d5addb53cfe772.elb.us-west-2.amazonaws.com
 Port:                     endpoint  7054/TCP
 TargetPort:               7054/TCP
-NodePort:                 endpoint  32693/TCP
-Endpoints:                100.96.1.168:7054
+NodePort:                 endpoint  30874/TCP
+Endpoints:                192.168.229.65:7054
 Session Affinity:         None
 External Traffic Policy:  Cluster
-Events:
-  Type    Reason                Age   From                Message
-  ----    ------                ----  ----                -------
-  Normal  EnsuringLoadBalancer  48s   service-controller  Ensuring load balancer
-  Normal  EnsuredLoadBalancer   46s   service-controller  Ensured load balancer
+Events:                   <none>
 ```
 
 Do the same to view the NLB endpoint for the peer. Note down the LoadBalancer Ingress for both CA and peer. You'll use
