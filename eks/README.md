@@ -22,6 +22,28 @@ There are two methods you can use to create an EKS cluster. You can:
 I suggest you use Cloud9 as it comes pre-installed with packages that we'll need. However, if you have a Mac and prefer
 to use it, the instructions below should still work for you. The instructions have not been fully tested on Windows.
 
+## Potential Issue
+
+If you see the message below when running `eksctl`, you'll need to pass the list of availability zones to eksctl, as 
+shown below. I have only seen this issue when creating an EKS cluster in us-east-1.
+
+```bash
+2018-08-14T02:44:28Z [✖]  unable to create cluster control plane: UnsupportedAvailabilityZoneException: Cannot create cluster 'eks-fabric' because us-east-1e, the targeted availability zone, does not currently have sufficient capacity to support the cluster. Retry and choose from these availability zones: us-east-1a, us-east-1b, us-east-1d
+        status code: 400, request id: f69224d4-9f6b-11e8-a5af-3d2857a10e45
+```
+
+Fix this by specifying the AZs you want to use. You'll need to delete the cluster first:
+
+```bash
+eksctl delete cluster --name eks-fabric
+```
+
+Then create the cluster:
+
+```bash
+eksctl create cluster --ssh-public-key <YOUR AWS KEYPAIR> --name eks-fabric --region us-east-1 --kubeconfig=./kubeconfig.eks-fabric.yaml --zones=us-east-1a,us-east-1b,us-east-1d
+```
+
 ## Creating an EKS cluster using Cloud9
 
 Read all the instructions in this section before you create your Cloud9 instance. There are a couple of items we need

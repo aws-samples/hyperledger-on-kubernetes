@@ -97,7 +97,7 @@ git clone https://github.com/aws-samples/hyperledger-on-kubernetes
 cd hyperledger-on-kubernetes
 ```
 
-In the repo directory, check the parameters in efs/deploy-ec2.sh and update them as follows:
+In the repo directory, check the parameters in `efs/deploy-ec2.sh` and update them as follows:
 * The VPC and Subnet should be those of your existing K8s cluster worker nodes. You can find these in the AWS VPC console.
 Look for the VPC with a name based on the name of your EKS cluster. If you created your cluster in us-west-2 there are
 three subnets.
@@ -800,10 +800,11 @@ them in Step 16.
 In the next step we'll configure Marbles to use these endpoints, and connect the application to the Fabric network.
 
 ### Step 16: Preparing the Marbles application
-To start, let's clone the Marbles application. On your laptop or Cloud9 environment (whichever one you have used for the
-earlier parts of this workshop), in any folder you choose:
+To start, let's clone the Marbles application to your laptop or Cloud9 instance. Makes sure you are on your laptop or 
+Cloud9 environment (whichever one you have used for the earlier parts of this workshop), and not SSH'd into the EC2 bastion:
 
 ```bash
+cd
 git clone https://github.com/IBM-Blockchain/marbles.git
 cd marbles
 ```
