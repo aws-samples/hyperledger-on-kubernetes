@@ -23,7 +23,6 @@ source $SDIR/utilities.sh
 REPO=hyperledger-on-kubernetes
 K8STEMPLATES=k8s-templates
 K8SYAML=k8s
-EFSSERVER=fs-99a736d1.efs.us-east-1.amazonaws.com
 FABRICORGS=""
 DATA=/opt/share
 
@@ -56,48 +55,6 @@ peerport=30750
 #        orderer       30540
 #        peer1         30551,30552
 #        peer2         30553,30554
-
-
-function main {
-    log "Beginning creation of Hyperledger Fabric Kubernetes YAML files..."
-    cd $HOME/$REPO
-    rm -rf $K8SYAML
-    mkdir -p $K8SYAML
-    file=${DATA}/rca-data/updateorg
-    if [ -f "$file" ]; then
-       NEW_ORG=$(cat $file)
-       echo "File '$file' exists - gen_fabric.sh identifies a new org '$NEW_ORG', and will generate appropriate K8s YAML files"
-    fi
-    genFabricOrgs
-    genNamespaces
-    genPVC
-    genRCA
-    genICA
-    genRegisterOrg
-    genRegisterOrderer
-    genRegisterPeers
-    genChannelArtifacts
-    genOrderer
-    genPeers
-    genRemotePeers
-    genWorkshopRemotePeers
-    genPeerJoinChannel
-    genFabricTest
-    genFabricTestMarbles
-    genInstallMarblesCC
-    genLoadFabric
-    genLoadFabricMarbles
-    genAddOrg
-    genSignAddOrg
-    genUpdateConfAddOrg
-    genJoinAddOrg
-    genInstallCCAddOrg
-    genUpgradeCCAddOrg
-    genTestCCAddOrg
-    genFabricTestMarblesWorkshop
-    genDeleteOrg
-    log "Creation of Hyperledger Fabric Kubernetes YAML files complete"
-}
 
 function genFabricOrgs {
     log "Generating list of Fabric Orgs"

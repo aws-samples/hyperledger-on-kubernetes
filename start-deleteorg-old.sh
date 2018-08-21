@@ -8,7 +8,7 @@ source $SDIR/scripts/env.sh
 DATA=/opt/share/
 REPO=hyperledger-on-kubernetes
 
-# this value must be changed here, in gen-fabric.sh and in fabric-job-delete-org.yaml
+# this value must be changed here, in gen-workshop-remote-peer.sh and in fabric-job-delete-org.yaml
 ORGTODELETE="org2"
 ORG=$ORGTODELETE
 
@@ -50,7 +50,7 @@ function updateRepo {
 function genTemplates {
     log "Generating K8s YAML deployment files"
     cd $HOME/$REPO
-    ./gen-fabric.sh
+    fabric-main/gen-fabric.sh
 }
 
 function copyScripts {

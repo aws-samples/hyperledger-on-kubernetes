@@ -44,7 +44,7 @@ function genTemplates {
     local REPO=$2
     echo "Generating K8s YAML deployment files"
     cd $HOME/$REPO
-    ./gen-fabric.sh
+    gen-fabric.sh
 }
 
 function makeDirs {

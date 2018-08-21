@@ -4,6 +4,19 @@
 and configure this for use on the bastion host
 * Installation instructions for Node on Windows
 
+# Issues from first workshop
+done - EFS - people did not run. Put this in line and not at ened 
+done - Too many README files
+Include the eksctl in my README - not a separate
+For step 1 - put everything in the same README - not a separate README
+Update heptio for Mac
+done - Some people started the wrong peer node - the TLS one, not the notls peer
+done - Make it clear the URL for the orderer is the correct URL - we don't need to give one.
+Too much work so I'll skip this - Can we include the ENV vars in Step 10 in the Register POD so that people do not export
+done - Change the main repo to be a table of contents that points to the other sections
+done - Just default to one org, instead of leeting them choose org1, org2, etc.
+
+
 # Hyperledger Fabric on Kubernetes
 
 This workshop builds remote Hyperledger Fabric peers in other AWS accounts/regions, connects them to the Fabric orderer 
@@ -79,8 +92,8 @@ configure kubectl on the EC2 bastion to connect to the Kubernetes cluster via th
 It's a small price to pay, so we'll stick with this approach for now. 
  
 ### Step 1: Create a Kubernetes cluster
-You need a K8s cluster to start. The easiest way to do this is to create an EKS cluster using the eksctl tool. Open
-the `eks` folder in this repo and follow the instructions in the README.
+You need an EKS cluster to start. The easiest way to do this is to create an EKS cluster using the eksctl tool. Open
+the [EKS Readme](../eks/README.md) in this repo and follow the instructions. Once you are complete come back to this README.
 
 ### Step 2: Create an EC2 instance and EFS 
 You're going to interact with Fabric and the Kubernetes cluster from a bastion host that mounts an EFS drive. EFS is 
@@ -99,13 +112,13 @@ cd hyperledger-on-kubernetes
 
 In the repo directory, check the parameters in `efs/deploy-ec2.sh` and update them as follows:
 * The VPC and Subnet should be those of your existing K8s cluster worker nodes. You can find these in the AWS VPC console.
-Look for the VPC with a name based on the name of your EKS cluster. If you created your cluster in us-west-2 there are
-three subnets.
-* Keyname is the AWS EC2 keypair you used for your EKS cluster. You'll use the same keypair to access the EC2 bastion created by deploy-ec2.sh
+Look for the VPC with a name based on the name of your EKS cluster. There should be three subnets.
+* Keyname is the AWS EC2 keypair you used for your EKS cluster. It is NOT the name of the .pem file you saved locally.
+You'll use the same keypair to access the EC2 bastion created by deploy-ec2.sh
 * VolumeName is the name assigned to your EFS volume. There is no need to change this
 * Region should match the region where your K8s cluster is deployed
 * If your AWS CLI already points to the account & region your Kubernetes cluster was created, you can go ahead and run the 
-command below. If you are using AWS CLI profiles, add a --profile argument to your `aws cloudformation deploy` statement
+command below. If you are using AWS CLI profiles, add a --profile argument to the `aws cloudformation deploy` statement
 in efs/deploy-ec2.sh
 
 Once all the parameters are set, in a terminal window, run 
@@ -115,9 +128,9 @@ Once all the parameters are set, in a terminal window, run
 ```
 
 Check the CloudFormation console for completion. Once the CFN stack is complete, SSH to the EC2 bastion instance using the keypair 
-you entered in the efs/deploy-ec2.sh above. Replace the public DNS of your EC2 bastion instance and the path to your keypair 
-file in the statement below. You can find the DNS name of your EC2 bastion in the AWS EC2 Console - look in the CloudFormation
-console for the instance created by the CloudFormation template:
+you entered in the efs/deploy-ec2.sh above. You'll use the .pem file in the SSH statement. Replace the public DNS of your 
+EC2 bastion instance and the path to your keypair file in the statement below. You can find the DNS name of your EC2 bastion 
+in the AWS EC2 Console - look in the CloudFormation console for the instance created by the CloudFormation template:
 
 ```bash
 ssh ec2-52-206-72-54.compute-1.amazonaws.com -i eks-c9-keypair.pem
@@ -226,8 +239,8 @@ Then, back on the EC2 instance:
 
 ```bash
 cd
-cd hyperledger-on-kubernetes
-vi gen-fabric.sh
+cd hyperledger-on-kubernetes/workshop-remote-peer
+vi gen-workshop-remote-peer.sh
 ```
 
 Look for the line starting with `EFSSERVER=`, and replace the URL with the one you copied from the EFS console. Using
@@ -302,20 +315,14 @@ cd
 cd hyperledger-on-kubernetes
 vi remote-peer/scripts/env-remote-peer.sh
 ```
-* You can choose any value for PEER_ORGS and PEER_DOMAINS, as long as it's one of the following. Select the SAME value
-  for PEER_ORGS and PEER_DOMAINS, do not select PEER_ORGS=org1 and PEER_DOMAINS=org2. Options are:
-    * PEER_ORGS=org1, PEER_DOMAINS=org1
-    * PEER_ORGS=org2, PEER_DOMAINS=org2
-* Edit the file `remote-peer/scripts/env-remote-peer.sh`. Update the following fields:
-    * Set PEER_ORGS to one of the organisations in the Fabric network. Example: PEER_ORGS="org1"
-    * Set PEER_DOMAINS to one of the domains in the Fabric network. Example: PEER_DOMAINS="org1"
-    * Set PEER_PREFIX to any name you choose. This will become the name of your peer on the network. 
-      Try to make this unique within the network - your alias would work. Example: PEER_PREFIX="michaelpeer"
+
+* Edit the file `remote-peer/scripts/env-remote-peer.sh`. Update PEER_PREFIX to any name you choose. This will become 
+the name of your peer on the network. Try to make this unique within the network - your alias would work. Example: PEER_PREFIX="michaelpeer"
 * Don't change anything else.
 
-TIP: You'll be using the peer prefix and organisation you set above in many places. It will make your life easier
-if you do a search/replace in this README, replacing all 'michaelpeer' with your prefix, and all 'org' with 
-the org you have selected. That way you can copy/paste the commands I provide below instead of having to edit them.
+TIP: You'll be using the peer prefix you set above in many places. It will make your life easier
+if you do a search/replace in this README, replacing all 'michaelpeer' with your prefix. That way you can copy/paste 
+the commands I provide below instead of having to edit them.
 
 ### Step 8: Register Fabric identities with the Fabric certificate authority
 Before we can start our Fabric peer we must register it with the Fabric certificate authority (CA). All participants in 
@@ -716,7 +723,8 @@ first runs locally, simulating the transaction against your local world state, t
 orderer. The orderer groups the transactions into blocks and distributes them to all peer nodes. All the peers
 then update their ledgers and world state with each transaction in the block.
 
-Since the transaction is sent to the orderer, you need to provide the orderer endpoint when invoking a transaction:
+Since the transaction is sent to the orderer, you need to provide the orderer endpoint when invoking a transaction. The 
+orderer DNS below is correct - it was updated by the facilitator prior to this workshop:
 
 ```bash
 export ORDERER_CONN_ARGS="-o a8a50caf493b511e8834f06b86f026a6-77ab14764e60b4a1.elb.us-west-2.amazonaws.com:7050"

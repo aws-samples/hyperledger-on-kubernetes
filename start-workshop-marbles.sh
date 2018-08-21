@@ -20,10 +20,10 @@ set +e
 function main {
     echo "Beginning setup of Marbles chaincode for the Fabric workshop ..."
     cd $HOME/$REPO
-    source util-prep.sh
+    source fabric-main/util-prep.sh
     source $SCRIPTS/env.sh
     cd $HOME/$REPO
-    source utilities.sh
+    source fabric-main/utilities.sh
     startTestMarblesWorkshop $HOME $REPO
     whatsRunning
     echo "Setup of Marbles chaincode for the Fabric workshop complete"

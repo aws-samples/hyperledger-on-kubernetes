@@ -15,23 +15,30 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-set +e
+REPO=hyperledger-on-kubernetes
+source $SCRIPTS/env.sh
+source $HOME/$REPO/fabric-main/utilities.sh
+source $HOME/$REPO/fabric-main/gen-fabric.sh
+K8SYAML=k8s
+EFSSERVER=fs-99a736d1.efs.us-east-1.amazonaws.com
+DATA=/opt/share
 
 function main {
-    echo "Stopping Marbles chaincode for the Fabric workshop ..."
+    log "Beginning creation of Hyperledger Fabric Kubernetes YAML files for workshop..."
     cd $HOME/$REPO
-    source fabric-main/util-prep.sh
-    source $SCRIPTS/env.sh
-    cd $HOME/$REPO
-    source fabric-main/utilities.sh
-    stopTestMarblesWorkshop $HOME $REPO
-    whatsRunning
-    echo "Stopping of Marbles chaincode for the Fabric workshop complete"
+    rm -rf $K8SYAML
+    mkdir -p $K8SYAML
+    genFabricOrgs
+    genNamespaces
+    genPVC
+    genRCA
+    genICA
+    genRegisterOrg
+    genRegisterPeers
+    genWorkshopRemotePeers
+    genFabricTestMarblesWorkshop
+    log "Creation of Hyperledger Fabric Kubernetes YAML files for workshop complete"
 }
 
-SDIR=$(dirname "$0")
-DATADIR=/opt/share/
-SCRIPTS=$DATADIR/rca-scripts
-REPO=hyperledger-on-kubernetes
 main
 
