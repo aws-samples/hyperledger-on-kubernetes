@@ -724,7 +724,7 @@ function startTestMarbles {
     local REPO=$2
     cd $HOME
     log "Starting Test Cases for Marbles chaincode in K8s"
-    kubectl apply -f $REPO/k8s/fabric-deployment-test-fabric-marbles.yaml
+    kubectl apply -f $REPO/k8s/fabric-deployment-test-fabric-marbles-workshop.yaml
     confirmDeployments
 }
 
