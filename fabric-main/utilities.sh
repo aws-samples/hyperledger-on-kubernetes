@@ -702,15 +702,28 @@ function stopRemotePeers {
 }
 
 
-function startTest {
+function startTestABAC {
     if [ $# -ne 2 ]; then
-        echo "Usage: startTest <home-dir> <repo-name>"
+        echo "Usage: startTestABAC <home-dir> <repo-name>"
         exit 1
     fi
     local HOME=$1
     local REPO=$2
     cd $HOME
-    log "Starting Test Cases in K8s"
+    log "Starting Test Cases for ABAC chaincode in K8s"
+    kubectl apply -f $REPO/k8s/fabric-deployment-test-fabric-abac.yaml
+    confirmDeployments
+}
+
+function startTestMarbles {
+    if [ $# -ne 2 ]; then
+        echo "Usage: startTestMarbles <home-dir> <repo-name>"
+        exit 1
+    fi
+    local HOME=$1
+    local REPO=$2
+    cd $HOME
+    log "Starting Test Cases for Marbles chaincode in K8s"
     kubectl apply -f $REPO/k8s/fabric-deployment-test-fabric-marbles.yaml
     confirmDeployments
 }
@@ -724,7 +737,7 @@ function stopTest {
     local REPO=$2
     cd $HOME
     log "Stopping Test Cases in K8s"
-    kubectl delete -f $REPO/k8s/fabric-deployment-test-fabric.yaml
+    kubectl delete -f $REPO/k8s/fabric-deployment-test-fabric-abac.yaml
     kubectl delete -f $REPO/k8s/fabric-deployment-test-fabric-marbles.yaml
     kubectl delete -f $REPO/k8s/fabric-deployment-test-fabric-marbles-workshop.yaml
     log "Confirm Test Case pod has stopped"
