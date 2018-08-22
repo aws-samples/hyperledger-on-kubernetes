@@ -15,9 +15,9 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-SDIR=$(dirname "$0")
-source $SDIR/gen-fabric-functions.sh
-EFSSERVER=fs-99a736d1.efs.us-east-1.amazonaws.com
+EFSSERVER=fs-33d9849a.efs.us-west-2.amazonaws.com
+REPO=hyperledger-on-kubernetes
+source $HOME/$REPO/fabric-main/gen-fabric-functions.sh
 DATA=/opt/share
 
 function main {
