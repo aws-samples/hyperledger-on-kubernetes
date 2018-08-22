@@ -340,6 +340,3 @@ function genLoadFabricMarbles {
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-deployment-load-fabric-marbles.yaml > ${K8SYAML}/fabric-deployment-load-fabric-marbles-$ORG.yaml
    done
 }
-
-main
-
