@@ -48,6 +48,7 @@ function main {
     startOrderer $HOME $REPO
     startPeers $HOME $REPO
     startTestABAC $HOME $REPO
+    sleep 60
     startTestMarbles $HOME $REPO
     whatsRunning
     echo "Setup of Hyperledger Fabric on Kubernetes complete"

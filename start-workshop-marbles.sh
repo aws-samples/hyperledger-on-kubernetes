@@ -24,7 +24,7 @@ function main {
     source $SCRIPTS/env.sh
     cd $HOME/$REPO
     source fabric-main/utilities.sh
-    startTestMarblesWorkshop $HOME $REPO
+    startTestMarbles $HOME $REPO
     whatsRunning
     echo "Setup of Marbles chaincode for the Fabric workshop complete"
 

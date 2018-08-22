@@ -222,7 +222,7 @@ function stopRegisterOrgs {
     for ORG in $ORGS; do
             kubectl delete -f $REPO/k8s/fabric-deployment-register-org-$ORG.yaml
     done
-    confirmDeploymentsStopped register-o
+    confirmDeploymentsStopped register-org
 }
 
 function stopRegisterOrderers {
@@ -237,7 +237,7 @@ function stopRegisterOrderers {
     for ORG in $ORDERER_ORGS; do
             kubectl delete -f $REPO/k8s/fabric-deployment-register-orderer-$ORG.yaml
     done
-    confirmDeploymentsStopped register-o
+    confirmDeploymentsStopped register-o-
 }
 
 function stopRegisterPeers {
@@ -251,7 +251,7 @@ function stopRegisterPeers {
     log "Stopping Registering Fabric Peers"
     cd $HOME
     kubectl delete -f $REPO/k8s/fabric-deployment-register-peer-$ORG.yaml
-    confirmDeploymentsStopped register-p $ORG
+    confirmDeploymentsStopped register-p- $ORG
 }
 
 function stopPeers {
@@ -742,19 +742,6 @@ function stopTest {
     kubectl delete -f $REPO/k8s/fabric-deployment-test-fabric-marbles-workshop.yaml
     log "Confirm Test Case pod has stopped"
     confirmDeploymentsStopped test-fabric
-}
-
-function startTestMarblesWorkshop {
-    if [ $# -ne 2 ]; then
-        echo "Usage: startTestMarblesWorkshop <home-dir> <repo-name>"
-        exit 1
-    fi
-    local HOME=$1
-    local REPO=$2
-    cd $HOME
-    log "Starting Test Cases for Marbles Workshop in K8s"
-    kubectl apply -f $REPO/k8s/fabric-deployment-test-fabric-marbles-workshop.yaml
-    confirmDeployments
 }
 
 function getAdminOrg {
