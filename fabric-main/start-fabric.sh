@@ -22,13 +22,13 @@ set -e
 
 function main {
     echo "Beginning setup of Hyperledger Fabric on Kubernetes ..."
-    cd $HOME/$REPO
+    cd $HOME/$REPO/fabric-main
     source util-prep.sh
     updateRepo $HOME $REPO
     makeDirs $DATADIR
     copyScripts $HOME $REPO $DATADIR
     source $SCRIPTS/env.sh
-    cd $HOME/$REPO
+    cd $HOME/$REPO/fabric-main
     source utilities.sh
     makeDirsForOrg $DATADIR
     genTemplates $HOME $REPO

@@ -61,16 +61,16 @@ wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/a
 wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws && chmod +x heptio-authenticator-aws && mv heptio-authenticator-aws ~/bin/
 ```
 
-9. Download `eksctl` from `eksctl.io`(actually it will download from GitHub)
+8. Download `eksctl` from `eksctl.io`(actually it will download from GitHub)
 
 ```
 curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 sudo mv /tmp/eksctl /usr/local/bin
 ```
 
-10. run `eksctl help`, you should be able to see the `help` messages
+9. run `eksctl help`, you should be able to see the `help` messages
 
-11. Create a keypair
+10. Create a keypair
 
 You will need a keypair in the same region as you create the EKS cluster. We default this to us-west-2, so create a
 keypair in us-west-2 and make sure you download the keypair to your Cloud9 environment. You can create the keypair in
@@ -82,9 +82,16 @@ would have configured this in Step 6 with `aws configure`, where you entered an 
 See [Using Key Pairs](https://docs.aws.amazon.com/cli/latest/userguide/cli-ec2-keypairs.html) in the AWS documentation
 for details on how to use the command line to create and download a keypair.
 
-Make sure you following the instructions to `chmod 400` your key.
+Your statement to create the keypair should look something like this:
 
-12. Create the EKS cluster. 
+```bash
+aws ec2 create-key-pair --key-name eks-c9-keypair --query 'KeyMaterial' --output text > eks-c9-keypair.pem
+chmod 400 eks-c9-keypair.pem
+```
+
+Make sure you follow the instructions to `chmod 400` your key.
+
+11. Create the EKS cluster. 
 
 If you are creating the cluster in us-east-1, you should pass in a list of availability zones:
 
@@ -137,7 +144,7 @@ $ eksctl create cluster --ssh-public-key eks-c9-keypair --name eks-fabric --regi
 2018-08-12T04:02:45Z [✔]  EKS cluster "eks-fabric" in "us-west-2" region is ready
 ```
 
-13. Check whether `kubectl` can access your Kubernetes cluster:
+12. Check whether `kubectl` can access your Kubernetes cluster:
 
 ```bash
 $ kubectl --kubeconfig=./kubeconfig.eks-fabric.yaml get nodes
@@ -153,7 +160,7 @@ Now your Amazon EKS cluster is ready!
 
 If you need to delete this clusrer, run `eksctl delete cluster —name=<CLUSTER_NAME>` to trigger the deletion of the stack.
 
-14. Install EFS utils on each Kubernetes worker node 
+13. Install EFS utils on each Kubernetes worker node 
 
 EFS utils is required on each Kubernetes worker node to enable the worker to mount the EFS used to store the Hyperledger 
 Fabric CA certs/keys.
@@ -191,9 +198,9 @@ sudo yum install -y amazon-efs-utils
 Type `exit` to exit the EC2 instance. Install the EFS utils on all your EKS worker nodes. If you are following the 
 instructions here you should have 2 nodes.
 
-15. EKS is now ready for use with Hyperledger Fabric. Navigate back to the section you are following:
+14. EKS is now ready for use with Hyperledger Fabric. Navigate back to the section you are following:
 
-* [Part 1:](fabric-main/README.md) Create the main Fabric orderer network
-* [Part 2:](remote-peer/README.md) Add a remote peer, running in a different AWS account/region, sharing the certificate authority (CA) of the main Fabric orderer network
-* [Part 3:](remote-org/README.md) Add a new organisation, with its own CA, and its own peers running in a different AWS account/region
-* [Part 4:](workshop-remote-peer/README.md) Run the Fabric workshop, where participants add their own remote peers, running in their own AWS accounts
+* [Part 1:](../fabric-main/README.md) Create the main Fabric orderer network
+* [Part 2:](../remote-peer/README.md) Add a remote peer, running in a different AWS account/region, sharing the certificate authority (CA) of the main Fabric orderer network
+* [Part 3:](../remote-org/README.md) Add a new organisation, with its own CA, and its own peers running in a different AWS account/region
+* [Part 4:](../workshop-remote-peer/README.md) Run the Fabric workshop, where participants add their own remote peers, running in their own AWS accounts

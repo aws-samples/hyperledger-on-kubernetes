@@ -21,6 +21,11 @@ You will need an EC2 instance, which you will SSH into in order to start and tes
 also need an EFS volume for storing common scripts and public keys. The EFS volume must be accessible from
 the Kubernetes cluster. Follow the steps below, which will create the EFS and make it available to the K8s cluster.
 
+```bash
+cd
+git clone https://github.com/aws-samples/hyperledger-on-kubernetes
+```
+
 Check the parameters in efs/deploy-ec2.sh and update them as follows:
 * The VPC and Subnet params should be those of your existing K8s cluster worker nodes
 * Keyname is an AWS EC2 keypair you own, that you have previously saved to your Mac. You'll need this to access the EC2 
@@ -94,6 +99,12 @@ EFSSERVER=fs-12a33ebb.efs.us-west-2.amazonaws.com
 On the EC2 instance created in Step 2 above, in the newly cloned hyperledger-on-kubernetes directory, update the script 
 'scripts/env.sh' as follows:
  
+```bash
+cd
+cd hyperledger-on-kubernetes/scripts
+vi env.sh
+```
+
 * Set FABRIC_NETWORK_TYPE  to either "POC" or "PROD", depending on whether you want to build a POC or a PROD network.
     * A POC network, consisting of an orderer organisation and two peer organisations, running in a single Kubernetes cluster
       in a single AWS account. This is suitable for POC's, or for testing/learning
@@ -111,6 +122,8 @@ and have one OSN that exposes an external IP for connection from the remote peer
 On the EC2 instance created in Step 2 above:
 
 ```bash
+cd
+cd hyperledger-on-kubernetes
 mkdir /opt/share/rca-scripts
 cp scripts/* /opt/share/rca-scripts
 ```
@@ -118,14 +131,17 @@ cp scripts/* /opt/share/rca-scripts
 then, in the home directory:
 
 ```bash
-cd hyperledger-on-kubernetes
+cd
+cd hyperledger-on-kubernetes/fabric-main
 ./gen-fabric.sh
 ```
+
 ### Step 8: Start the fabric network
 On the EC2 instance created in Step 2 above, in the home directory:
 
 ```bash
-cd hyperledger-on-kubernetes
+cd
+cd hyperledger-on-kubernetes/fabric-main
 ./start-fabric.sh
 ```
 
