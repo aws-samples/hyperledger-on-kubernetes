@@ -61,7 +61,7 @@ function getCACerts {
     fi
 }
 
-set -e
+set +e
 
 SDIR=$(dirname "$0")
 source $SDIR/env.sh
