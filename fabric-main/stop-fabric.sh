@@ -34,9 +34,9 @@ function main {
         stopPVC $HOME $REPO $DELETE_ORG
         getDomain $DELETE_ORG
         removeNamespaces $HOME $REPO $DOMAIN
-        kubectl delete pv --all
     done
     removeDirs $DATA
+    kubectl delete pv --all
     whatsRunning
     log "Hyperledger Fabric on Kubernetes stopped"
 }
