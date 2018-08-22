@@ -29,12 +29,10 @@ Follow the steps below to create your EKS cluster.
 In the Cloud9 console, click 'Create Environment'
 2. Provide a name for your environment, e.g. eks-c9, and click **Next Step**
 3. Leave everything as default and click **Next Step**
-4. Click **Create environment**
-
-(It would typically take 30-60s to create your Cloud9 IDE)
+4. Click **Create environment**. It would typically take 30-60s to create your Cloud9 IDE
 5. We need to turn off the Cloud9 temporarily provided IAM credentials. 
 
-![0-c9-0](../images/toggle-credentials.png)
+![toggle-credentials](../images/toggle-credentials.png "Toggle Credentials")
 
 6. In the Cloud9 terminal, on the command line, you'll execute `aws configure` to configure credentials. The credentials 
 you enter here are the AWS access key and secret key that belong to the AWS account you will use to create your EKS cluster.
@@ -52,7 +50,7 @@ this includes us-west-2 and us-east-1.
 After running `aws configure`, run `aws sts get-caller-identity` and check that the output matches the account
 you'll use to create your EKS cluster, and the access key you configured in `aws configure`.
 
-![0-c9-0](../images/sts.png)
+![sts](../images/sts.png "STS")
 
 7. Download the `kubectl` and `heptio-authenticator-aws` binaries and save to `~/bin`. Check the Amazon EKS User Guide 
 for [Getting Started](https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html) for further information.
