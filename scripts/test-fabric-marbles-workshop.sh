@@ -86,7 +86,7 @@ function main {
    instantiateChaincode
 
    # Query chaincode
-   switchToUserIdentity
+   switchToMarbleIdentity
    sleep 5
    chaincodeInit
    sleep 5
@@ -94,24 +94,24 @@ function main {
 
    # Invoke chaincode
    initPeerVars ${PORGS[0]} 1
-   switchToUserIdentity
+   switchToMarbleIdentity
    transferMarble
 
    # Query chaincode
    sleep 10
    initPeerVars ${PORGS[0]} 1
-   switchToUserIdentity
+   switchToMarbleIdentity
    chaincodeQuery
 
    # Invoke chaincode
    initPeerVars ${PORGS[0]} 1
-   switchToUserIdentity
+   switchToMarbleIdentity
    transferMarbleAgain
 
    # Query chaincode
    sleep 10
    initPeerVars ${PORGS[0]} 1
-   switchToUserIdentity
+   switchToMarbleIdentity
    chaincodeQuery
 
    log "Congratulations! $CHAINCODE_NAME chaincode tests ran successfully."

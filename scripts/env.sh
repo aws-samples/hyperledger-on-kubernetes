@@ -335,6 +335,28 @@ function switchToUserIdentity {
    fi
 }
 
+# Switch to the Marble app user identity.  Enroll if not previously enrolled.
+function switchToMarbleIdentity {
+   local USER_NAME='marbles'
+   local USER_PASS=${USER_NAME}pw
+   log "Switching to user '$USER_NAME'"
+   export FABRIC_CA_CLIENT_HOME=/etc/hyperledger/fabric/orgs/$ORG/marblesuser
+   export CORE_PEER_MSPCONFIGPATH=$FABRIC_CA_CLIENT_HOME/msp
+   if [ ! -d $FABRIC_CA_CLIENT_HOME ]; then
+      dowait "$CA_NAME to start" 60 $CA_LOGFILE $CA_CHAINFILE
+      log "Enrolling user '$USER_NAME' for organization $ORG with home directory $FABRIC_CA_CLIENT_HOME ..."
+      export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
+      env
+      fabric-ca-client enroll -d -u https://$USER_NAME:$USER_PASS@$CA_HOST:7054
+      # Set up admincerts directory if required
+      if [ $ADMINCERTS ]; then
+         ACDIR=$CORE_PEER_MSPCONFIGPATH/admincerts
+         mkdir -p $ACDIR
+         cp $ORG_ADMIN_HOME/msp/signcerts/* $ACDIR
+      fi
+   fi
+}
+
 # Revokes the fabric user
 function revokeFabricUserAndGenerateCRL {
    switchToAdminIdentity
