@@ -283,7 +283,7 @@ function stopKafka {
     log "Checking whether to stop Kafa. ORDERER_TYPE is $ORDERER_TYPE"
     if [[ "$ORDERER_TYPE" == "kafka" ]]; then
         log "Stopping Kafa"
-        $REPO/stop-kafka.sh
+        $REPO/fabric-main/stop-kafka.sh
     fi
 }
 
@@ -484,7 +484,7 @@ function startKafka {
     log "Checking whether to start Kafa. ORDERER_TYPE is $ORDERER_TYPE"
     if [[ "$ORDERER_TYPE" == "kafka" ]]; then
         log "Starting Kafa"
-        ./$REPO/start-kafka.sh
+        ./$REPO/fabric-main/start-kafka.sh
     else
         #update the configtx.yaml with a blank Kafka broker external hostname
         sed -e "s/%EXTERNALBROKER%/ /g" $SCRIPTS/gen-channel-artifacts-template.sh > $SCRIPTS/gen-channel-artifacts.sh
