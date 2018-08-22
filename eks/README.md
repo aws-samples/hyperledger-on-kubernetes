@@ -15,60 +15,30 @@ Instructions on how to do this are in the section 'Install EFS utils on each Kub
 
 This README will focus on creating an EKS cluster using eksctl. 
 
-## Potential Issue
-
-If you see the message below when running `eksctl`, you'll need to pass the list of availability zones to eksctl, as 
-shown below. I have only seen this issue when creating an EKS cluster in us-east-1.
-
-```bash
-2018-08-14T02:44:28Z [✖]  unable to create cluster control plane: UnsupportedAvailabilityZoneException: Cannot create cluster 'eks-fabric' because us-east-1e, the targeted availability zone, does not currently have sufficient capacity to support the cluster. Retry and choose from these availability zones: us-east-1a, us-east-1b, us-east-1d
-        status code: 400, request id: f69224d4-9f6b-11e8-a5af-3d2857a10e45
-```
-
-Fix this by specifying the AZs you want to use. You'll need to delete the cluster first:
-
-```bash
-eksctl delete cluster --name eks-fabric
-```
-
-Then recreate the cluster:
-
-```bash
-eksctl create cluster --ssh-public-key <YOUR AWS KEYPAIR> --name eks-fabric --region us-east-1 --kubeconfig=./kubeconfig.eks-fabric.yaml --zones=us-east-1a,us-east-1b,us-east-1d
-```
-
 ## Creating an EKS cluster using Cloud9 and eksctl
 
 `eksctl` is a CLI for Amazon EKS that helps you easily create an Amazon EKS cluster!
 
 eksctl website:  https://eksctl.io/
 
+Follow the steps below to create your EKS cluster.
 
 ## Steps
 
-1. Spin up your [Cloud9 IDE](https://us-west-2.console.aws.amazon.com/cloud9/home?region=us-west-2) from the AWS console.
-
-![0-c9-0](../images/00-c9-01.png)
-
-
-2. Create and name your environment
-
-![0-c9-0](../images/00-c9-02.png)
-
+1. Spin up a [Cloud9 IDE](https://us-west-2.console.aws.amazon.com/cloud9/home?region=us-west-2) from the AWS console.
+In the Cloud9 console, click 'Create Environment'
+2. Provide a name for your environment, e.g. eks-c9, and click **Next Step**
 3. Leave everything as default and click **Next Step**
 4. Click **Create environment**
 
 (It would typically take 30-60s to create your Cloud9 IDE)
-
-![0-c9-0](../images/00-c9-03.png)
-
 5. We need to turn off the Cloud9 temporarily provided IAM credentials. 
 
-![0-c9-0](../images/00-c9-04.png)
+![0-c9-0](../images/toggle-credentials.png)
 
-6. You'll execute `aws configure` to configure credentials. The credentials you enter here are the AWS access key 
-and secret key that belong to the AWS account you will use to create your EKS cluster, and to run your Cloud9 IDE. There 
-are two ways to obtain the AWS access key and secret key:
+6. In the Cloud9 terminal, on the command line, you'll execute `aws configure` to configure credentials. The credentials 
+you enter here are the AWS access key and secret key that belong to the AWS account you will use to create your EKS cluster.
+This should be the same account where you've just created your Cloud9 IDE. There are two ways to obtain the AWS access key and secret key:
 
 * if you use the AWS CLI, on your laptop you should have an `.aws` directory. On Mac, it's under your home directory, 
 i.e. `~/.aws`. This contains a credentials and config file. The credentials file contains your AWS keys. You can copy the 
@@ -76,32 +46,37 @@ AWS access key and secret key from here
 * otherwise, log in to the AWS IAM console, find your user and click the `Security Credentials` tab. You can create a new access key here
 and copy the AWS access key and secret key into the `aws configure` command
 
-![0-c9-0](../images/00-c9-06.png)
+When running `aws configure` you'll be asked to input a region. Select a region that supports EKS. At the time of writing,
+this includes us-west-2 and us-east-1.
 
-7. Download the `kubectl` and `heptio-authenticator-aws` binaries and save to `~/bin`. Check the Amazon EKS User Guide for [Getting Started](https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html). Download the Linux binary for `kubectl` and `heptio-authenticator-aws` one by one.
+After running `aws configure`, run `aws sts get-caller-identity` and check that the output matches the account
+you'll use to create your EKS cluster, and the access key you configured in `aws configure`.
 
-   ```
-   mkdir ~/bin
-   wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/kubectl && chmod +x kubectl && mv kubectl ~/bin/
-   wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws && chmod +x heptio-authenticator-aws && mv heptio-authenticator-aws ~/bin/
-   ```
+![0-c9-0](../images/sts.png)
 
-9. Download the `eksctl` from `eksctl.io`(actually it will download from GitHub)
+7. Download the `kubectl` and `heptio-authenticator-aws` binaries and save to `~/bin`. Check the Amazon EKS User Guide 
+for [Getting Started](https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html) for further information.
 
-   ```
-   curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-   sudo mv /tmp/eksctl /usr/local/bin
-   ```
+```
+mkdir ~/bin
+wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/kubectl && chmod +x kubectl && mv kubectl ~/bin/
+wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws && chmod +x heptio-authenticator-aws && mv heptio-authenticator-aws ~/bin/
+```
+
+9. Download `eksctl` from `eksctl.io`(actually it will download from GitHub)
+
+```
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+```
 
 10. run `eksctl help`, you should be able to see the `help` messages
-
-![0-c9-0](../images/00-c9-07.png)
-
 
 11. Create a keypair
 
 You will need a keypair in the same region as you create the EKS cluster. We default this to us-west-2, so create a
-keypair in us-west-2 and make sure you download the keypair to your Cloud9 environment.
+keypair in us-west-2 and make sure you download the keypair to your Cloud9 environment. You can create the keypair in
+any region that supports EKS - just replace the `--region` flag in the `eksctl` statement below.
 
 Before creating the keypair from the command line, check that your AWS CLI is pointing to the right account and region. You
 would have configured this in Step 6 with `aws configure`, where you entered an AWS key (which belongs to your AWS account), and a region.
@@ -112,6 +87,21 @@ for details on how to use the command line to create and download a keypair.
 Make sure you following the instructions to `chmod 400` your key.
 
 12. Create the EKS cluster. 
+
+If you are creating the cluster in us-east-1, you should pass in a list of availability zones:
+
+```bash
+eksctl create cluster --ssh-public-key <YOUR AWS KEYPAIR> --name eks-fabric --region us-east-1 --kubeconfig=./kubeconfig.eks-fabric.yaml --zones=us-east-1a,us-east-1b,us-east-1d
+```
+
+This prevents the issue below. I have only seen this issue when creating an EKS cluster in us-east-1.
+
+```bash
+2018-08-14T02:44:28Z [✖]  unable to create cluster control plane: UnsupportedAvailabilityZoneException: Cannot create cluster 'eks-fabric' because us-east-1e, the targeted availability zone, does not currently have sufficient capacity to support the cluster. Retry and choose from these availability zones: us-east-1a, us-east-1b, us-east-1d
+        status code: 400, request id: f69224d4-9f6b-11e8-a5af-3d2857a10e45
+```
+
+Otherwise, if creating your EKS cluster in us-west-2 you can use this statement:
 
 ```bash
 eksctl create cluster --ssh-public-key <YOUR AWS KEYPAIR> --name eks-fabric --region us-west-2 --kubeconfig=./kubeconfig.eks-fabric.yaml
