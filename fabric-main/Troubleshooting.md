@@ -57,16 +57,16 @@ export CORE_PEER_ID=peer1-org1
 export CORE_PEER_ADDRESS=peer1-org1.org1:7051
 export CORE_PEER_LOCALMSPID=org1MSP
 
-export CORE_PEER_TLS_CLIENTCERT_FILE=/data/tls/peer1-org3-client.crt
-export CORE_PEER_TLS_CLIENTKEY_FILE=/data/tls/peer1-org3-client.key
+export CORE_PEER_TLS_CLIENTCERT_FILE=/data/tls/peer2-org1-client.crt
+export CORE_PEER_TLS_CLIENTKEY_FILE=/data/tls/peer2-org1-client.key
 export CORE_PEER_TLS_ENABLED=true
 export CORE_PEER_TLS_CLIENTAUTHREQUIRED=true
-export CORE_PEER_TLS_CLIENTROOTCAS_FILES=/data/org3-ca-chain.pem
-export CORE_PEER_TLS_ROOTCERT_FILE=/data/org3-ca-chain.pem
+export CORE_PEER_TLS_CLIENTROOTCAS_FILES=/data/org1-ca-chain.pem
+export CORE_PEER_TLS_ROOTCERT_FILE=/data/org1-ca-chain.pem
 export CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-export CORE_PEER_ID=peer1-org3
-export CORE_PEER_ADDRESS=peer1-org3.org3:7051
-export CORE_PEER_LOCALMSPID=org3MSP
+export CORE_PEER_ID=peer2-org1
+export CORE_PEER_ADDRESS=peer2-org1.org1:7051
+export CORE_PEER_LOCALMSPID=org1MSP
 
 export CORE_PEER_TLS_CLIENTCERT_FILE=/data/tls/michaelpeer1-org1-client.crt
 export CORE_PEER_TLS_CLIENTKEY_FILE=/data/tls/michaelpeer1-org1-client.key

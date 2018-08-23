@@ -135,8 +135,13 @@ function createChannel {
    initPeerVars ${PORGS[0]} 1
    switchToAdminIdentity
    log "Creating channel '$CHANNEL_NAME' with file '$CHANNEL_TX_FILE' on $ORDERER_HOST using connection '$ORDERER_CONN_ARGS'"
-   peer channel create --logging-level=DEBUG -c $CHANNEL_NAME -f $CHANNEL_TX_FILE $ORDERER_CONN_ARGS
-   cp ${CHANNEL_NAME}.block /$DATA
+   local CHANNELLIST=`peer channel list | grep -c ${CHANNEL_NAME}`
+   if [ $CHANNELLIST -gt 0 ]; then
+       log "Channel '$CHANNEL_NAME' already exists - creation request ignored"
+   else
+       peer channel create --logging-level=DEBUG -c $CHANNEL_NAME -f $CHANNEL_TX_FILE $ORDERER_CONN_ARGS
+       cp ${CHANNEL_NAME}.block /$DATA
+   fi
 }
 
 # Enroll as a fabric admin and join the channel
@@ -146,6 +151,11 @@ function joinChannel {
    set +e
    local COUNT=1
    MAX_RETRY=10
+   local CHANNELLIST=`peer channel list | grep -c ${CHANNEL_NAME}`
+   if [ $CHANNELLIST -gt 0 ]; then
+       log "Peer $PEER_NAME has already joined channel '$CHANNEL_NAME' - channel join request ignored"
+       return
+   fi
    while true; do
       log "Peer $PEER_NAME is attempting to join channel '$CHANNEL_NAME' (attempt #${COUNT}) ..."
       peer channel join -b $CHANNEL_NAME.block
