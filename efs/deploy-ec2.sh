@@ -21,7 +21,7 @@ vpcid=vpc-8f50aff7
 subneta=subnet-e6a7ec9f
 subnetb=subnet-29760262
 subnetc=subnet-6b062331
-keypairname=eksctl
+keypairname=eks-c9-keypair
 volumename=dltefs
 mountpoint=opt/share
 

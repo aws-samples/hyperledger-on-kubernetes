@@ -31,4 +31,8 @@ spec:
      protocol: TCP
      port: 7051
      targetPort: 7051
+   - name: endpoint-chaincode
+     protocol: TCP
+     port: 7052
+     targetPort: 7052
  type: LoadBalancer

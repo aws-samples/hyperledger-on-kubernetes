@@ -1,4 +1,4 @@
-# Hyperledger Fabric on Kubernetes - adding a new remote organisation
+# Hyperledger Fabric on Kubernetes - Part 3: Create a new remote organisation with its own CA
 
 Configure and start a new Hyperledger Fabric organisation in one account, and join it to an existing Fabric network 
 running in another account. Then add a peer to the new organisation and join an existing channel.
@@ -7,15 +7,14 @@ This differs from other examples provided on the Internet, for example, http://h
 and https://www.ibm.com/developerworks/cloud/library/cl-add-an-organization-to-your-hyperledger-fabric-blockchain/index.html.
 These examples run a Fabric network on a single host, with all peers co-located, and the ability to share and use certs/keys
 belonging to other organisations. Proper Fabric networks should be distributed, with members of the network potentially
-being located in different regions and running their peers on different platforms or on-premise.
+being located in different regions and running their peers on different platforms or on-premise. Each Fabric organisation
+should maintain its own Certificate Authority (CA) and only share the public keys used to identify the organisation
+and its members.
 
 The README below will focus on integrating a new organisation into an existing Fabric network, where the new org could
 be running its peers anywhere.
 
-### Create a Kubernetes cluster in the new account
-Repeat steps 1-7 under Getting Started in the main README in a different AWS account. You can also use a different region.
-
-### What is the process for creating a new organisation?
+## What is the process for creating a new organisation?
 The process for adding a new, remote organisation to an existing network is as follows:
 
 * In an AWS account and/or region different from the main Fabric network, use fabric-CA to generate the certs and keys 
@@ -25,6 +24,17 @@ for the new organisation
 with the new config. This will enable the new org to join an existing channel
 * Copy the genesis block of the channel to the new org. Peers in the new org will use this to join the channel
 * In the new org, start the peers and join the channel
+
+## Getting Started
+
+### Step 1: Create a Kubernetes cluster
+You need an EKS cluster to start. The EKS cluster should be in a different account to the main EKS cluster you created in
+Part 1, and could also be in a different region. 
+
+The easiest way to do this is to create an EKS cluster using the eksctl tool. In the same 
+VPC as EKS you'll also need an EFS drive (for the Fabric cryptographic material) and an EC2 bastion host, which you'll
+use to create and manage the Fabric network. Open the [EKS Readme](../eks/README.md) in this repo and follow the instructions. 
+Once you are complete come back to this README.
 
 ### Pre-requisites
 * SSH into the EC2 instance you created in the new AWS account

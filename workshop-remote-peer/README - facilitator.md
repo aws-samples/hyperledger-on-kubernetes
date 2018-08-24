@@ -1,27 +1,20 @@
-# TODO
-
-* Improve the section on creating the Kubernetes cluster, especially the section on how to use the Heptio authenticator
-and configure this for use on the bastion host
-
-# Hyperledger Fabric on Kubernetes
+# Hyperledger Fabric on Kubernetes Workshop
 
 ## Facilitator pre-requisites
 * In your own AWS account, you should be running a Kubernetes cluster with a Fabric network. You can start this network
-by running ./start-fabric.sh. See the main README for details
-* Before running ./start-fabric.sh, its advisable to edit ./start-fabric.sh and comment out the line 'startTest $HOME $REPO'.
-This will run test cases. We want to run our own test case, which also installs the Marbles chaincode used by the workshop
-* After ./start-fabric.sh completes and your Fabric network is running, install the chaincode and execute the test cases, and
-copy the crypto material to S3. Here are the steps to do this: 
-    * The Marbles chaincode used in the workshop is the version provided with the marbles app: https://github.com/IBM-Blockchain/marbles. Not the 
-    version provided by fabric-samples (https://github.com/hyperledger/fabric-samples/blob/release-1.2/chaincode/marbles02/go/marbles_chaincode.go).
-    To deploy this on the main Fabric cluster in the facilitators account, run the script `./start-workshop-marbles.sh`. This
-    will instantiate the correct version of the marbles chaincode on the channel and run a short test against it.
-    * Check the logs using 'kubectl logs <etc>' to confirm that the chaincode was installed, instantiated, and correctly invoked.
-    * The script `./start-workshop-marbles.sh` will also copy all the keys and certs from the Fabric network you have just created
+by following the steps here: [Part 1:](../fabric-main/README.md) 
+* After completing Part 1 your Fabric network should be running and the Marbles chaincode should have been installed,
+instantiated and tested. Now you'll need to copy the crypto material to S3. Here are the steps to do this: 
+    * SSH into your EC2 bastion
+    * In the repo directory, in the workshop-remote-peer sub-directory, edit the script `./facilitator/copy-crypto-to-S3.sh` 
+    and update the following variables:
+        * region - the region where you have installed EKS
+        * S3BucketName - a unique bucket name that will be created in your account, with public access to the crypto material
+    * The script `./facilitator/copy-crypto-to-S3.sh` will copy all the keys and certs from the Fabric network you created in Part 1
     and store these in S3. This will allow them to be downloaded by the workshop participants who are going to connect to your network. 
     Note that this will only work if you have the AWS CLI configured on your EC2 bastion (which you would have if you are using EKS).
-    If this script indicates it's unable to copy the 'tar', you can do it manually following the steps in `./start-workshop-marbles.sh`
-* Orderer connection URL must be obtained and made available to all participants. I suggest you get the Orderer endpoint,
+    If this script indicates it's unable to copy the 'tar', you can do it manually following the steps in `./facilitator/copy-crypto-to-S3.sh`
+* The Orderer connection URL must be obtained and made available to all participants. I suggest you get the Orderer endpoint,
 as exposed by NLB, and then update the README.md in this directory (the README used by the workshop participants) so that
-each place the orderer endpoint is used it points to the correct DNS. You can use `kubectl get svc -n org0` to view the
+each place the orderer endpoint is used it points to the correct DNS. You can use `kubectl get svc -n org0` to obtain the
 orderer endpoint, and `kubectl describe` to see the details of a specific service.

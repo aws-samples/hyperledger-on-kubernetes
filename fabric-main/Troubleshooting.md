@@ -486,3 +486,19 @@ I used openssl to compare the identifiers in the various certs in the MSP direct
  1027  sudo openssl x509 -in /opt/share/rca-data/orgs/org7/msp/tlscacerts/ica-org7-org7-7054.pem -noout -text | grep -A1 "Subject Key Identifier"
  1028  sudo openssl x509 -in /opt/share/rca-data/orgs/org7/msp/intermediatecerts/ica-org7-org7-7054.pem -noout -text| grep -A1 "Subject Key Identifier"
  1029  sudo openssl x509 -in /opt/share/rca-data/orgs/org7/msp/cacerts/ica-org7-org7-7054.pem -noout -text | grep -A1 "Subject Key Identifier"
+
+### Security group - NLB port disappeared from security group
+I had a strange problem whereby Kubernetes created an NLB, which automatically opens a port in the default node group
+security group. There were 2 EC2 worker nodes, both of which were added as targets, and one of these became healthy,
+since there was only 1 peer1-org1 running. The test case ran, and some steps passed, with the rest failing.
+
+On inspecting the security group it seemed that the port number has changed, and an unknown port was now open,
+and the NodePort for my peer was no longer in the security group. After a couple of minutes both instances became
+unhealthy. 
+
+I need to rerun fabric-main/README - the whole thing from scratch - and see if the issue resurfaces.
+
+In addition - the test cases will fail if running a PROD network as the NLB takes about 5 minutes to mark the
+EC2 instances as healthy. Until the NLB has healthy instances it will not route any traffic. So we will need
+to wait until the NLB shows healthy instances. Suggest I put a wait time in the script - if PROD - and somehow
+query the NLB status until it's healthy.

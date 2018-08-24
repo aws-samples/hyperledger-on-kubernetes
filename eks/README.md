@@ -1,5 +1,10 @@
 # Creating an EKS cluster
 
+This README helps you create the platform for managing and running Hyperledger Fabric. The platform consists of an
+EKS cluster, an EFS drive (for the Fabric cryptographic material) and an EC2 bastion host. The EKS cluster is created
+first. The EC2 bastion is then created in the same VPC as EKS, and EFS is mounted into the EKS subnets. The EFS can
+be accessed from the EKS cluster as well as from the EC2 bastion.
+
 You have a number of options when creating the Kubernetes cluster in which you'll deploy Hyperledger Fabric:
  
 * The easiest option is to use eksctl to create an AWS EKS (Elastic Container Service for Kubernetes) cluster. Note that
@@ -24,6 +29,11 @@ eksctl website:  https://eksctl.io/
 Follow the steps below to create your EKS cluster.
 
 ## Steps
+
+### Step 1: Create a Kubernetes cluster
+You need an EKS cluster to start. The easiest way to do this is to create an EKS cluster using the eksctl tool. Open
+the [EKS Readme](../eks/README.md) in this repo and follow the instructions. Once you are complete come back to this README.
+
 
 1. Spin up a [Cloud9 IDE](https://us-west-2.console.aws.amazon.com/cloud9/home?region=us-west-2) from the AWS console.
 In the Cloud9 console, click 'Create Environment'
@@ -153,11 +163,6 @@ ip-192-168-171-30.us-west-2.compute.internal   Ready     <none>    5m        v1.
 ip-192-168-214-46.us-west-2.compute.internal   Ready     <none>    5m        v1.10.3
 ```
 
-Once the cluster is created, follow the instructions in the section 'Install EFS utils on each Kubernetes worker node' below.
-
-
-Now your Amazon EKS cluster is ready! 
-
 If you need to delete this clusrer, run `eksctl delete cluster —name=<CLUSTER_NAME>` to trigger the deletion of the stack.
 
 13. Install EFS utils on each Kubernetes worker node 
@@ -198,7 +203,200 @@ sudo yum install -y amazon-efs-utils
 Type `exit` to exit the EC2 instance. Install the EFS utils on all your EKS worker nodes. If you are following the 
 instructions here you should have 2 nodes.
 
-14. EKS is now ready for use with Hyperledger Fabric. Navigate back to the section you are following:
+14. EKS is now ready, but you'll need to complete all the steps below before you can use EKS to deploy Hyperledger Fabric. 
+
+### Step 2: Create an EC2 instance and EFS 
+You're going to interact with Fabric and the Kubernetes cluster from a bastion host that mounts an EFS drive. EFS is 
+required to store the crypto material used by Fabric, and you'll need to copy the appropriate certs/keys to/from the EFS drive.
+The EFS volume must be accessible from both the EC2 bastion and the worker nodes in the Kubernetes cluster. 
+
+Follow the steps below, which will create the EFS and make it available to the K8s cluster.
+
+On your laptop or Cloud9 instance, clone this repo into any directory you choose. After Step 2 you can delete the repo again. You only need 
+it for creating the EC2 bastion and the EFS drive:
+
+```bash
+git clone https://github.com/aws-samples/hyperledger-on-kubernetes
+cd hyperledger-on-kubernetes
+```
+
+For the next step you'll need the VPC ID and Subnets of your EKS cluster. You can obtain these from the AWS VPC console
+(look for the VPC with a name based on the name of your EKS cluster), or by running the AWS CLI command below, 
+replacing the EKS stack name with your own. There should be three subnets
+
+```bash
+aws cloudformation describe-stacks --stack-name EKS-eks-fabric-VPC --query 'Stacks[0].Outputs[*].OutputValue' --output text  
+```
+
+In the repo directory:
+
+```bash
+vi efs/deploy-ec2.sh
+```
+
+In the repo directory, check the parameters in `efs/deploy-ec2.sh` and update them as follows:
+* The VPC and Subnet should be those of your existing K8s cluster worker nodes, which you obtained above. There is no
+need to map subnetA in 'efs/deploy-ec2.sh' specifically to subnet-A in AWS, as long as you map all three subnets. I.e.
+if you map subnetB to the real subnetC it won't cause any issues.
+* Keyname is the AWS EC2 keypair you used for your EKS cluster. It is NOT the name of the .pem file you saved locally.
+You'll use the same keypair to access the EC2 bastion created by deploy-ec2.sh
+* VolumeName is the name assigned to your EFS volume. There is no need to change this
+* Region should match the region where your K8s cluster is deployed
+* If your AWS CLI already points to the account & region your Kubernetes cluster was created, you can go ahead and run the 
+command below. If you are using AWS CLI profiles, add a --profile argument to the `aws cloudformation deploy` statement
+in efs/deploy-ec2.sh
+
+Once all the parameters are set, in a terminal window, run 
+
+```bash
+./efs/deploy-ec2.sh 
+```
+
+Check the CloudFormation console for completion. Once the CFN stack is complete, SSH to the EC2 bastion instance using the keypair 
+you entered in the efs/deploy-ec2.sh above. You'll use the .pem file in the SSH statement. Replace the public DNS of your 
+EC2 bastion instance and the path to your keypair file in the statement below. You can find the DNS name of your EC2 bastion 
+in the AWS EC2 Console - look in the CloudFormation console for the instance created by the CloudFormation template:
+
+```bash
+cd
+cd environment
+ssh ec2-52-206-72-54.compute-1.amazonaws.com -i eks-c9-keypair.pem
+```
+
+Exit the SSH session
+
+```bash
+exit
+```
+
+### Step 3: Prepare the EC2 instance for use
+The EC2 instance you created in Step 2 should already have kubectl and the AWS CLI installed. However, kubectl will have no
+context and will not be pointing to a kubernetes cluster, and AWS CLI will have no credentials. We need to point kubectl to 
+the K8s cluster we created in Step 1, and we need to provide credentials for AWS CLI.
+
+To provide AWS CLI credentials, we'll copy them either from our Mac or Cloud9 - i.e. whichever we used to create the EKS cluster.
+
+We'll do the same for the kube config file, i.e. copy the contents of the kube config file from 
+your Mac or Cloud9 instance. If you followed the default steps in Step 1, you will have a kube config file called
+./kubeconfig.eks-fabric.yaml, in the same directory you were in when you created the EKS cluster. We want to copy this
+file to the EC2 bastion instance.
+
+WARNING: I use 'scp' as I had a problem with copy/paste on Cloud9. The files we are copying contain keys; these long strings are wrapped
+across multiple lines. In Cloud9, when I pasted the file contents, LF characters were added to the wrapped strings, turning
+them into separate strings per line. To fix this I resorted to using 'scp' to copy the files, rather than copy/paste. Copy/paste
+worked fine when copying the files from the Mac.
+
+You should be on your Mac or your Cloud9 instance when executing the scp commands below. Navigate to the directory you were 
+in when you created the EKS cluster.
+
+To copy the kubeconfig generated by eksctl, use scp, passing in the .pem file of the keypair you created in Step 1. Replace
+the DNS name below with the DNS of the EC2 instance you created in Step 2.
+
+```bash
+cd
+cd environment
+scp -i eks-c9-keypair.pem  ./kubeconfig.eks-fabric.yaml  ec2-user@ec2-52-206-72-54.compute-1.amazonaws.com:/home/ec2-user/kubeconfig.eks-fabric.yaml                                                                       
+```
+
+Do the same for your AWS config files:
+
+```bash
+scp -i eks-c9-keypair.pem  ~/.aws/config  ec2-user@ec2-52-206-72-54.compute-1.amazonaws.com:/home/ec2-user/config                                                                     
+scp -i eks-c9-keypair.pem  ~/.aws/credentials  ec2-user@ec2-52-206-72-54.compute-1.amazonaws.com:/home/ec2-user/credentials                                                                     
+```
+
+Now SSH into the EC2 instance created above: 
+
+```bash
+ssh ec2-52-206-72-54.compute-1.amazonaws.com -i eks-c9-keypair.pem
+```
+
+Copy the aws config & credentials files:
+
+```bash
+mkdir -p /home/ec2-user/.aws
+cd /home/ec2-user/.aws
+mv /home/ec2-user/config .
+mv /home/ec2-user/credentials .
+```
+
+Check that the AWS CLI works:
+
+```bash
+aws s3 ls
+```
+
+You may or may not see S3 buckets, but you shouldn't receive an error.
+
+Copy the kube config file:
+
+```bash
+mkdir -p /home/ec2-user/.kube
+cd /home/ec2-user/.kube
+mv /home/ec2-user/kubeconfig.eks-fabric.yaml  ./config
+```
+
+To check that this works execute:
+
+```bash
+kubectl get nodes
+```
+
+You should see the nodes belonging to your new K8s cluster. You may see more nodes, depending on the size of the Kubernetes
+cluster you created:
+
+```bash
+$ kubectl get nodes
+NAME                            STATUS    ROLES     AGE       VERSION
+ip-172-20-37-228.ec2.internal   Ready     master    48d       v1.9.6
+ip-172-20-60-179.ec2.internal   Ready     node      48d       v1.9.6
+ip-172-20-67-10.ec2.internal    Ready     node      48d       v1.9.6
+```
+
+### Step 4: Clone this repo to your EC2 instance
+On the EC2 instance created in Step 2 above, in the home directory, clone this repo:
+
+```bash
+cd
+git clone https://github.com/aws-samples/hyperledger-on-kubernetes
+```
+
+This repo contains the scripts you'll use to setup your Fabric peer.
+
+### Step 5: Configure the EFS server URL
+On the EC2 instance created in Step 2 above, in the newly cloned hyperledger-on-kubernetes directory, update the following
+scripts so that the EFSSERVER variable contains the full URL of the EFS server created in Step 2. :
+ 
+* fabric-main/gen-fabric.sh
+* workshop-remote-peer/gen-workshop-remote-peer.sh
+
+Do the following:
+
+In the AWS EFS console, obtain the full EFS URL for your new EFS. The URL should look something like this: 
+`EFSSERVER=fs-12a33ebb.efs.us-west-2.amazonaws.com`
+
+Then, back on the EC2 instance:
+
+```bash
+cd
+cd hyperledger-on-kubernetes
+vi fabric-main/gen-fabric.sh
+```
+
+Make the same update in the other file:
+
+```bash
+cd
+cd hyperledger-on-kubernetes
+vi workshop-remote-peer/gen-workshop-remote-peer.sh
+```
+
+Look for the line starting with `EFSSERVER=`, and replace the URL with the one you copied from the EFS console. Using
+vi you can simply move the cursor over the first character after `EFSSERVER=` and hit the 'x' key until the existing
+URL is deleted. Then hit the 'i' key and ctrl-v to paste the new URL. Hit escape, then shift-zz to save and exit vi. 
+See, you're a vi expert already.
+
+The EKS cluster, EFS and the EC2 bastion are now ready for you to deploy Hyperledger Fabric. Navigate back to the section you are following:
 
 * [Part 1:](../fabric-main/README.md) Create the main Fabric orderer network
 * [Part 2:](../remote-peer/README.md) Add a remote peer, running in a different AWS account/region, sharing the certificate authority (CA) of the main Fabric orderer network

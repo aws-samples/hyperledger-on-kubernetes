@@ -18,20 +18,10 @@
 set +e
 
 function main {
-    echo "Beginning setup of Marbles chaincode for the Fabric workshop ..."
-    cd $HOME/$REPO
-    source fabric-main/util-prep.sh
-    source $SCRIPTS/env.sh
-    cd $HOME/$REPO
-    source fabric-main/utilities.sh
-    startTestMarbles $HOME $REPO
-    whatsRunning
-    echo "Setup of Marbles chaincode for the Fabric workshop complete"
-
     echo "Copying the crypto material to S3"
     #create the s3 bucket, used to store the 'tar' of the keys/certs in the EFS directory /opt/share
     echo -e "creating s3 bucket $S3BucketName"
-    #quick way of determining whether the AWS CLI is installed and a profile exists
+    #quick way of determining whether the AWS CLI is installed and a default profile exists
     if [[ $(aws configure list) && $? -eq 0 ]]; then
         if [[ "$region" == "us-east-1" ]]; then
             aws s3api create-bucket --bucket $S3BucketName --region $region

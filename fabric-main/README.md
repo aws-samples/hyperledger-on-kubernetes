@@ -1,4 +1,4 @@
-# Hyperledger Fabric on Kubernetes
+# Hyperledger Fabric on Kubernetes - Part 1: Create the main Hyperledger Fabric orderer network
 
 This repo allows you to build two types of Hyperledger networks:
 
@@ -13,90 +13,13 @@ Step 6 is where you will indicate whether you want to create a POC or PROD envir
 ## Getting Started
 
 ### Step 1: Create a Kubernetes cluster
-You need an EKS cluster to start. The easiest way to do this is to create an EKS cluster using the eksctl tool. Open
-the [EKS Readme](../eks/README.md) in this repo and follow the instructions. Once you are complete come back to this README.
-
-### Step 2: Create an EC2 instance and EFS 
-You will need an EC2 instance, which you will SSH into in order to start and test the Fabric network. You will 
-also need an EFS volume for storing common scripts and public keys. The EFS volume must be accessible from
-the Kubernetes cluster. Follow the steps below, which will create the EFS and make it available to the K8s cluster.
-
-```bash
-cd
-git clone https://github.com/aws-samples/hyperledger-on-kubernetes
-```
-
-Check the parameters in efs/deploy-ec2.sh and update them as follows:
-* The VPC and Subnet params should be those of your existing K8s cluster worker nodes
-* Keyname is an AWS EC2 keypair you own, that you have previously saved to your Mac. You'll need this to access the EC2 
-instance created by deploy-ec2.sh
-* VolumeName is the name assigned to your EFS volume
-* Region should match the region where your K8s cluster is deployed
-
-Once all the parameters are set, in a terminal window run ./efs/deploy-ec2.sh. Check the CFN console for completion. Once 
-the CFN stack is complete, SSH to one of the EC2 instances using the keypair above. 
-
-The EFS should be mounted in /opt/share
-
-### Step 3: Prepare the EC2 instance for use
-The EC2 instance you have created in Step 2 should already have kubectl installed. However, kubectl will have no
-context and will not be pointing to any kubernetes cluster. We need to point it to the K8s cluster we created in Step 1.
-
-The easiest method (though this should be improved) is to copy the contents of your own ~/.kube/config file from 
-your Mac (or whichever device you used to create the Kubernetes cluster in Step 1). An alternative method, which I haven't
-explored yet, is simply to swap steps 1 & 2, i.e. create the EC2 instance and EFS first, then create the K8s cluster
-directly from the EC2 instance.
-
-To copy the kube config, do the following:
-* On your Mac, copy the contents of ~/.kube/config
-* On the EC2 instance created above, do 'mkdir /home/ec2-user/.kube'
-* cd /home/ec2-user/.kube
-* vi config
-* paste the contents you copied from your Mac
-
-To check that this works execute:
-
-```bash
-kubectl get nodes
-```
-
-you should see the nodes belonging to your new K8s cluster:
-
-```bash
-$ kubectl get nodes
-NAME                                           STATUS    ROLES     AGE       VERSION
-ip-172-20-123-84.us-west-2.compute.internal    Ready     master    1h        v1.9.3
-ip-172-20-124-192.us-west-2.compute.internal   Ready     node      1h        v1.9.3
-ip-172-20-49-163.us-west-2.compute.internal    Ready     node      1h        v1.9.3
-ip-172-20-58-206.us-west-2.compute.internal    Ready     master    1h        v1.9.3
-ip-172-20-81-75.us-west-2.compute.internal     Ready     master    1h        v1.9.3
-ip-172-20-88-121.us-west-2.compute.internal    Ready     node      1h        v1.9.3
-```
-
-If you are using EKS with the Heptio authenticator, you'll need to follow the instructions here
-to get kubectl configured: https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html#eks-prereqs
-You will also need to copy your .aws/config and .aws/credentials files 
-to the EC2 instance. You'll only need the profile from these files that hosts the EKS workers.
-
-### Step 4: Clone this repo to your EC2 instance
-On the EC2 instance created in Step 2 above, in the home directory, clone this repo:
-
-```bash
-cd
-git clone https://github.com/aws-samples/hyperledger-on-kubernetes
-```
-
-### Step 5: Configure the EFS server URL
-On the EC2 instance created in Step 2 above, in the newly cloned hyperledger-on-kubernetes directory, update the script 
-'gen-fabric.sh' so that the EFSSERVER variable contains the full URL of the EFS server created in 
-Step 2. You can obtain the EFS URL from the EFS console. The URL should look something like this:
-
-```bash
-EFSSERVER=fs-12a33ebb.efs.us-west-2.amazonaws.com
-```
+You need an EKS cluster to start. The easiest way to do this is to create an EKS cluster using the eksctl tool. In the same 
+VPC as EKS you'll also need an EFS drive (for the Fabric cryptographic material) and an EC2 bastion host, which you'll
+use to create and manage the Fabric network. Open the [EKS Readme](../eks/README.md) in this repo and follow the instructions. 
+Once you are complete come back to this README.
 
 ### Step 6: Edit env.sh
-On the EC2 instance created in Step 2 above, in the newly cloned hyperledger-on-kubernetes directory, update the script 
+On the EC2 bastion instance, in the newly cloned hyperledger-on-kubernetes directory, update the script 
 'scripts/env.sh' as follows:
  
 ```bash
@@ -117,9 +40,9 @@ vi env.sh
 This is because the remote peers need to connect to an OSN (orderer service node). With Kafka we can run multiple OSN's, 
 and have one OSN that exposes an external IP for connection from the remote peer.
 
-
 ### Step 7: Generate the Kubernetes YAML files
-On the EC2 instance created in Step 2 above:
+In this step we generate the Kubernetes YAML files used to deploy Fabric. They are generated based on the configuration
+contained in env.sh, which you edited in the previous step. On the EC2 bastion instance:
 
 ```bash
 cd
@@ -137,7 +60,7 @@ cd hyperledger-on-kubernetes/fabric-main
 ```
 
 ### Step 8: Start the fabric network
-On the EC2 instance created in Step 2 above, in the home directory:
+On the EC2 bastion instance, in the home directory:
 
 ```bash
 cd
@@ -146,21 +69,29 @@ cd hyperledger-on-kubernetes/fabric-main
 ```
 
 ### Step 9: Confirm the test cases ran successfully
-The test cases are run by deploying 'fabric-deployment-test-fabric.yaml', which executes the script 'test-fabric.sh'.
-This will run in the org1 namespace, and will act as a Fabric client.
+The test cases are run by deploying two Kubernetes pods:
 
-On the EC2 instance created in Step 2 above:
+* fabric-deployment-test-fabric-abac.yaml
+* fabric-deployment-test-fabric-marbles-workshop.yaml
+
+which execute the scripts 'test-fabric-abac.sh' and 'test-fabric-marbles-workshop.sh'. These will run in the org1 
+namespace, and will act as Fabric clients, executing actions against the Fabric network. You should check the results
+of the test cases to make sure they complete successfully.
+
+On the EC2 bastion instance:
 
 ```bash
 kubectl get po -n org1
-#look for the test-fabric pod and replace the name in the statement below.
-kubectl logs test-fabric-56c5df5dbf-qnrrl -n org1
+#look for the test-fabric pods and replace the name in the statement below.
+kubectl logs test-fabric-678688bd5c-6fh2g   -n org1
+kubectl logs test-fabric-marbles-workshop-6868bf7886-97599  -n org1
 ```
 
 It can take up to 3 minutes for the test cases to run, so don't get too despondent if it seems to take a while to
-query or instantiate chaincode.
+query or instantiate chaincode. Chaincode runs in its own Docker container, and it sometimes take a while to pull
+and create the container.
 
-The final 3 lines of the log file should look as follows:
+The final lines of the 'test-fabric' log file should look as follows:
 
 ```bash
 ##### 2018-04-16 09:08:01 Querying the chaincode in the channel 'mychannel' on the peer 'peer1-org1.org1' as revoked user 'user-org1' ...
@@ -168,16 +99,25 @@ The final 3 lines of the log file should look as follows:
 ##### 2018-04-16 09:08:02 Congratulations! The tests ran successfully.
 ```
 
-If you've completed all these steps, you will have a POC network running. If you would like to connect remote peers to 
+The final lines of the 'test-fabric-marbles-workshop' log file should look as follows:
+
+```bash
+2018-08-23 09:09:42.828 UTC [msp/identity] Sign -> DEBU 007 Sign: digest: C955BBF4CDAF6B6A8BF2FD9D7E043BDDBBB4B9F853014F7181DD81538D29FA5C 
+Query Result: {"owners":[{"docType":"marble_owner","id":"o9999999999999999990","username":"edge","company":"United Marbles","enabled":true},{"docType":"marble_owner","id":"o9999999999999999991","username":"braendle","company":"United Marbles","enabled":true}],"marbles":[{"docType":"marble","id":"m999999999990","color":"blue","size":50,"owner":{"id":"o9999999999999999990","username":"edge","company":"United Marbles"}},{"docType":"marble","id":"m999999999991","color":"red","size":35,"owner":{"id":"o9999999999999999991","username":"braendle","company":"United Marbles"}}]}
+2018-08-23 09:09:42.849 UTC [main] main -> INFO 008 Exiting.....
+##### 2018-08-23 09:09:42 Successfully queried marbles chaincode in the channel 'mychannel' on the peer 'peer1-org1' ...
+##### 2018-08-23 09:09:42 Congratulations! marbles-workshop chaincode tests ran successfully.
+```
+
+If you've completed all these steps, you will have a Fabric network running. If you would like to connect remote peers to 
 this network, continue with the steps below.
 
 ## Where to from here?
 You have a few options:
 
-* create a remote peer in a different AWS account that belongs to an existing organisation (i.e. one of the orgs created above), 
-then add this peer to the existing network. See the README in folder `remote-peer`
-* create a new organisation in the existing network, and add a new peer for this organisation
-* create a new organisation in the existing network, and add a new remote peer for this organisation
+* [Part 2:](../remote-peer/README.md) Add a remote peer, running in a different AWS account/region, sharing the certificate authority (CA) of the main Fabric orderer network
+* [Part 3:](../remote-org/README.md) Add a new organisation, with its own CA, and its own peers running in a different AWS account/region
+* [Part 4:](../workshop-remote-peer/README.md) Run the Fabric workshop, where participants add their own remote peers, running in their own AWS accounts
 
 
 ### Join the peer to a channel

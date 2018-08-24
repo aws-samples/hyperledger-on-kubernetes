@@ -133,10 +133,10 @@ function createChannel {
 # Enroll as a fabric admin and join the channel
 function joinChannel {
    switchToAdminIdentity
-   cd /$DATA
    set +e
    local COUNT=1
    MAX_RETRY=10
+   cd /$DATA
    local CHANNELLIST=`peer channel list | grep -c ${CHANNEL_NAME}`
    if [ $CHANNELLIST -gt 0 ]; then
        log "Peer $PEER_NAME has already joined channel '$CHANNEL_NAME' - channel join request ignored"
