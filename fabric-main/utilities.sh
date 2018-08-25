@@ -701,7 +701,6 @@ function stopRemotePeers {
     confirmDeploymentsStopped remote-peer
 }
 
-
 function startTestABAC {
     if [ $# -ne 2 ]; then
         echo "Usage: startTestABAC <home-dir> <repo-name>"
@@ -724,6 +723,19 @@ function startTestMarbles {
     local REPO=$2
     cd $HOME
     log "Starting Test Cases for Marbles chaincode in K8s"
+    kubectl apply -f $REPO/k8s/fabric-deployment-test-fabric-marbles.yaml
+    confirmDeployments
+}
+
+function startTestMarblesWorkshop {
+    if [ $# -ne 2 ]; then
+        echo "Usage: startTestMarblesWorkshop <home-dir> <repo-name>"
+        exit 1
+    fi
+    local HOME=$1
+    local REPO=$2
+    cd $HOME
+    log "Starting Test Cases for Marbles Workshop chaincode in K8s"
     kubectl apply -f $REPO/k8s/fabric-deployment-test-fabric-marbles-workshop.yaml
     confirmDeployments
 }

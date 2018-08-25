@@ -22,6 +22,9 @@
 # found here: https://github.com/IBM-Blockchain/marbles/tree/master/chaincode/src/marbles
 #
 # This version should be installed if you want to run the workshop. See the README under workshop-remote-peer
+#
+# The only difference between this and test-fabric-marbles.sh is the ID's used when creating owners and marbles.
+# I do this to ensure they can both be run against the same network without throwing exceptions due to duplicate owners.
 
 set +e
 

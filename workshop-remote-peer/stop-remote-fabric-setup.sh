@@ -19,6 +19,7 @@ function main {
     log "Stopping Remote Hyperledger Fabric on Kubernetes ..."
     cd $HOME
     set +e
+    stopTest $HOME $REPO
     for DELETE_ORG in $ORGS; do
         stopRemotePeers $HOME $REPO $DELETE_ORG
         stopRegisterPeers $HOME $REPO $DELETE_ORG
