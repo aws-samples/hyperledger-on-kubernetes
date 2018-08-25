@@ -18,7 +18,7 @@ VPC as EKS you'll also need an EFS drive (for the Fabric cryptographic material)
 use to create and manage the Fabric network. Open the [EKS Readme](../eks/README.md) in this repo and follow the instructions. 
 Once you are complete come back to this README.
 
-### Step 6: Edit env.sh
+### Step 2: Edit env.sh
 On the EC2 bastion instance, in the newly cloned hyperledger-on-kubernetes directory, update the script 
 'scripts/env.sh' as follows:
  
@@ -40,7 +40,7 @@ vi env.sh
 This is because the remote peers need to connect to an OSN (orderer service node). With Kafka we can run multiple OSN's, 
 and have one OSN that exposes an external IP for connection from the remote peer.
 
-### Step 7: Generate the Kubernetes YAML files
+### Step 3: Generate the Kubernetes YAML files
 In this step we generate the Kubernetes YAML files used to deploy Fabric. They are generated based on the configuration
 contained in env.sh, which you edited in the previous step. On the EC2 bastion instance:
 
@@ -59,7 +59,7 @@ cd hyperledger-on-kubernetes/fabric-main
 ./gen-fabric.sh
 ```
 
-### Step 8: Start the fabric network
+### Step 4: Start the fabric network
 On the EC2 bastion instance, in the home directory:
 
 ```bash
@@ -68,7 +68,7 @@ cd hyperledger-on-kubernetes/fabric-main
 ./start-fabric.sh
 ```
 
-### Step 9: Confirm the test cases ran successfully
+### Step 5: Confirm the test cases ran successfully
 The test cases are run by deploying two Kubernetes pods:
 
 * fabric-deployment-test-fabric-abac.yaml

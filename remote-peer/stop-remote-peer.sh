@@ -28,9 +28,9 @@ function main {
         stopPVC $HOME $REPO $DELETE_ORG
         getDomain $DELETE_ORG
         removeNamespaces $HOME $REPO $DOMAIN
-        kubectl delete pv --all
     done
     removeDirs $DATA
+    kubectl delete pv --all
     whatsRunning
     log "Hyperledger Fabric remote peer on Kubernetes stopped"
 }
@@ -41,5 +41,5 @@ SCRIPTS=$DATA/rca-scripts
 REPO=hyperledger-on-kubernetes
 cd $HOME/$REPO
 source $SCRIPTS/env.sh
-source utilities.sh
+source fabric-main/utilities.sh
 main

@@ -157,7 +157,7 @@ drwxr-xr-x 5 root root  6144 Jul 17 03:34 msp
 ### Step 3: Configure the remote peer
 A couple of configuration steps are required before starting the new peer:
 
-* SSH into the EC2 instance you created in the new AWS account
+* SSH into the EC2 bastion you created in the new AWS account
 * Navigate to the `hyperledger-on-kubernetes` repo
 * Edit the file `remote-peer/scripts/env-remote-peer.sh`. Update the following fields:
     * Set PEER_ORGS to one of the organisations in the Fabric network. Example: PEER_ORGS="org1"

@@ -91,7 +91,7 @@ VPC as EKS you'll also need an EFS drive (for the Fabric cryptographic material)
 use to create and manage the Fabric network. Open the [EKS Readme](../eks/README.md) in this repo and follow the instructions. 
 Once you are complete come back to this README.
 
-### Step 6: Get the Fabric crypto information
+### Step 2: Get the Fabric crypto information
 Before creating your Fabric peer you'll need the certificate and key information for the organisation the peer belongs
 to. The steps below are a quick and dirty way of obtaining this info - not recommended for production use, but it will
 save us plenty of time fiddling around with keys, certificates and certificate authorities. 
@@ -146,7 +146,7 @@ drwxr-xr-x 5 root root  6144 Jul 17 03:34 msp
 .
 ```
 
-### Step 7: Edit env.sh
+### Step 3: Edit env.sh
 We've reached the final step before we get our hands on Hyperledger Fabric. In this step we prepare the configuration
 file used by the scripts that configure Fabric.
 
@@ -167,7 +167,7 @@ TIP: You'll be using the peer prefix you set above in many places. It will make 
 if you do a search/replace in this README, replacing all 'michaelpeer' with your prefix. That way you can copy/paste 
 the commands I provide below instead of having to edit them.
 
-### Step 8: Register Fabric identities with the Fabric certificate authority
+### Step 4: Register Fabric identities with the Fabric certificate authority
 Before we can start our Fabric peer we must register it with the Fabric certificate authority (CA). All participants in 
 a Fabric network have identities (Fabric is a private, permissioned blockchain network), and these identities are created
 by a CA. This step will start Fabric CA and register our peer:
@@ -242,7 +242,7 @@ Password: michaelpeer1-org1pw
 ##### 2018-07-22 02:52:32 Finished registering peer for org org1
 ```
 
-### Step 9: Start the peer
+### Step 5: Start the peer
 We are now ready to start the new peer. The peer runs as a pod in Kubernetes. Let's take a look at the pod spec before
 we deploy it. In the statement below, replace 'michaelpeer1' with the name of your peer. If you 
 are unsure, you can simply do 'ls k8s' to view the yaml files that were generated based on your selections, and find
@@ -283,10 +283,10 @@ kubectl logs deploy/michaelpeer1-org1 -n org1 -c michaelpeer1-org1 | grep 'Start
 Your peer has started, but..... it's useless at this point. It hasn't joined any channels, it can't run chaincode
 and it does not maintain any ledger state. To start building a ledger on the peer we need to join a channel.
 
-### Step 10: Join the peer to a channel
+### Step 6: Join the peer to a channel
 To give you a better understanding of Fabric, we are going to carry out the steps to join a peer to a channel manually.
 We need to carry out the steps from within a container running in the Kubernetes cluster. We'll use the 'register'
-container you started in step 8, as this runs the fabric-ca-tools image, which will provide us a CLI (command line interface)
+container you started in step 4, as this runs the fabric-ca-tools image, which will provide us a CLI (command line interface)
 to interact with the peer. You can confirm this by:
 
 ```bash
@@ -407,7 +407,7 @@ mychannel
 
 You should see that your peer has now joined the channel. 
 
-### Step 11: Confirm peer has joined channel
+### Step 7: Confirm peer has joined channel
 To confirm the peer has joined the channel you'll need to check the peer logs. If there are existing blocks on the channel 
 you should see them replicating to the new peer. Look for messages in the log file such as `Channel [mychannel]: Committing block [14385] to storage` -
 you can find these by doing a search in your terminal window, or using grep.
@@ -418,9 +418,9 @@ your EC2 bastion instance. Then enter (replacing the name of the peer with your 
 kubectl logs deploy/michaelpeer1-org1 -n org1 -c michaelpeer1-org1
 ```
 
-### Step 12: Install the marbles chaincode
+### Step 8: Install the marbles chaincode
 To install the marbles chaincode we'll first clone the chaincode repo to our 'register' container, then install the
-chaincode to the peer. 'exec' back in to the 'register' container, rerun the export statements from Step 10, and do 
+chaincode to the peer. 'exec' back in to the 'register' container, rerun the export statements from Step 6, and do 
 the following:
 
 ```bash
@@ -437,7 +437,7 @@ Now install the chaincode:
 peer chaincode install -n marbles-workshop -v 1.0 -p github.com/hyperledger/marbles/chaincode/src/marbles
 ```
 
-The result should be similar to the one below. If it failed, make sure you run the export statements from Step 10:
+The result should be similar to the one below. If it failed, make sure you run the export statements from Step 6:
 
 ```bash
 # peer chaincode install -n marbles-workshop -v 1.0 -p github.com/hyperledger/marbles/chaincode/src/marbles
@@ -468,7 +468,7 @@ Name: marbles-workshop, Version: 1.0, Path: github.com/hyperledger/marbles/chain
 2018-08-25 02:05:08.426 UTC [main] main -> INFO 001 Exiting.....
 ```
 
-### Step 13: Creating a user
+### Step 9: Creating a user
 So far we have interacted with the peer node using the Admin user. This might not have been apparent, but the export 
 statements we used include the following line, 'export CORE_PEER_MSPCONFIGPATH=/data/orgs/org1/admin/msp', which
 sets the MSP (membership service provider) context to an admin user. Admin was used to join the channel and install the chaincode,
@@ -477,7 +477,7 @@ us by Fabric to act as a root CA and manage the registration and enrollment of i
 
 Once again, 'exec' into the register container.
  
-Run the export statements from Step 10. Then execute the statements below.
+Run the export statements from Step 6. Then execute the statements below.
 
 ```bash
 export FABRIC_CA_CLIENT_HOME=/etc/hyperledger/fabric/orgs/org1/user
@@ -539,7 +539,7 @@ as the following export statement will identity you as an admin:
 export CORE_PEER_MSPCONFIGPATH=/data/orgs/org1/admin/msp
 ```
 
-### Step 14: Invoke transactions in Fabric
+### Step 10: Invoke transactions in Fabric
 Let's run a query. In Fabric, a query will execute on the peer node and query the world state, which is the current
 state of the ledger. World state is stored in either a CouchDB or LevelDB key-value store. The query below will
 return the latest marble owners. 
@@ -548,7 +548,7 @@ When we say 'run a query', we really mean 'execute chaincode that queries the wo
 inside a Docker container. The first time you run chaincode it may take around 30 seconds as the Docker container that hosts 
 the chaincode is downloaded and created.
 
-Rerun the export statements from Step 10.
+Rerun the export statements from Step 6.
 
 ```bash
 export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/orgs/org1/user/msp
@@ -577,7 +577,7 @@ peer chaincode invoke -C mychannel -n marbles-workshop -c '{"Args":["set_owner",
 peer chaincode query -C mychannel -n marbles-workshop -c '{"Args":["read_everything"]}' 
 ```
 
-### Step 15: Connect an application to your Fabric peer
+### Step 11: Connect an application to your Fabric peer
 We are going to connect the marbles client application to your peer node. This will provide you with a user interface
 you can use to interact with the Fabric network. It will also provide you visibility into what is happening in the
 network, and what activities are being carried out by the other workshop participants.
@@ -585,10 +585,10 @@ network, and what activities are being carried out by the other workshop partici
 The Marbles client application uses the Fabric SDK and requires connectivity to three Fabric components:
 
 * Orderer: the Orderer was created by the facilitator before the workshop started. The facilitator will provide the endpoint 
-(in fact, it should have been provided for you in Step 14, and the facilitator should have updated this README with the correct
+(in fact, it should have been provided for you in Step 10, and the facilitator should have updated this README with the correct
 endpoint. See the statement 'export ORDERER_CONN_ARGS=')
-* Peer: this is the peer you started in step 9. We will expose this using an NLB below (NLB because peers communicate using gRPC)
-* CA: this is the CA you started in step 8. We will expose this using an ELB below (ELB because the CA server exposes a REST API)
+* Peer: this is the peer you started in step 5. We will expose this using an NLB below (NLB because peers communicate using gRPC)
+* CA: this is the CA you started in step 4. We will expose this using an ELB below (ELB because the CA server exposes a REST API)
 
 Before we continue, there is a bug in EKS that requires us to edit an IAM policy. A missing permission in an EKS role
 currently prevents the creation of load balancers, so we will edit the EKS role manually and add the permission.
@@ -648,11 +648,11 @@ Events:                   <none>
 ```
 
 Do the same to view the NLB endpoint for the peer. Note down the LoadBalancer Ingress for both CA and peer. You'll use
-them in Step 16.
+them in Step 12.
 
 In the next step we'll configure Marbles to use these endpoints, and connect the application to the Fabric network.
 
-### Step 16: Preparing the Marbles application
+### Step 12: Preparing the Marbles application
 To start, let's clone the Marbles application to your laptop or Cloud9 instance. Makes sure you are on your laptop or 
 Cloud9 environment (whichever one you have used for the earlier parts of this workshop), and not SSH'd into the EC2 bastion:
 
@@ -699,7 +699,7 @@ Still in the config directory, edit connection_profile_eks.json:
 
 * Do a global search & replace on 'michaelpeer', replacing it with your peer name
 * In the 'replace' commands below, make sure you do not change the port number, nor remove the protocol (e.g. grpc://)
-* Replace the orderer URL with the NLB endpoint provided by your facilitator (The same one you used in Step 14. See the 
+* Replace the orderer URL with the NLB endpoint provided by your facilitator (The same one you used in Step 10. See the 
 statement 'export ORDERER_CONN_ARGS='). If the facilitator has already updated this in the README, the address below
 should be correct:
 
@@ -709,7 +709,7 @@ should be correct:
             "url": "grpc://a8a50caf493b511e8834f06b86f026a6-77ab14764e60b4a1.elb.us-west-2.amazonaws.com:7050",
 ```
 
-* Replace the peer URL (both url and eventUrl) with the endpoint you obtained in Step 15 when 
+* Replace the peer URL (both url and eventUrl) with the endpoint you obtained in Step 11 when 
 running `kubectl describe svc <your peer service name> -n org1` 
 
 ```json
@@ -719,7 +719,7 @@ running `kubectl describe svc <your peer service name> -n org1`
             "eventUrl": "grpc://a55e52d7d93c511e8a5200a2330c2ef3-25d11c6db68acd98.elb.us-east-1.amazonaws.com:7052",
 ```
 
-* Replace the certificateAuthorities URL with the endpoint you obtained in Step 15 when 
+* Replace the certificateAuthorities URL with the endpoint you obtained in Step 11 when 
 running `kubectl describe svc <your CA service name> -n org1` 
 
 ```json
@@ -753,7 +753,7 @@ gulp.task('env_eks', function () {
 });
 ```
 
-### Step 17: Running and using the marbles application
+### Step 13: Running and using the marbles application
 You can run the Marbles application either on your laptop or on your Cloud9 instance.
 
 #### Running Marbles on your laptop
@@ -842,7 +842,7 @@ to do this, but did not include this function in the UI. So we'll do it the hard
 
 On your EC2 bastion instance, do the following:
 * 'exec' into the register container
-* enter the export statements you used in Step 10
+* enter the export statements you used in Step 6
 * identify yourself as a user by executing the command below:
 
 ```bash
@@ -871,7 +871,7 @@ peer chaincode query -C mychannel -n marbles-workshop -c '{"Args":["read_everyth
 Now jump back to the UI and you should automatically see these changes to the blockchain state reflected in the app. You can
 now add new marbles via the UI (or via the CLI) and transfer marbles to/from other participants.
 
-### Step 18: Pat yourself on the back
+### Step 14: Pat yourself on the back
 
 Well done for making it this far. Let's look at what you've achieved:
 
@@ -885,7 +885,7 @@ via the local app and your local peer
 
 Quite impressive!
 
-### Step 19: Cleanup
+### Step 15: Cleanup
 
 Cleanup your Hyperledger Fabric nodes:
 
