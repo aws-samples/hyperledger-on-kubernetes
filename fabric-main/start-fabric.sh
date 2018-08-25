@@ -47,6 +47,9 @@ function main {
     updateChannelArtifacts $HOME $REPO
     startOrderer $HOME $REPO
     startPeers $HOME $REPO
+    if [ $FABRIC_NETWORK_TYPE == "PROD" ]; then
+        checkNLBHealthy
+    fi
     startTestABAC $HOME $REPO
     sleep 60
     startTestMarbles $HOME $REPO

@@ -504,3 +504,47 @@ In addition - the test cases will fail if running a PROD network as the NLB take
 EC2 instances as healthy. Until the NLB has healthy instances it will not route any traffic. So we will need
 to wait until the NLB shows healthy instances. Suggest I put a wait time in the script - if PROD - and somehow
 query the NLB status until it's healthy.
+
+### Port already allocated
+
+What are the chances of this happening? The NodePorts used by the Kubernetes Services are configured in the YAML config files,
+with the exception of the ports using by the NLB Services. These are allocated dynamically by Kubernetes. In this case
+the NLB allocated random port 30754, which just happens to be one of the ports I define for my peers. Therefore the Service
+for peer2-org1 fails below. Kubernetes has thousands of ports it can choose, but it just happens to randomly choose one of the 
+ports I need. 
+
+I fixed this by deleting the Kubernetes resources and rerunning the scripts, hoping Kubernetes would select a different port.
+
+```bash
+cd
+cd hyperledger-on-kubernetes
+kubectl delete -f k8s/
+```
+
+Wait for all the pods to terminate, then:
+
+```bash
+cd fabric-main
+./start-fabric.sh
+```
+
+##### 2018-08-25 12:12:27 Starting Peers in K8s
+deployment.apps/peer1-org1 created
+service/peer1-org1 created
+deployment.apps/peer2-org1 created
+The Service "peer2-org1" is invalid: spec.ports[1].nodePort: Invalid value: 30754: provided port is already allocated
+[ec2-user@ip-192-168-85-24 fabric-main]$ kubectl get svc -n org1
+NAME             TYPE           CLUSTER-IP       EXTERNAL-IP                                                                     PORT(S)                         AGE
+ica-org1         NodePort       10.100.248.10    <none>                                                                          7054:30821/TCP                  2m
+peer1-org1       NodePort       10.100.163.24    <none>                                                                          7051:30751/TCP,7052:30752/TCP   16s
+peer1-org1-nlb   LoadBalancer   10.100.232.155   a05a44cfda86011e891780a7ea230e11-0b5c8b8c3aa84e6a.elb.us-west-2.amazonaws.com   7051:31104/TCP,7052:30945/TCP   1m
+rca-org1         NodePort       10.100.138.40    <none>                                                                          7054:30800/TCP                  2m
+[ec2-user@ip-192-168-85-24 fabric-main]$ kubectl get svc -n org0
+NAME                TYPE           CLUSTER-IP       EXTERNAL-IP                                                                     PORT(S)          AGE
+ica-org0            NodePort       10.100.89.19     <none>                                                                          7054:30720/TCP   2m
+orderer1-org0       NodePort       10.100.16.222    <none>                                                                          7050:30740/TCP   44s
+orderer2-org0       NodePort       10.100.84.96     <none>                                                                          7050:30741/TCP   44s
+orderer2-org0-nlb   LoadBalancer   10.100.150.227   af8594074a85f11e891780a7ea230e11-fecaffc1ea9ca089.elb.us-west-2.amazonaws.com   7050:30754/TCP   1m
+orderer3-org0       NodePort       10.100.162.95    <none>                                                                          7050:30742/TCP   44s
+orderer3-org0-nlb   LoadBalancer   10.100.132.158   af87e392da85f11e8a7b906745db4638-24491bef4ea44fdd.elb.us-west-2.amazonaws.com   7050:32712/TCP   1m
+rca-org0            NodePort       10.100.69.226    <none>                                                                          7054:30700/TCP   3m

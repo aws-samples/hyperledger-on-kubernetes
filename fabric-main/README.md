@@ -83,8 +83,8 @@ On the EC2 bastion instance:
 ```bash
 kubectl get po -n org1
 #look for the test-fabric pods and replace the name in the statement below.
-kubectl logs test-fabric-678688bd5c-6fh2g   -n org1
-kubectl logs test-fabric-marbles-workshop-6868bf7886-97599  -n org1
+kubectl logs test-fabric-678688bd5c-6fh2g -n org1
+kubectl logs test-fabric-marbles-workshop-6868bf7886-97599 -n org1
 ```
 
 It can take up to 3 minutes for the test cases to run, so don't get too despondent if it seems to take a while to
@@ -108,6 +108,10 @@ Query Result: {"owners":[{"docType":"marble_owner","id":"o9999999999999999990","
 ##### 2018-08-23 09:09:42 Successfully queried marbles chaincode in the channel 'mychannel' on the peer 'peer1-org1' ...
 ##### 2018-08-23 09:09:42 Congratulations! marbles-workshop chaincode tests ran successfully.
 ```
+
+A few errors may appear in the test-fabric logs. Have a look at them to determine whether they are worth investigating.
+Errors that show chaincode could not be installed because it already exists, or similar errors, can be ignored. However,
+errors where chaincode cannot be queried indicate an issue.
 
 If you've completed all these steps, you will have a Fabric network running. If you would like to connect remote peers to 
 this network, continue with the steps below.

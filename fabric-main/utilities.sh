@@ -619,6 +619,38 @@ function startAnchorPeerNLB {
     sed -e "s/EXTERNAL_ANCHOR_PEER_ADDRESSES=\"\"/EXTERNAL_ANCHOR_PEER_ADDRESSES=\"${EXTERNALANCHORPEERADDRESSES}\"/g" -i $SCRIPTS/env.sh
 }
 
+# This function is only called if: $FABRIC_NETWORK_TYPE == "PROD"
+# We must wait for the NLBs to become healthy before we can send traffic to them
+# If we are running a PROD network we will have NLBs for peers and orderers. The test cases can run
+# once the NLBs are provisioned and healthy
+function checkNLBHealthy {
+    ELBS=$(aws elbv2 describe-load-balancers --query 'LoadBalancers[*].LoadBalancerArn' | tr -d '"' | tr -d ',')
+    for ELB in $(aws elbv2 describe-load-balancers --query 'LoadBalancers[*].LoadBalancerArn' --output text); do
+        TAG=$(aws elbv2 describe-tags --resource-arns $ELB)
+        re="org[0-9]-nlb"
+        if [[ $TAG =~ .*${re}.* ]]; then
+            echo found nlb
+            TGS=$(aws elbv2 describe-target-groups --load-balancer-arn $ELB --query 'TargetGroups[*].TargetGroupArn' | tr -d '"' | tr -d ',')
+            for TG in $(aws elbv2 describe-target-groups --load-balancer-arn $ELB --query 'TargetGroups[*].TargetGroupArn' --output text); do
+                HEALTH=$(aws elbv2 describe-target-health --target-group-arn $TG --query 'TargetHealthDescriptions[*].TargetHealth')
+                echo Health is: $HEALTH
+                if [[ $HEALTH == *'"State": "healthy"'* ]]; then
+                    echo Target Group $TG has one healthy instance
+                else
+                    echo Target Group $TG has no healthy instances - waiting for it to become healthy
+                    sleep 10
+                    continue
+                fi
+            done
+
+        else
+            echo did not find nlb
+            continue
+        fi
+    done
+    echo All NLB network load balancers have at least one healthy instance
+}
+
 function startOrderer {
     if [ $# -ne 2 ]; then
         echo "Usage: startOrderer <home-dir> <repo-name>"

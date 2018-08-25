@@ -196,17 +196,18 @@ This repo contains the scripts you'll use to setup your Fabric peer.
 
 ### Step 5: Configure the EFS server URL
 On the EC2 instance created in Step 2 above, in the newly cloned hyperledger-on-kubernetes directory, update the following
-scripts so that the EFSSERVER variable contains the full URL of the EFS server created in Step 2. :
+scripts so that the EFSSERVER variable contains the full URL of the EFS server created in Step 1:
  
 * fabric-main/gen-fabric.sh
 * workshop-remote-peer/gen-workshop-remote-peer.sh
 
-Do the following:
-
-In the AWS EFS console, obtain the full EFS URL for your new EFS. The URL should look something like this: 
+You can find the full EFS server URL in the AWS EFS console. The URL should look something like this: 
 `EFSSERVER=fs-12a33ebb.efs.us-west-2.amazonaws.com`
 
-Then, back on the EC2 instance:
+In each script, look for the line starting with `EFSSERVER=`, and replace the URL with the one you copied from the EFS console. Using
+vi you can simply move the cursor over the first character after `EFSSERVER=` and hit the 'x' key until the existing
+URL is deleted. Then hit the 'i' key and ctrl-v to paste the new URL. Hit escape, then shift-zz to save and exit vi. 
+See, you're a vi expert already.
 
 ```bash
 cd
@@ -221,11 +222,6 @@ cd
 cd hyperledger-on-kubernetes
 vi workshop-remote-peer/gen-workshop-remote-peer.sh
 ```
-
-Look for the line starting with `EFSSERVER=`, and replace the URL with the one you copied from the EFS console. Using
-vi you can simply move the cursor over the first character after `EFSSERVER=` and hit the 'x' key until the existing
-URL is deleted. Then hit the 'i' key and ctrl-v to paste the new URL. Hit escape, then shift-zz to save and exit vi. 
-See, you're a vi expert already.
 
 The EKS cluster, EFS and the EC2 bastion are now ready for you to deploy Hyperledger Fabric. Navigate back to the section you are following:
 
