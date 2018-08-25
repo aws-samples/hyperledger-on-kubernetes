@@ -38,9 +38,7 @@ function main {
     startICA $HOME $REPO
     startRegisterPeers $HOME $REPO
     startRemotePeers $HOME $REPO
-    joinaddorgFabric $HOME $REPO $NEW_ORG
-    installChaincode $HOME $REPO $NEW_ORG
-    testChaincode $HOME $REPO $NEW_ORG
+    startTestMarbles $HOME $REPO
     whatsRunning
     echo "Setup of remote peer on Hyperledger Fabric on Kubernetes complete"
 }
