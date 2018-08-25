@@ -23,13 +23,13 @@ set -e
 function main {
     echo "Starting remote Fabric setup ..."
     cd $HOME/$REPO
-    source util-prep.sh
+    source fabric-main/util-prep.sh
     updateRepo $HOME $REPO
     mergeEnv $HOME $REPO $DATADIR $MERGEFILE
     copyScripts $HOME $REPO $DATADIR
     cd $HOME/$REPO
     source scripts/env.sh
-    source utilities.sh
+    source fabric-main/utilities.sh
     makeDirsForOrg $DATADIR
     genTemplates $HOME $REPO
     createNamespaces $HOME $REPO

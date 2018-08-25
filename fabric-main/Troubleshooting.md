@@ -498,6 +498,8 @@ unhealthy.
 
 I need to rerun fabric-main/README - the whole thing from scratch - and see if the issue resurfaces.
 
+I'm wondering if something I run after creating the NLB is causing the issue.
+
 In addition - the test cases will fail if running a PROD network as the NLB takes about 5 minutes to mark the
 EC2 instances as healthy. Until the NLB has healthy instances it will not route any traffic. So we will need
 to wait until the NLB shows healthy instances. Suggest I put a wait time in the script - if PROD - and somehow

@@ -101,7 +101,7 @@ save us plenty of time fiddling around with keys, certificates and certificate a
 A quick method of setting up a remote peer for an existing org involves copying the existing crypto material. We've made
 this information available in an S3 bucket - you just need to download it and copy it to your EFS as follows:
 
-* SSH into the EC2 instance you created in Step 2
+* SSH into the EC2 bastion you created in Step 1
 * Download the crypto information:
 
 ```bash
@@ -152,7 +152,7 @@ drwxr-xr-x 5 root root  6144 Jul 17 03:34 msp
 We've reached the final step before we get our hands on Hyperledger Fabric. In this step we prepare the configuration
 file used by the scripts that configure Fabric.
 
-* SSH into the EC2 instance you created in Step 2
+* SSH into the EC2 bastion you created in Step 1
 * Navigate to the `hyperledger-on-kubernetes` repo
 
 ```bash
