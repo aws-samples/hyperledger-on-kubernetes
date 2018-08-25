@@ -6,7 +6,7 @@ mkdir ~/bin
 wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/kubectl && chmod +x kubectl && mv kubectl ~/bin/
 wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws && chmod +x heptio-authenticator-aws && mv heptio-authenticator-aws ~/bin/
 
-echo Download `eksctl` from `eksctl.io`(actually it will download from GitHub)
+echo Download eksctl from eksctl.io
 curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 sudo mv /tmp/eksctl /usr/local/bin
 
@@ -23,7 +23,7 @@ else
     eksctl create cluster --ssh-public-key eks-c9-keypair --name eks-fabric --region $region --kubeconfig=./kubeconfig.eks-fabric.yaml
 fi
 
-echo Check whether `kubectl` can access your Kubernetes cluster
+echo Check whether kubectl can access your Kubernetes cluster
 kubectl --kubeconfig=./kubeconfig.eks-fabric.yaml get nodes
 
 echo Create the EC2 bastion instance and the EFS that stores the Fabric cryptographic material
