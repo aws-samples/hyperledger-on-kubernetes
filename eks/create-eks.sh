@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-region=us-west-2
+region=us-east-1
 
-echo Download the `kubectl` and `heptio-authenticator-aws` binaries and save to `~/bin`
+echo Download the kubectl and heptio-authenticator-aws binaries and save to ~/bin
 mkdir ~/bin
 wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/kubectl && chmod +x kubectl && mv kubectl ~/bin/
 wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws && chmod +x heptio-authenticator-aws && mv heptio-authenticator-aws ~/bin/
@@ -14,6 +14,7 @@ echo Create a keypair
 cd ~
 aws ec2 create-key-pair --key-name eks-c9-keypair --query 'KeyMaterial' --output text > eks-c9-keypair.pem
 chmod 400 eks-c9-keypair.pem
+sleep 10
 
 echo Create the EKS cluster
 cd ~
@@ -38,14 +39,14 @@ echo -e "SUBNETS: $SUBNETS"
 # Convert SUBNETS to an array
 IFS=',' read -r -a SUBNETSARR <<< "$SUBNETS"
 
-echo Update the ../efs/deploy-ec2.sh config file
-sed -e "s/{VPCID}/${VPCID}/g" -e "s/{REGION}/${region}/g" -e "s/{SUBNETA}/${SUBNETSARR[0]}/g" -e "s/{SUBNETB}/${SUBNETSARR[1]}/g" -e "s/{SUBNETC}/${SUBNETSARR[2]}/g" -i ../efs/deploy-ec2.sh
+echo Update the ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh config file
+sed -e "s/{VPCID}/${VPCID}/g" -e "s/{REGION}/${region}/g" -e "s/{SUBNETA}/${SUBNETSARR[0]}/g" -e "s/{SUBNETB}/${SUBNETSARR[1]}/g" -e "s/{SUBNETC}/${SUBNETSARR[2]}/g" -i ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh
 
-echo ../efs/deploy-ec2.sh script has been updated with your parameters
-cat ../efs/deploy-ec2.sh
+echo ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh script has been updated with your parameters
+cat ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh
 
-echo Running ../efs/deploy-ec2.sh - this will use CloudFormation to create the EC2 bastion and EFS
-./efs/deploy-ec2.sh
+echo Running ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh - this will use CloudFormation to create the EC2 bastion and EFS
+~/hyperledger-on-kubernetes/efs/deploy-ec2.sh
 
 # Prepare the EC2 bastion for use by copying the kubeconfig and aws config & credentials files from Cloud9
 cd ~
