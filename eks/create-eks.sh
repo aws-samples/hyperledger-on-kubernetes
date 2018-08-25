@@ -55,6 +55,6 @@ echo public DNS of EC2 bastion host: $PublicDnsName
 
 echo Prepare the EC2 bastion for use by copying the kubeconfig and aws config & credentials files from Cloud9
 cd ~
-scp -i eks-c9-keypair.pem  ~/kubeconfig.eks-fabric.yaml  ec2-user@${PublicDnsName}:/home/ec2-user/kubeconfig.eks-fabric.yaml
-scp -i eks-c9-keypair.pem  ~/.aws/config  ec2-user@${PublicDnsName}:/home/ec2-user/config
-scp -i eks-c9-keypair.pem  ~/.aws/credentials  ec2-user@${PublicDnsName}:/home/ec2-user/credentials
+scp -i eks-c9-keypair.pem -q ~/kubeconfig.eks-fabric.yaml  ec2-user@${PublicDnsName}:/home/ec2-user/kubeconfig.eks-fabric.yaml
+scp -i eks-c9-keypair.pem -q ~/.aws/config  ec2-user@${PublicDnsName}:/home/ec2-user/config
+scp -i eks-c9-keypair.pem -q ~/.aws/credentials  ec2-user@${PublicDnsName}:/home/ec2-user/credentials
