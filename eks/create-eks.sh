@@ -49,13 +49,13 @@ echo Running ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh - this will use Cloud
 cd ~/hyperledger-on-kubernetes/
 ./efs/deploy-ec2.sh
 
-sudo yum -q install jq
+sudo yum -y install jq
 PublicDnsNameBastion=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=EFS FileSystem Mounted Instance" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
 PublicDnsNameEKSWorker=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=eks-fabric-default-Node" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
 echo public DNS of EC2 bastion host: $PublicDnsNameBastion
 echo public DNS of EKS worker nodes: $PublicDnsNameEKSWorker
 
-echo Prepare the EC2 bastion for use by copying the kubeconfig and aws config & credentials files from Cloud9
+echo Prepare the EC2 bastion for use by copying the kubeconfig and aws config and credentials files from Cloud9
 cd ~
 scp -i eks-c9-keypair.pem -q ~/kubeconfig.eks-fabric.yaml  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/kubeconfig.eks-fabric.yaml
 scp -i eks-c9-keypair.pem -q ~/.aws/config  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/config
