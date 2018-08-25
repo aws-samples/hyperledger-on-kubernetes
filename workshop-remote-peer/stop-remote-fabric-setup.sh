@@ -27,8 +27,8 @@ function main {
         stopPVC $HOME $REPO $DELETE_ORG
         getDomain $DELETE_ORG
         removeNamespaces $HOME $REPO $DOMAIN
-        kubectl delete pv --all
     done
+    kubectl delete pv --all
     whatsRunning
     log "Remote Hyperledger Fabric on Kubernetes stopped"
 }
@@ -37,6 +37,6 @@ DATA=/opt/share/
 REPO=hyperledger-on-kubernetes
 SCRIPTS=$DATA/rca-scripts
 source $SCRIPTS/env.sh
-source $HOME/$REPO/utilities.sh
+source $HOME/$REPO/fabric-main/utilities.sh
 DATA=/opt/share/
 main

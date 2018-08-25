@@ -2,9 +2,7 @@
 
 # TODO
 
-* Improve the section on creating the Kubernetes cluster, especially the section on how to use the Heptio authenticator
-and configure this for use on the bastion host
-* Installation instructions for Node on Windows
+* gen-fabric should only generate the files and namespaces required by the workshop, not all the files used by fabric-main
 
 # Issues from first workshop
 done - EFS - people did not run. Put this in line and not at ened 
@@ -180,8 +178,7 @@ cd hyperledger-on-kubernetes
 ./workshop-remote-peer/start-remote-fabric-setup.sh
 ```
 
-Now let's investigate the results of the previous script. In the statements below, replace 'org1' with the org you
-selected in step 7:
+Now let's investigate the results of the previous script:
 
 ```bash
 kubectl get po -n org1 
@@ -247,9 +244,9 @@ Password: michaelpeer1-org1pw
 
 ### Step 9: Start the peer
 We are now ready to start the new peer. The peer runs as a pod in Kubernetes. Let's take a look at the pod spec before
-we deploy it. Replace 'michaelpeer1' with the name of your peer, and replace 'org1' with the org you selected. If you 
+we deploy it. In the statement below, replace 'michaelpeer1' with the name of your peer. If you 
 are unsure, you can simply do 'ls k8s' to view the yaml files that were generated based on your selections, and find
-the file start starts with 'fabric-deployment-remote-peer-'.
+the file start starts with 'fabric-deployment-workshop-remote-peer-'.
 
 ```bash
 more k8s/fabric-deployment-workshop-remote-peer-michaelpeer1-org1.yaml
@@ -359,7 +356,6 @@ Interacting with peers using the 'peer' utility requires you to set ENV variable
 We'll use the following ENV variables to indicate which peer we want to interact with. You'll need to make the following changes:
 
 * Change 'michaelpeer' to match the name of your peer
-* Change 'org1' to the name of the org you belong to. Change it everywhere it appears
 
 You should still be inside the register container at this point. Copy all the variables below, and paste them into your 
 terminal window. If you exit the register container, and 'exec' back in later, remember to rerun these export statements.
@@ -464,11 +460,12 @@ You should see the following. You may need to try the 'instantiated' command mor
 # peer chaincode list --installed
 Get installed chaincodes on peer:
 Name: marbles-workshop, Version: 1.0, Path: github.com/hyperledger/marbles/chaincode/src/marbles, Id: 7c07640a582822f8bb2364fa0ab0d204ba8b3d6b28f559027fcbdccfe65b3aae
-2018-07-30 05:45:25.832 UTC [main] main -> INFO 001 Exiting.....
-# peer chaincode list --instantiated -C mychannel
+2018-08-25 02:05:08.338 UTC [main] main -> INFO 001 Exiting.....
+root@register-p-org1-665687bcb4-qk9np:/opt/gopath/src/github.com/hyperledger/marbles# peer chaincode list --instantiated -C mychannel
 Get instantiated chaincodes on channel mychannel:
+Name: abaccc, Version: 1.0, Escc: escc, Vscc: vscc
 Name: marbles-workshop, Version: 1.0, Path: github.com/hyperledger/marbles/chaincode/src/marbles, Escc: escc, Vscc: vscc
-2018-07-30 05:45:25.940 UTC [main] main -> INFO 001 Exiting.....
+2018-08-25 02:05:08.426 UTC [main] main -> INFO 001 Exiting.....
 ```
 
 ### Step 13: Creating a user
@@ -478,8 +475,9 @@ sets the MSP (membership service provider) context to an admin user. Admin was u
 but to invoke transactions and query the ledger state we need a user. Users are created by fabric-ca, a tool provided for 
 us by Fabric to act as a root CA and manage the registration and enrollment of identities.
 
-Once again, 'exec' into the register container and run the export statements from Step 10. Replace 'org1' in the statements 
-below to match the org you have chosen, and execute the statements.
+Once again, 'exec' into the register container.
+ 
+Run the export statements from Step 10. Then execute the statements below.
 
 ```bash
 export FABRIC_CA_CLIENT_HOME=/etc/hyperledger/fabric/orgs/org1/user
@@ -549,6 +547,8 @@ return the latest marble owners.
 When we say 'run a query', we really mean 'execute chaincode that queries the world state'. In Fabric, chaincode executes
 inside a Docker container. The first time you run chaincode it may take around 30 seconds as the Docker container that hosts 
 the chaincode is downloaded and created.
+
+Rerun the export statements from Step 10.
 
 ```bash
 export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/orgs/org1/user/msp
@@ -697,7 +697,6 @@ curl  https://raw.githubusercontent.com/aws-samples/hyperledger-on-kubernetes/ma
 
 Still in the config directory, edit connection_profile_eks.json:
 
-* Do a global search & replace on 'org1', replacing it with the org you have chosen
 * Do a global search & replace on 'michaelpeer', replacing it with your peer name
 * In the 'replace' commands below, make sure you do not change the port number, nor remove the protocol (e.g. grpc://)
 * Replace the orderer URL with the NLB endpoint provided by your facilitator (The same one you used in Step 14. See the 
@@ -844,7 +843,7 @@ to do this, but did not include this function in the UI. So we'll do it the hard
 On your EC2 bastion instance, do the following:
 * 'exec' into the register container
 * enter the export statements you used in Step 10
-* identify yourself as a user by executing the command below (change org1 to match your org):
+* identify yourself as a user by executing the command below:
 
 ```bash
 export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/orgs/org1/user/msp

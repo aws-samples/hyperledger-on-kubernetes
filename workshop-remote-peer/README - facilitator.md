@@ -26,12 +26,19 @@ instantiated and tested. Now you'll need to copy the crypto material to S3. Here
     and store these in S3. This will allow them to be downloaded by the workshop participants who are going to connect to your network. 
     Note that this will only work if you have the AWS CLI configured on your EC2 bastion (which you would have if you are using EKS).
     If this script indicates it's unable to copy the 'tar', you can do it manually following the steps in `./facilitator/copy-crypto-to-S3.sh`
-* The Orderer connection URL must be obtained and made available to all participants. I suggest you get the Orderer endpoint,
-as exposed by NLB, and then update the README.md in this directory (the README in workshop-remote-peer used by the workshop participants) so that
+* The Orderer connection URL must be obtained and made available to all participants. There is an issue here to be aware of:
+there are multiple orderers and you must select the correct orderer endpoint - i.e. orderer3. 
+
+orderer1: local endpoint for peers running in the same Kubernetes cluster
+orderer2: remote endpoint with TLS enabled, for remote peers
+orderer3: remote endpoint with TLS disabled, for workshop peers
+
+I suggest you get the Orderer endpoint for orderer3, as exposed by NLB, and then update the README.md in this directory 
+(the README in workshop-remote-peer used by the workshop participants) so that
 each place the orderer endpoint is used it points to the correct DNS. You can use `kubectl get svc -n org0` to obtain the
 orderer endpoint, and `kubectl describe` to see the details of a specific service.
 
 ```bash
 kubectl get svc -n org0
-kubectl describe svc orderer2-org0-nlb -n org0
+kubectl describe svc orderer3-org0-nlb -n org0
 ```
