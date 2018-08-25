@@ -28,7 +28,7 @@ function main {
     mergeEnv $HOME $REPO $DATADIR $MERGEFILE
     copyScripts $HOME $REPO $DATADIR
     cd $HOME/$REPO
-    source fabric-main/scripts/env.sh
+    source scripts/env.sh
     source fabric-main/utilities.sh
     makeDirsForOrg $DATADIR
     genTemplates $HOME $REPO
