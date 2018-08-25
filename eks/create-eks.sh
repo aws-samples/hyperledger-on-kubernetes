@@ -46,7 +46,8 @@ echo ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh script has been updated with 
 cat ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh
 
 echo Running ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh - this will use CloudFormation to create the EC2 bastion and EFS
-~/hyperledger-on-kubernetes/efs/deploy-ec2.sh
+cd ~/hyperledger-on-kubernetes/
+./efs/deploy-ec2.sh
 
 # Prepare the EC2 bastion for use by copying the kubeconfig and aws config & credentials files from Cloud9
 cd ~
