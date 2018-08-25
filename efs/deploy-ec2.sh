@@ -19,8 +19,8 @@
 region={REGION}
 vpcid={VPCID}
 subneta={SUBNETA}
-subnetb={SUBNETA}
-subnetc={SUBNETA}
+subnetb={SUBNETB}
+subnetc={SUBNETC}
 keypairname=eks-c9-keypair
 volumename=dltefs
 mountpoint=opt/share
