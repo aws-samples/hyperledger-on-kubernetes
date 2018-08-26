@@ -8,7 +8,7 @@ in a single AWS account. This is suitable for POC's, or for testing/learning
 peer organisations running in separate AWS accounts. This resembles a production-ready Hyperledger network where remote
 peers from different organisations connect to the network
 
-Step 6 is where you will indicate whether you want to create a POC or PROD environment.
+Step 2 is where you will indicate whether you want to create a POC or PROD environment.
 
 ## Getting Started
 
