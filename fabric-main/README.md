@@ -124,6 +124,9 @@ You have a few options:
 * [Part 4:](../workshop-remote-peer/README.md) Run the Fabric workshop, where participants add their own remote peers, running in their own AWS accounts
 
 
+#########################################################################################################################
+Between these lines, this part of the README can be removed as its covered in other READMEs
+
 ### Join the peer to a channel
 I've created the script, 'peer-join-channel.sh' to join the peer to the channel and install the chaincode. There is a 
 matching YAML in k8s-templates (k8s-templates/fabric-deployment-peer-join-channel.yaml) that will be used to generate a 
@@ -171,6 +174,8 @@ The file is signed by org1 and stored in the shared EFS drive, at: /$DATA/${NEW_
 * addorg-fabric-installcc.sh runs in every org, and installs a new version of the chaincode
 * addorg-fabric-upgradecc.sh runs in org1 and upgrades the chaincode, applying the new endorsement policy that allows the
 new org to endorse TX
+
+##################################################################################################################################
 
 ## Paths
 Paths are relative to the shared EFS drive:

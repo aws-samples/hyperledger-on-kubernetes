@@ -28,7 +28,7 @@ channel, install chaincode, test the channel connection, then run a Node.js appl
 and displays the peers ledger state in a colourful UI.
 
 ## The Architecture
-![Marbles Workshop Architecture](WorkshopArchitecture.jpg?raw=true "Marbles Workshop Architecture")
+![Marbles Workshop Architecture](../architecture/WorkshopRemotePeer.png "Marbles Workshop Architecture")
 
 * You will interact with Hyperledger Fabric using the Marbles application, which is a Node.js application that you will
 run locally on your laptop. During this workshop you will configure and run this application.

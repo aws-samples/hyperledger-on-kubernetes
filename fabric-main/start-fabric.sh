@@ -51,6 +51,7 @@ function main {
         checkNLBHealthy
     fi
     startTestABAC $HOME $REPO
+    echo "sleeping for 1 minute before starting next test case"
     sleep 60
     startTestMarbles $HOME $REPO
     whatsRunning

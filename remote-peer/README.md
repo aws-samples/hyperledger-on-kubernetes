@@ -3,6 +3,12 @@
 Configure and start a Hyperledger Fabric peer in one account that connects to a Fabric network in another account. The
 peer belongs to one of the organisations already present in the Fabric network.
 
+## The Architecture
+![Remote Peer Architecture](../architecture/RemotePeer.png "Remote Peer Architecture")
+
+* Your new peer will connect to the Orderer service, which orders the transactions and groups them into blocks.
+* The Orderer service runs in a separate AWS Account and Region, and exposes an endpoing using an AWS Network Load Balancer (NLB)
+
 ## How does a remote peer connect to a Fabric network?
 A remote peer connects to the orderer service according to the following process:
 
@@ -171,7 +177,8 @@ A couple of configuration steps are required before starting the new peer:
 We are now ready to start the new peer. On the EC2 instance in the new account created above, in the repo directory, run:
 
 ```bash
-
+cd
+cd hyperledger-on-kubernetes
 ./remote-peer/start-remote-peer.sh
 ```
 
@@ -183,19 +190,21 @@ made above (e.g. PEER_PREFIX)
 * Start a local certificate authority (CA). You'll need this to generate a new user for your peer
 * Register your new peer with the CA
 * Start the new peer
+* Run the test cases
 
-The peer will start, but will not be joined to any channels. At this point the peer has little use as it does not 
-maintain any ledger state. To start building a ledger on the peer we need to join a channel.
+The peer will start, and the test case script will join it to the default channel. To confirm that your peer is working
+you can check the following logs:
 
-### Step 5: Join the peer to a channel
-I've created a Kubernetes deployment YAML that will deploy a POD to execute a script, `test-fabric-marbles`, that will
-join the peer created above to a channel (the channel name is in env.sh), install the marbles demo chaincode, and 
-execute a couple of test transactions. Run the following:
+* test-fabric-marbles pod. You may see some errors in this log file as the peer tries to create a channel that already 
+exists, or create a marble that already exists, but it should successfully query and transfer marbles.
+* michaelpeer1-org1 pod. Use the statement below, replacing the peer name with your own. This will show you the blocks
+that are replicating from the Fabric network to your new peer. You may also see gossip related warnings here informing
+you that the peer cannot connect to other peers. Ignore these - the peer is trying to connect to the local peers
+running in the Part 1 orderer, but only the anchor peers in the orderer network expose an external IP (via an NLB). 'peer2'
+in the orderer org does not expose an external IP, hence the warnings.
 
 ```bash
-kubectl apply -f k8s/fabric-deployment-test-fabric-marbles.yaml
+kubectl logs michaelpeer1-org1-ff9b759d8-gkjn2 -n org1 -c michaelpeer1-org1 | grep block
 ```
 
-This will connect the new peer to the channel. You should then check the peer logs to ensure
-all the TX are being sent to the new peer. If there are existing blocks on the channel you should see them
-replicating to the new peer. Look for messages in the log file such as `Channel [mychannel]: Committing block [14385] to storage`.
+Look for messages in the log file such as `Channel [mychannel]: Committing block [14] to storage`.
