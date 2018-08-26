@@ -21,6 +21,7 @@ DATA=/opt/share
 SCRIPTS=$DATA/rca-scripts
 source $SCRIPTS/env.sh
 source $HOME/$REPO/fabric-main/utilities.sh
+source $HOME/$REPO/fabric-main/gen-fabric-functions.sh
 K8SYAML=k8s
 DATA=/opt/share
 
