@@ -19,8 +19,8 @@ SDIR=$(dirname "$0")
 DATA=/opt/share
 SCRIPTS=$DATA/rca-scripts
 source $SCRIPTS/env.sh
-source $SDIR/utilities.sh
 REPO=hyperledger-on-kubernetes
+source $HOME/$REPO/fabric-main/utilities.sh
 K8STEMPLATES=k8s-templates
 K8SYAML=k8s
 FABRICORGS=""

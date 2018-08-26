@@ -50,10 +50,14 @@ function main {
     if [ $FABRIC_NETWORK_TYPE == "PROD" ]; then
         checkNLBHealthy
     fi
+    echo "starting next test case: ABAC"
     startTestABAC $HOME $REPO
-    echo "sleeping for 1 minute before starting next test case"
+    echo "sleeping for 1 minute before starting next test case: Marbles"
     sleep 60
     startTestMarbles $HOME $REPO
+    echo "sleeping for 1 minute before starting next test case: Marbles Workshop"
+    sleep 60
+    startTestMarblesWorkshop $HOME $REPO
     whatsRunning
     echo "Setup of Hyperledger Fabric on Kubernetes complete"
 }
