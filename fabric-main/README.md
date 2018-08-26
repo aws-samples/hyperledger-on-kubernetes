@@ -69,12 +69,13 @@ cd hyperledger-on-kubernetes/fabric-main
 ```
 
 ### Step 5: Confirm the test cases ran successfully
-The test cases are run by deploying two Kubernetes pods:
+The test cases are run by deploying the following Kubernetes pods:
 
 * fabric-deployment-test-fabric-abac.yaml
+* fabric-deployment-test-fabric-marbles.yaml
 * fabric-deployment-test-fabric-marbles-workshop.yaml
 
-which execute the scripts 'test-fabric-abac.sh' and 'test-fabric-marbles-workshop.sh'. These will run in the org1 
+which execute the scripts 'test-fabric-abac.sh', 'test-fabric-marbles.sh' and 'test-fabric-marbles-workshop.sh'. These will run in the org1 
 namespace, and will act as Fabric clients, executing actions against the Fabric network. You should check the results
 of the test cases to make sure they complete successfully.
 
@@ -84,6 +85,7 @@ On the EC2 bastion instance:
 kubectl get po -n org1
 #look for the test-fabric pods and replace the name in the statement below.
 kubectl logs test-fabric-678688bd5c-6fh2g -n org1
+kubectl logs test-fabric-marbles-6868bf7365 -84957 -n org1
 kubectl logs test-fabric-marbles-workshop-6868bf7886-97599 -n org1
 ```
 
@@ -111,7 +113,8 @@ Query Result: {"owners":[{"docType":"marble_owner","id":"o9999999999999999990","
 
 A few errors may appear in the test-fabric logs. Have a look at them to determine whether they are worth investigating.
 Errors that show chaincode could not be installed because it already exists, or similar errors, can be ignored. However,
-errors where chaincode cannot be queried indicate an issue.
+errors where chaincode cannot be queried indicate an issue. Chaincode that indicates a marble or owner already exists
+can also be ignored.
 
 If you've completed all these steps, you will have a Fabric network running. If you would like to connect remote peers to 
 this network, continue with the steps below.
