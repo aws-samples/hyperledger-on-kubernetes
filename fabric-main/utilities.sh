@@ -632,16 +632,17 @@ function checkNLBHealthy {
         if [[ $TAG =~ .*${re}.* ]]; then
             TGS=$(aws elbv2 describe-target-groups --load-balancer-arn $ELB --query 'TargetGroups[*].TargetGroupArn' | tr -d '"' | tr -d ',')
             for TG in $(aws elbv2 describe-target-groups --load-balancer-arn $ELB --query 'TargetGroups[*].TargetGroupArn' --output text); do
-                HEALTH=$(aws elbv2 describe-target-health --target-group-arn $TG --query 'TargetHealthDescriptions[*].TargetHealth')
-                if [[ $HEALTH == *'"State": "healthy"'* ]]; then
-                    log "Target Group $TG has one healthy instance"
-                else
-                    log "Target Group $TG has no healthy instances - waiting for it to become healthy. Health is $HEALTH"
-                    sleep 10
-                    continue
-                fi
+                while true; do
+                    HEALTH=$(aws elbv2 describe-target-health --target-group-arn $TG --query 'TargetHealthDescriptions[*].TargetHealth')
+                    if [[ $HEALTH == *'"State": "healthy"'* ]]; then
+                        log "Target Group $TG has one healthy instance. Health is $HEALTH"
+                        break
+                    else
+                        log "Target Group $TG has no healthy instances - waiting for it to become healthy. Health is $HEALTH"
+                        sleep 10
+                    fi
+                done
             done
-
         else
             continue
         fi
