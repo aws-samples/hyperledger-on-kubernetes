@@ -901,6 +901,13 @@ Don't forget to remove your EKS cluster. Instructions can be found here:
 * EKS: https://docs.aws.amazon.com/eks/latest/userguide/delete-cluster.html
 * Kops: https://github.com/kubernetes/kops/blob/master/docs/cli/kops_delete_cluster.md
 
+If eksctl cannot delete your EKS cluster, do the following:
+
+* Delete the CloudFormation stacks, DefaultNodeGroup, ServiceRole, VPC (prefixed with your EKS cluster name)
+* Delete the EC2 keypair you created. It will be in the EC2 console, under Key Pairs
+
+Finally, delete the CloudFormation stack for your Cloud9 intance. Also, in the Cloud9 console, delete the instance.
+
 ### Debugging Fabric on Kubernetes
 
 To debug Fabric running in Kubernetes, there are a few commands that will come in handy.

@@ -47,6 +47,18 @@ function genTemplates {
     ./gen-fabric.sh
 }
 
+function genWorkshopTemplates {
+    if [ $# -ne 2 ]; then
+        echo "Usage: genWorkshopTemplates <home-dir> <repo-name>"
+        exit 1
+    fi
+    local HOME=$1
+    local REPO=$2
+    echo "Generating K8s YAML Workshop deployment files"
+    cd $HOME/$REPO/workshop-remote-peer
+    ./gen-workshop-remote-peer.sh
+}
+
 function makeDirs {
     if [ $# -ne 1 ]; then
         echo "Usage: makeDirs <data-dir - probably something like /opt/share>"

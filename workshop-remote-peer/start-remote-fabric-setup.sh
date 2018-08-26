@@ -31,7 +31,7 @@ function main {
     source scripts/env.sh
     source fabric-main/utilities.sh
     makeDirsForOrg $DATADIR
-    genTemplates $HOME $REPO
+    genWorkshopTemplates $HOME $REPO
     createNamespaces $HOME $REPO
     startPVC $HOME $REPO
     startRCA $HOME $REPO
