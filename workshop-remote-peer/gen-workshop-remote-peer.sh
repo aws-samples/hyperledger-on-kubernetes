@@ -17,9 +17,10 @@
 
 EFSSERVER=fs-99a736d1.efs.us-east-1.amazonaws.com
 REPO=hyperledger-on-kubernetes
+DATA=/opt/share
+SCRIPTS=$DATA/rca-scripts
 source $SCRIPTS/env.sh
 source $HOME/$REPO/fabric-main/utilities.sh
-source $HOME/$REPO/fabric-main/gen-fabric.sh
 K8SYAML=k8s
 DATA=/opt/share
 
