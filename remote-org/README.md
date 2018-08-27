@@ -53,17 +53,25 @@ Once you are complete come back to this README.
 * Make sure the other properties in this file match your /scripts/env.sh
 
 In the new AWS account:
-* Edit the file `./remote-org/step1-mkdirs.sh`, and add the new org and domain to the two ENV variables at the 
+* Edit the file `remote-org/step1-mkdirs.sh`, and add the new org and domain to the two ENV variables at the 
+top of the file
+
+In the new AWS account:
+* Edit the file `remote-org/scripts/copy-tofrom-S3.sh`, and add the new org to the ENV variable at the 
 top of the file
 
 In the original AWS account with the main Fabric network:
-* Edit the file `./remote-org/step3-create-channel-config.sh`, and add the new org and domain to the two ENV variables at the 
+* Edit the file `remote-org/step3-create-channel-config.sh`, and add the new org and domain to the two ENV variables at the 
 top of the file
 
 ### Step 1 - make directories - New Fabric Org
 On the EC2 bastion in the new org.
 
-Run the script `./remote-org/step1-mkdirs.sh`. 
+Run the script:
+
+```bash
+./remote-org/step1-mkdirs.sh
+```
 
 This creates directories on EFS and copies the ./scripts directory to EFS
 

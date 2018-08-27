@@ -28,7 +28,7 @@ set -e
 function main {
     echo "Step1: Beginning setup of remote org on Hyperledger Fabric on Kubernetes ..."
     cd $HOME/$REPO
-    source util-prep.sh
+    source fabric-main/util-prep.sh
     updateRepo $HOME $REPO
     makeDirs $DATADIR
     copyScripts $HOME $REPO $DATADIR
