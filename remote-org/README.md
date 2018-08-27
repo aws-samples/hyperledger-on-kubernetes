@@ -81,7 +81,9 @@ to the same location in the EFS drive in your new org. This file contains the co
 public endpoints of the Orderer Service Node. It also contains the default username/passwords for various users in the
 Fabric network. In a production network you would not be sharing these via a configuration file.
 
-You can do this using the S3 method below, or by copying and pasting the file contents, or by using the SCP.
+You can do this using the S3 method below, or by copying and pasting the file contents, or by using the SCP. If you
+choose to copy/paste the file contents, be careful of the line feeds. Cloud9 seems to update multi-line strings, such as
+long keys, by adding line feeds. 
 
 To copy using S3:
 
