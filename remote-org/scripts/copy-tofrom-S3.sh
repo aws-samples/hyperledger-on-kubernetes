@@ -17,29 +17,20 @@
 
 set +e
 
-function main {
-    echo "Copying the crypto material to S3"
-    #create the s3 bucket, used to store the 'tar' of the keys/certs in the EFS directory /opt/share
-    echo -e "creating s3 bucket $S3BucketName"
-    #quick way of determining whether the AWS CLI is installed and a default profile exists
+NEW_ORG="org7"
+
+function copyEnv {
+    echo "Copying the env file to S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
-        if [[ "$region" == "us-east-1" ]]; then
-            aws s3api create-bucket --bucket $S3BucketName --region $region
-        else
-            aws s3api create-bucket --bucket $S3BucketName --region $region --create-bucket-configuration LocationConstraint=$region
-        fi
-        # 'tar' the keys/certs in the EFS /opt/share directory, and upload to s3
         cd $HOME
         sudo tar -cvf opt.tar /opt/share/
-        aws s3api put-object --bucket $S3BucketName --key opt.tar --body opt.tar
-        aws s3api put-bucket-acl --bucket $S3BucketName --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
-        aws s3api put-object-acl --bucket $S3BucketName --key opt.tar --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
-        aws s3api put-bucket-acl --bucket $S3BucketName --acl public-read
-        aws s3api put-object-acl --bucket $S3BucketName --key opt.tar --acl public-read
+        aws s3api put-object --bucket $S3BucketName --key ${NEW_ORG}/env.sh --body /opt/share/rca-scripts/env.sh
+        aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG}/env.sh --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+        aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG}/env.sh --acl public-read
     else
         echo "AWS CLI is not configured on this node. If you want the script to automatically create the S3 bucket, install and configure the AWS CLI"
     fi
-    echo "Copying the crypto material to S3 complete"
+    echo "Copying the env file to S3 complete"
 }
 
 function createS3Bucket {
@@ -67,5 +58,7 @@ REPO=hyperledger-on-kubernetes
 region=us-west-2
 S3BucketName=mcdg-blockchain-workshop
 
+# This is a little hack I found here: https://stackoverflow.com/questions/8818119/how-can-i-run-a-function-from-a-script-in-command-line
+# that allows me to call this bash script and invoke a specific function from the command line
 "$@"
 
