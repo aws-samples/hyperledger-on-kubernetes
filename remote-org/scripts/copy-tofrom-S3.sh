@@ -23,7 +23,9 @@ function copyEnvToS3 {
     echo "Copying the env file to S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
         aws s3api put-object --bucket $S3BucketName --key ${NEW_ORG}/env.sh --body /opt/share/rca-scripts/env.sh
+        aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG} --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
         aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG}/env.sh --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+        aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG} --acl public-read
         aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG}/env.sh --acl public-read
     else
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
