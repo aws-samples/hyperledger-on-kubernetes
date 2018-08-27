@@ -1,7 +1,9 @@
 # Hyperledger Fabric on Kubernetes - Part 3: Create a new remote organisation with its own CA
 
 Configure and start a new Hyperledger Fabric organisation in one account, and join it to an existing Fabric network 
-running in another account. Then add a peer to the new organisation and join an existing channel.
+running in another account. Then add a peer to the new organisation and join an existing channel. Do this in such a way
+that we mimic a proper Fabric network, i.e. the new Fabric organisation uses its own CA and manages its own keys, certs
+and identities.
 
 This differs from other examples provided on the Internet, for example, http://hyperledger-fabric.readthedocs.io/en/release-1.1/channel_update_tutorial.html
 and https://www.ibm.com/developerworks/cloud/library/cl-add-an-organization-to-your-hyperledger-fabric-blockchain/index.html.
@@ -19,15 +21,19 @@ The process for adding a new, remote organisation to an existing network is as f
 
 * In an AWS account and/or region different from the main Fabric network, use fabric-CA to generate the certs and keys 
 for the new organisation
-* Copy the public certs/keys from the new org to the main Fabric network
+* Copy a minimal subset of public certs/keys from the new org to the main Fabric network
 * In the main Fabric network, an admin user generates a new config block for the new org and updates the channel config
 with the new config. This will enable the new org to join an existing channel
 * Copy the genesis block of the channel to the new org. Peers in the new org will use this to join the channel
 * In the new org, start the peers and join the channel
 
+The tasks above are carried out by different parties. Some tasks are carried out by the admin of the Fabric orderer
+organisation, and other tasks are carried out by the admin of the new organisation. Each of the steps below will make it 
+clear which party carries out which steps.
+
 ## Getting Started
 
-### Step 1: Create a Kubernetes cluster
+### Step 0: Create a Kubernetes cluster - New Fabric Org
 You need an EKS cluster to start. The EKS cluster should be in a different account to the main EKS cluster you created in
 Part 1, and could also be in a different region. 
 
@@ -37,7 +43,7 @@ use to create and manage the Fabric network. Open the [EKS Readme](../eks/README
 Once you are complete come back to this README.
 
 ### Pre-requisites
-* SSH into the EC2 instance you created in the new AWS account
+* SSH into the EC2 bastion you created in the new AWS account
 * Navigate to the `hyperledger-on-kubernetes` repo
 * Edit the file `remote-org/scripts/env-remote-org.sh`. Update the following fields:
     * Set PEER_ORGS to the name of your new organisation. Example: PEER_ORGS="org7"
@@ -54,8 +60,8 @@ In the original AWS account with the main Fabric network:
 * Edit the file `./remote-org/step3-create-channel-config.sh`, and add the new org and domain to the two ENV variables at the 
 top of the file
 
-### Step 1 - make directories
-On the EC2 instance in the new org.
+### Step 1 - make directories - New Fabric Org
+On the EC2 bastion in the new org.
 
 Run the script `./remote-org/step1-mkdirs.sh`. 
 
@@ -63,25 +69,32 @@ This creates directories on EFS and copies the ./scripts directory to EFS
 
 ### Step 1a - configure env.sh
 After completing step 1, copy the file `env.sh` from the EFS drive in your main Fabric network (see /opt/share/rca-scripts/env.sh) 
-to the same location in the EFS drive in your new org.
+to the same location in the EFS drive in your new org. This file contains the configuration of the Fabric network and the 
+public endpoints of the Orderer Service Node. It also contains the default username/passwords for various users in the
+Fabric network. In a production network you would not be sharing these via a configuration file.
 
 You can do this by either copying and pasting the file contents, or by using the SCP commands used below for copying certificates.
 
-### Step 2 - Create the certs/keys for the new org and copy to Fabric network
-On the EC2 instance in the new org.
+### Step 2 - Create the public certs/keys for the new org and copy to Fabric network - New Fabric Org
+On the EC2 bastion in the new org.
 
-Run the script `./remote-org/step2-register-new-org.sh`. 
+Run the script:
 
-This will start a root CA, and optionally start an intermediate CA. It will then register the organisation with the CA
-and generate the certs/keys for the new org.
+```bash
+./remote-org/step2-register-new-org.sh
+```
 
-To join a new Fabric organisation to an existing Fabric network, you need to copy the certificates for the new org
+This will start a root CA, and optionally start an intermediate CA. It will then register the new organisation with the CA
+and generate the certs/keys for the new org. The keys will be stored in EFS, which is mapped as /opt/share in both your
+EC2 bastion and your Kubernetes worker nodes (this is done in Part 1, when you built the EKS cluster)
+
+To join a new Fabric organisation to an existing Fabric network, you need to copy the public certificates for the new org
 to the existing network. The certificates of interest are the admincerts, cacerts and tlscacerts found in the new
 org's msp folder. This folder is located on the EFS drive here: /opt/share/rca-data/orgs/<org name>/msp
 
 Copy the certificate and key information from the new org to the Fabric network in the main Kubernetes cluster, as follows:
 
-* SSH into the EC2 instance you created in the new AWS account, which is hosting the new organisation
+* SSH into the EC2 bastion you created in the new AWS account, which is hosting the new organisation
 * In the home directory, execute `sudo tar cvf org7msp.tar  /opt/share/rca-data/orgs/org7/msp`, to zip up the org's msp
 directory. Replace 'org7' with your org name
 * Exit the SSH, back to your local laptop or host
@@ -89,46 +102,46 @@ directory. Replace 'org7' with your org name
   `scp -i /Users/edgema/Documents/apps/eks/eks-fabric-key-account1.pem ec2-user@ec2-34-228-23-44.compute-1.amazonaws.com:/home/ec2-user/org7msp.tar /Users/edgema/Documents/apps/hyperledger-on-kubernetes/org7msp.tar`
 * Copy the tar file to your SSH EC2 host in your original AWS account (the one hosting the main Fabric network) using (replace with your directory name, EC2 DNS and keypair): 
  `scp -i /Users/edgema/Documents/apps/eks/eks-fabric-key.pem org7msp.tar ec2-user@ec2-18-236-169-96.us-west-2.compute.amazonaws.com:/home/ec2-user/org7msp.tar`
-* SSH into the EC2 instance in your original Kubernetes cluster in your original AWS account
+* SSH into the EC2 bastion in your original Kubernetes cluster in your original AWS account
 * `cd /`
 * `sudo tar xvf ~/org7msp.tar` - this should extract they certs for the new org onto the EFS drive, at /opt/share
 
-### Step 2a - Copy the orderer pem file
-Copy the orderer cert pem file from the original ec2 instance to the new ec2 instance. The pem file should be in the same
-directory on both - i.e. on the EFS drive accessible to the Kuberentes clusters.
+### Step 2a - Copy the orderer pem file - Fabric Orderer Org
+Copy the orderer cert pem file from the original EC2 bastion to the new EC2 bastion. The pem file should be in the same
+directory on both - i.e. on the EFS drive accessible to the Kubernetes clusters.
 
 You can either use scp for this, or just copy and paste the contents (I use 'vi' to make sure there are no issues with carriage returns/line feeds in the file)
 
 /opt/share/rca-data/org0-ca-chain.pem
 
-### Step 3 - Update channel config to include new org
-On the EC2 instance in the existing Fabric network, i.e. where the orderer is running.
+### Step 3 - Update channel config to include new org - Fabric Orderer Org
+On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
 
 * Edit the file `./remote-org/step3-create-channel-config.sh`, and add the new org and domain to the two ENV variables at the 
 top of the file
 * Run the script `./remote-org/step3-create-channel-config.sh`. 
 
-### Step 4 - Sign channel config created in step 3
-On the EC2 instance in the existing Fabric network, i.e. where the orderer is running.
+### Step 4 - Sign channel config created in step 3 - Fabric Orderer Org
+On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
 
 * Run the script `./remote-org/step4-sign-channel-config.sh`.
  
 You may need to run this against multiple organisations, depending on how your Fabric network is structured. The channel
 config must be signed by the orgs specified in the channel update policy.
 
-### Step 5 - Update channel config created in step 3
-On the EC2 instance in the existing Fabric network, i.e. where the orderer is running.
+### Step 5 - Update channel config created in step 3 - Fabric Orderer Org
+On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
 
 * Run the script `./remote-org/step5-update-channel-config.sh`.
 
 This updates the channel with the new channel config.
 
-### Step 6 - Start the new peer
-On the EC2 instance in the new org.
+### Step 6 - Start the new peer - New Fabric Org
+On the EC2 bastion in the new org.
 
 Run the script `./remote-org/step6-start-new-peer.sh`. 
 
-### Step 7 - copy the channel genesis block to the new org
+### Step 7 - copy the channel genesis block to the new org - Fabric Orderer Org
 On your local laptop or host.
 
 Copy the <channel-name>.block file from the main Fabric network to the new org, as follows:
@@ -147,7 +160,7 @@ the certs for the new org are NOT in the genesis block as the new org did not ex
 However, when the peer joins the channel it will read the blocks in the channel and process each config block in turn,
 eventually ending up with the latest config (created in steps 3-5 above).
 
-### Step 8 - Join the channel
-On the EC2 instance in the new org.
+### Step 8 - Join the channel - New Fabric Org
+On the EC2 bastion in the new org.
 
 Run the script `./remote-org/step8-join-channel.sh`. 
