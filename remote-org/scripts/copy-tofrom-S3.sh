@@ -36,6 +36,7 @@ function copyEnvToS3 {
 function copyEnvFromS3 {
     echo "Copying the env file from S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
+        sudo chown ec2-user /opt/share/rca-scripts/env.sh
         aws s3api get-object --bucket $S3BucketName --key ${NEW_ORG}/env.sh /opt/share/rca-scripts/env.sh
     else
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
