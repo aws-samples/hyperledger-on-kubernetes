@@ -22,8 +22,6 @@ NEW_ORG="org7"
 function copyEnv {
     echo "Copying the env file to S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
-        cd $HOME
-        sudo tar -cvf opt.tar /opt/share/
         aws s3api put-object --bucket $S3BucketName --key ${NEW_ORG}/env.sh --body /opt/share/rca-scripts/env.sh
         aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG}/env.sh --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
         aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG}/env.sh --acl public-read
