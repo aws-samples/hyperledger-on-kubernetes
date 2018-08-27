@@ -67,13 +67,29 @@ Run the script `./remote-org/step1-mkdirs.sh`.
 
 This creates directories on EFS and copies the ./scripts directory to EFS
 
-### Step 1a - configure env.sh
+### Step 1a - copy env.sh
 After completing step 1, copy the file `env.sh` from the EFS drive in your main Fabric network (see /opt/share/rca-scripts/env.sh) 
 to the same location in the EFS drive in your new org. This file contains the configuration of the Fabric network and the 
 public endpoints of the Orderer Service Node. It also contains the default username/passwords for various users in the
 Fabric network. In a production network you would not be sharing these via a configuration file.
 
-You can do this by either copying and pasting the file contents, or by using the SCP commands used below for copying certificates.
+You can do this using the S3 method below, or by copying and pasting the file contents, or by using the SCP.
+
+To copy using S3:
+
+On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
+```bash
+cd
+cd hyperledger-on-kubernetes
+./remote-org/scripts/copy-tofrom-S3.sh copyEnvToS3
+```
+
+On the EC2 bastion in the new org.
+```bash
+cd
+cd hyperledger-on-kubernetes
+./remote-org/scripts/copy-tofrom-S3.sh copyEnvFromS3
+```
 
 ### Step 2 - Create the public certs/keys for the new org and copy to Fabric network - New Fabric Org
 On the EC2 bastion in the new org.

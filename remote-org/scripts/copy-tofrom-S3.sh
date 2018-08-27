@@ -19,16 +19,26 @@ set +e
 
 NEW_ORG="org7"
 
-function copyEnv {
+function copyEnvToS3 {
     echo "Copying the env file to S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
         aws s3api put-object --bucket $S3BucketName --key ${NEW_ORG}/env.sh --body /opt/share/rca-scripts/env.sh
         aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG}/env.sh --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
         aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG}/env.sh --acl public-read
     else
-        echo "AWS CLI is not configured on this node. If you want the script to automatically create the S3 bucket, install and configure the AWS CLI"
+        echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
     fi
     echo "Copying the env file to S3 complete"
+}
+
+function copyEnvFromS3 {
+    echo "Copying the env file from S3"
+    if [[ $(aws configure list) && $? -eq 0 ]]; then
+        aws s3api get-object --bucket $S3BucketName --key ${NEW_ORG}/env.sh /opt/share/rca-scripts/env.sh
+    else
+        echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
+    fi
+    echo "Copying the env file from S3 complete"
 }
 
 function createS3Bucket {
@@ -44,7 +54,7 @@ function createS3Bucket {
         aws s3api put-bucket-acl --bucket $S3BucketName --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
         aws s3api put-bucket-acl --bucket $S3BucketName --acl public-read
     else
-        echo "AWS CLI is not configured on this node. If you want the script to automatically create the S3 bucket, install and configure the AWS CLI"
+        echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
     fi
     echo "Creating the S3 bucket complete"
 }
