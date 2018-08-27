@@ -23,9 +23,7 @@ function copyEnvToS3 {
     echo "Copying the env file to S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
         aws s3api put-object --bucket $S3BucketName --key ${NEW_ORG}/env.sh --body /opt/share/rca-scripts/env.sh
-        aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG} --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
         aws s3api put-object-acl --bucket $S3BucketName --key ${NEW_ORG}/env.sh --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
-        aws s3api put-object-acl --bucket $S3BucketName ${NEW_ORG} --acl public-read
         aws s3api put-object-acl --bucket $S3BucketName --key ${NEW_ORG}/env.sh --acl public-read
     else
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
@@ -42,6 +40,32 @@ function copyEnvFromS3 {
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
     fi
     echo "Copying the env file from S3 complete"
+}
+
+function copyCertsToS3 {
+    echo "Copying the certs for the new org to S3"
+    if [[ $(aws configure list) && $? -eq 0 ]]; then
+        cd $HOME
+        sudo tar -cvf ${NEW_ORG}msp.tar /opt/share/rca-data/orgs/org7/msp
+        aws s3api put-object --bucket $S3BucketName --key ${NEW_ORG}/${NEW_ORG}msp.tar --body ${NEW_ORG}msp.tar
+        aws s3api put-object-acl --bucket $S3BucketName --key ${NEW_ORG}/${NEW_ORG}msp.tar --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+        aws s3api put-object-acl --bucket $S3BucketName --key ${NEW_ORG}/${NEW_ORG}msp.tar --acl public-read
+    else
+        echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
+    fi
+    echo "Copying the certs for the new org to S3 complete"
+}
+
+function copyCertsFromS3 {
+    echo "Copying the certs from S3"
+    if [[ $(aws configure list) && $? -eq 0 ]]; then
+        aws s3api get-object --bucket $S3BucketName --key ${NEW_ORG}/${NEW_ORG}msp.tar ~/${NEW_ORG}msp.tar
+        cd /
+        sudo tar xvf ~/${NEW_ORG}msp.tar
+    else
+        echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
+    fi
+    echo "Copying the certs from S3 complete"
 }
 
 function createS3Bucket {
