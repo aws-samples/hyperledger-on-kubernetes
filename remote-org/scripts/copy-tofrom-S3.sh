@@ -67,3 +67,5 @@ REPO=hyperledger-on-kubernetes
 region=us-west-2
 S3BucketName=mcdg-blockchain-workshop
 
+"$@"
+
