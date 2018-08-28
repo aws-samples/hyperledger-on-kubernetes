@@ -184,13 +184,22 @@ cd hyperledger-on-kubernetes
 ./remote-org/scripts/copy-tofrom-S3.sh copyOrdererPEMFromS3
 ```
 
-
 ### Step 3 - Update channel config to include new org - Fabric Orderer Org
 On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
 
 * Edit the file `./remote-org/step3-create-channel-config.sh`, and add the new org and domain to the two ENV variables at the 
 top of the file
+
+```bash
+cd
+cd hyperledger-on-kubernetes
+vi remote-org/step3-create-channel-config.sh
+```
 * Run the script `./remote-org/step3-create-channel-config.sh`. 
+
+```bash
+./remote-org/step3-create-channel-config.sh
+```
 
 ### Step 4 - Sign channel config created in step 3 - Fabric Orderer Org
 On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.

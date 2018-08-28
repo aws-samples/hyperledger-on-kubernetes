@@ -122,9 +122,8 @@ function stopInstallJobsFabric {
     set -e
 }
 
-SDIR=$(dirname "$0")
 DATA=/opt/share
 SCRIPTS=$DATA/rca-scripts
-source $SCRIPTS/env.sh
-source $SDIR/utilities.sh
 REPO=hyperledger-on-kubernetes
+source $SCRIPTS/env.sh
+source $HOME/$REPO/utilities.sh

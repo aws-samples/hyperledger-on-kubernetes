@@ -50,7 +50,7 @@ function updateRepo {
 function genTemplates {
     log "Generating K8s YAML deployment files"
     cd $HOME/$REPO
-    fabric-main/gen-fabric.sh
+    gen-fabric.sh
 }
 
 function copyScripts {

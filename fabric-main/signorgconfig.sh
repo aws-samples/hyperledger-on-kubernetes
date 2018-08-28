@@ -15,13 +15,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-SDIR=$(dirname "$0")
-DATA=/opt/share
-SCRIPTS=$DATA/rca-scripts
-REPO=hyperledger-on-kubernetes
-source $SCRIPTS/env.sh
-source $HOME/$REPO/utilities.sh
-
 function signConfOrgFabric {
     if [ $# -lt 2 ]; then
         echo "Usage: signConfOrgFabric <home-dir> <repo-name> <signing-org - the org signing the config> <new-org - an org if we are adding a new org, otherwise leave blank>"
@@ -96,3 +89,8 @@ function updateConfOrgFabric {
     done
 }
 
+DATA=/opt/share
+SCRIPTS=$DATA/rca-scripts
+REPO=hyperledger-on-kubernetes
+source $SCRIPTS/env.sh
+source $HOME/$REPO/utilities.sh

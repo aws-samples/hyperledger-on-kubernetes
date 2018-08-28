@@ -86,14 +86,14 @@ EOF
 
 SCRIPTS=$DATADIR/rca-scripts
 REPO=hyperledger-on-kubernetes
-source $HOME/$REPO/gen-env-file.sh
+source $HOME/$REPO/fabric-main/gen-env-file.sh
 genNewEnvAddOrg $NEW_ORG $NEW_DOMAIN $SCRIPTS
 sudo cp $SCRIPTS/envaddorgs.sh $SCRIPTS/env.sh
 source $SCRIPTS/env.sh
-source $HOME/$REPO/util-prep.sh
-source $HOME/$REPO/utilities.sh
-source $HOME/$REPO/signorgconfig.sh
-source $HOME/$REPO/installchaincode.sh
+source $HOME/$REPO/fabric-main/util-prep.sh
+source $HOME/$REPO/fabric-main/utilities.sh
+source $HOME/$REPO/fabric-main/signorgconfig.sh
+source $HOME/$REPO/fabric-main/installchaincode.sh
 log "Step3: PEER_ORGS at start of addorg.sh: '$PEER_ORGS'"
 log "Step3: PEER_DOMAINS at start of addorg.sh: '$PEER_DOMAINS'"
 main
