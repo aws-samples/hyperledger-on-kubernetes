@@ -325,30 +325,192 @@ On the EC2 bastion in the existing Fabric network, i.e. where the orderer is run
 ./remote-org/step4-sign-channel-config.sh
 ``` 
 
+Check the results. There will be a job per organisation, so check both org1 and org2.
+
+```bash
+$ kubectl logs job/fabric-signconf -n org1                                                                                                                                    
+File '/data/updateorg' exists - peer 'org1' admin is signing new org config for new/deleted org 'org7'
+##### 2018-08-28 02:34:18 cloneFabricSamples
+Cloning into 'fabric-samples'...
+##### 2018-08-28 02:34:18 cloned FabricSamples
+Switched to a new branch 'release-1.1'
+Branch release-1.1 set up to track remote branch release-1.1 from origin.
+##### 2018-08-28 02:34:18 checked out version 1.1 of FabricSamples
+##### 2018-08-28 02:34:18 cloneFabric
+##### 2018-08-28 02:34:18 Signing the config for the new org 'org7'
+##### 2018-08-28 02:34:18 Signing the configuration block of the channel 'mychannel' in config file /data/org7_config_update_as_envelope.pb
+2018-08-28 02:34:18.567 UTC [msp] GetLocalMSP -> DEBU 001 Returning existing local MSP
+2018-08-28 02:34:18.567 UTC [msp] GetDefaultSigningIdentity -> DEBU 002 Obtaining default signing identity
+2018-08-28 02:34:18.567 UTC [channelCmd] InitCmdFactory -> INFO 003 Endorser and orderer connections initialized
+2018-08-28 02:34:18.573 UTC [msp] GetLocalMSP -> DEBU 004 Returning existing local MSP
+2018-08-28 02:34:18.573 UTC [msp] GetDefaultSigningIdentity -> DEBU 005 Obtaining default signing identity
+2018-08-28 02:34:18.573 UTC [msp] GetLocalMSP -> DEBU 006 Returning existing local MSP
+2018-08-28 02:34:18.573 UTC [msp] GetDefaultSigningIdentity -> DEBU 007 Obtaining default signing identity
+2018-08-28 02:34:18.573 UTC [msp/identity] Sign -> DEBU 008 Sign: plaintext: 0AC2080A076F7267314D535012B6082D...65616465727312002A0641646D696E73 
+2018-08-28 02:34:18.573 UTC [msp/identity] Sign -> DEBU 009 Sign: digest: 63320ADDE21D20AE3BE16742DC13D18BBD07E53CB54A7BFA8D88A06FA8AA05EE 
+2018-08-28 02:34:18.573 UTC [msp] GetLocalMSP -> DEBU 00a Returning existing local MSP
+2018-08-28 02:34:18.573 UTC [msp] GetDefaultSigningIdentity -> DEBU 00b Obtaining default signing identity
+2018-08-28 02:34:18.574 UTC [msp] GetLocalMSP -> DEBU 00c Returning existing local MSP
+2018-08-28 02:34:18.574 UTC [msp] GetDefaultSigningIdentity -> DEBU 00d Obtaining default signing identity
+2018-08-28 02:34:18.574 UTC [msp/identity] Sign -> DEBU 00e Sign: plaintext: 0AF9080A1508021A0608AAE992DC0522...9607D7A821392D0B62A93FB9FD285653 
+2018-08-28 02:34:18.574 UTC [msp/identity] Sign -> DEBU 00f Sign: digest: 6951046716259D089FEF36D7416FD7A8A43E2D1EFBBDF27DCD587F2032DA878D 
+2018-08-28 02:34:18.607 UTC [main] main -> INFO 010 Exiting.....
+##### 2018-08-28 02:34:18 Congratulations! The config file has been signed by peer 'org1' admin for the new/deleted org 'org7'
+```
+
+You can also check that the channel config file has increased in size. In Step 3 it was 4728 bytes, now it is 8328. This is
+due to the signatures added to the file during the signing process.
+
+```bash
+$ ls -lt /opt/share/rca-data
+total 108
+-rw-r--r-- 1 root     root      8328 Aug 28 02:34 org7_config_update_as_envelope.pb
+drwxr-xr-x 2 root     root      6144 Aug 28 01:50 addorg-org7-20180828-0150
+-rw-r--r-- 1 root     root       316 Aug 28 01:49 channel.tx
+-rw-r--r-- 1 root     root     19340 Aug 28 01:49 genesis.block
+```
+
 ### Step 5 - Update channel config created in step 3 - Fabric Orderer Org
+In this step we update the channel with the new channel config. Since the new channel config now includes details
+of the new organisation, this will allow the new organisation to join the channel.
+
 On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
 
-* Run the script `./remote-org/step5-update-channel-config.sh`.
+* Run the script:
+ 
+```bash
+./remote-org/step5-update-channel-config.sh
+``` 
 
-This updates the channel with the new channel config.
+Check the results:
+
+```bash
+$ kubectl logs job/fabric-updateconf -n org1
+File '/data/updateorg' exists - peer 'org1' admin is updating channel config for for new/deleted org 'org7'
+##### 2018-08-28 02:40:48 cloneFabricSamples
+Cloning into 'fabric-samples'...
+##### 2018-08-28 02:40:49 cloned FabricSamples
+Switched to a new branch 'release-1.1'
+Branch release-1.1 set up to track remote branch release-1.1 from origin.
+##### 2018-08-28 02:40:49 checked out version 1.1 of FabricSamples
+##### 2018-08-28 02:40:49 cloneFabric
+##### 2018-08-28 02:40:49 Signing the config for the new org 'org7'
+##### 2018-08-28 02:40:49 Updating the configuration block of the channel 'mychannel' using config file /data/org7_config_update_as_envelope.pb
+2018-08-28 02:40:49.299 UTC [msp] GetLocalMSP -> DEBU 001 Returning existing local MSP
+2018-08-28 02:40:49.299 UTC [msp] GetDefaultSigningIdentity -> DEBU 002 Obtaining default signing identity
+2018-08-28 02:40:49.324 UTC [channelCmd] InitCmdFactory -> INFO 003 Endorser and orderer connections initialized
+2018-08-28 02:40:49.330 UTC [msp] GetLocalMSP -> DEBU 004 Returning existing local MSP
+2018-08-28 02:40:49.330 UTC [msp] GetDefaultSigningIdentity -> DEBU 005 Obtaining default signing identity
+2018-08-28 02:40:49.331 UTC [msp] GetLocalMSP -> DEBU 006 Returning existing local MSP
+2018-08-28 02:40:49.331 UTC [msp] GetDefaultSigningIdentity -> DEBU 007 Obtaining default signing identity
+2018-08-28 02:40:49.331 UTC [msp/identity] Sign -> DEBU 008 Sign: plaintext: 0AC2080A076F7267314D535012B6082D...65616465727312002A0641646D696E73 
+2018-08-28 02:40:49.331 UTC [msp/identity] Sign -> DEBU 009 Sign: digest: 19EBCCED6A0DFEB80ABC4E31A44E07F906ABF9A8FD50AFFA798811014CC7C6B7 
+2018-08-28 02:40:49.331 UTC [msp] GetLocalMSP -> DEBU 00a Returning existing local MSP
+2018-08-28 02:40:49.331 UTC [msp] GetDefaultSigningIdentity -> DEBU 00b Obtaining default signing identity
+2018-08-28 02:40:49.332 UTC [msp] GetLocalMSP -> DEBU 00c Returning existing local MSP
+2018-08-28 02:40:49.332 UTC [msp] GetDefaultSigningIdentity -> DEBU 00d Obtaining default signing identity
+2018-08-28 02:40:49.332 UTC [msp/identity] Sign -> DEBU 00e Sign: plaintext: 0AF9080A1508021A0608B1EC92DC0522...477230D2EBED40646A93038D3F4941D2 
+2018-08-28 02:40:49.332 UTC [msp/identity] Sign -> DEBU 00f Sign: digest: 49F2F741357953DE8153F052CD611C30C50799E7F5E63EE22291838BB8BB954E 
+2018-08-28 02:40:49.518 UTC [channelCmd] update -> INFO 010 Successfully submitted channel update
+2018-08-28 02:40:49.519 UTC [main] main -> INFO 011 Exiting.....
+##### 2018-08-28 02:40:49 Congratulations! Config file has been updated on channel 'mychannel' by peer 'org1' admin for the new/deleted org 'org7'
+##### 2018-08-28 02:40:49 You can now start the new peer, then join the new peer to the channel
+```
 
 ### Step 6 - Start the new peer - New Fabric Org
+Now that the new org has been added to the channel config, you can start a peer in the new org and join the peer to the channel.
+In Step 6 we'll start the peer, in the subsequent steps we'll join it to the channel.
+
 On the EC2 bastion in the new org.
 
-Run the script `./remote-org/step6-start-new-peer.sh`. 
+* Run the script:
+ 
+```bash
+./remote-org/step6-start-new-peer.sh
+``` 
+
+Check the results. First check the results for the registration of the new user for the new org. Do a `kubectl get po -n <new org>
+to get the pod name, then (replace the pod name below with your own. Also replace the org number to match your own):
+
+```bash
+$ kubectl logs register-p-org7-6d44b8ccd4-4vlfk   -n org7
+##### 2018-08-28 02:55:33 Registering peer for org org7 ...
+##### 2018-08-28 02:55:33 Enrolling with ica-org7.org7 as bootstrap identity ...
+.
+.
+.
+2018/08/28 02:55:34 [DEBUG] Sending request
+POST https://ica-org7.org7:7054/register
+{"id":"michaelpeer1-org7","type":"peer","secret":"michaelpeer1-org7pw","affiliation":"org1"}
+2018/08/28 02:55:34 [DEBUG] Received response
+statusCode=201 (201 Created)
+2018/08/28 02:55:34 [DEBUG] Response body result: map[secret:michaelpeer1-org7pw]
+2018/08/28 02:55:34 [DEBUG] The register request completed successfully
+Password: michaelpeer1-org7pw
+##### 2018-08-28 02:55:34 Finished registering peer for org org7
+```
+
+Then check that the peer started successfully. The key log entry is `Started peer with ID`:
+
+```bash
+$ kubectl logs michaelpeer1-org7-59fdf7bbc8-42n6j  -n org7 -c michaelpeer1-org7
+##### 2018-08-28 02:56:14 Preparing to start peer 'michaelpeer1-org7', host 'michaelpeer1-org7.org7', enrolled via 'https://michaelpeer1-org7:michaelpeer1-org7pw@ica-org7.org7:7054' with MSP at '/opt/gopath/src/github.com/hyperledger/fabric/peer/msp'
+2018/08/28 02:56:14 [DEBUG] Home directory: /opt/gopath/src/github.com/hyperledger/fabric/peer
+.
+.
+.
+2018-08-28 02:56:26.120 UTC [nodeCmd] serve -> INFO 1ca Starting peer with ID=[name:"michaelpeer1-org7" ], network ID=[dev], address=[192.168.90.14:7051]
+2018-08-28 02:56:26.120 UTC [nodeCmd] serve -> INFO 1cb Started peer with ID=[name:"michaelpeer1-org7" ], network ID=[dev], address=[192.168.90.14:7051]
+2018-08-28 02:56:26.120 UTC [flogging] setModuleLevel -> DEBU 1cc Module 'msp/identity' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.120 UTC [flogging] setModuleLevel -> DEBU 1cd Module 'msp' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.120 UTC [flogging] setModuleLevel -> DEBU 1ce Module 'gossip/state' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1cf Module 'gossip/election' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1d0 Module 'gossip/privdata' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1d1 Module 'gossip/gossip' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1d2 Module 'gossip/pull' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1d3 Module 'gossip/comm' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1d4 Module 'gossip/service' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1d5 Module 'gossip/discovery' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1d6 Module 'ledgermgmt' logger enabled for log level 'INFO'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1d7 Module 'cauthdsl' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1d8 Module 'policies' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1d9 Module 'grpc' logger enabled for log level 'ERROR'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1da Module 'peer/gossip/sa' logger enabled for log level 'WARNING'
+2018-08-28 02:56:26.121 UTC [flogging] setModuleLevel -> DEBU 1db Module 'peer/gossip/mcs' logger enabled for log level 'WARNING'
+```
+
+At this point the peer has not joined any channels, and does not have a ledger or world state.
 
 ### Step 7 - copy the channel genesis block to the new org - Fabric Orderer Org
-On your local laptop or host.
+Before the peer in the new org joins the channel, it must be able to connect to the Orderer Service Node (OSN) running
+in the Orderer org. It obtains the endpoint for the OSN from the channel genesis block
+
+The file <channel-name>.block would have been created when you first created the channel in the Orderer network. It will
+be on the EFS drive, in /opt/share/rca-data. If you can't find it, you can always pull it from the channel itself 
+using `peer channel fetch 0 mychannel.block`.
 
 Copy the <channel-name>.block file from the main Fabric network to the new org, as follows:
+
+On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
+```bash
+cd
+cd hyperledger-on-kubernetes
+./remote-org/scripts/copy-tofrom-S3.sh copyChannelGenesisToS3
+```
+
+On the EC2 bastion in the new org.
+```bash
+cd
+cd hyperledger-on-kubernetes
+./remote-org/scripts/copy-tofrom-S3.sh copyChannelGenesisFromS3
+```
+
 
 * Copy the <channel-name>.block file to your local laptop or host using (replace with your directory name, EC2 DNS and keypair):
  `scp -i /Users/edgema/Documents/apps/eks/eks-fabric-key.pem ec2-user@ec2-18-236-169-96.us-west-2.compute.amazonaws.com:/opt/share/rca-data/mychannel.block mychannel.block`
 * Copy the local <channel-name>.block file to the EFS drive in your new AWS account using (replace with your directory name, EC2 DNS and keypair):
  `scp -i /Users/edgema/Documents/apps/eks/eks-fabric-key-account1.pem /Users/edgema/Documents/apps/hyperledger-on-kubernetes/mychannel.block  ec2-user@ec2-34-228-23-44.compute-1.amazonaws.com:/opt/share/rca-data/mychannel.block`
 
-The file <channel-name>.block would have been created when you first created the channel. If you can't find it,
-you can always pull it from the channel itself using `peer channel fetch 0 mychannel.block`.
 
 The certificates used when a peer connects to an orderer for channel specific tasks (such as joining a channel
 or instantiating chaincode) are the certs contained in the channel config block. It should be pretty obvious that 

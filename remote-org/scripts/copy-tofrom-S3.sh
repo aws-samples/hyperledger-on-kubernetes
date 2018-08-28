@@ -73,7 +73,6 @@ function copyCertsFromS3 {
 }
 /opt/share/rca-data/org0-ca-chain.pem
 
-
 # copy the orderer PEM file from the Fabric orderer network to S3
 function copyOrdererPEMToS3 {
     echo "Copying the orderer PEM file to S3"
@@ -84,7 +83,7 @@ function copyOrdererPEMToS3 {
     else
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
     fi
-    echo "Copying the env file to S3 complete"
+    echo "Copying the orderer PEM file to S3 complete"
 }
 
 # copy the orderer PEM file from S3 to the new Fabric org
@@ -96,9 +95,33 @@ function copyOrdererPEMFromS3 {
     else
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
     fi
-    echo "Copying the env file from S3 complete"
+    echo "Copying the orderer PEM file from S3 complete"
 }
 
+# copy the Channel Genesis block from the Fabric orderer network to S3
+function copyChannelGenesisToS3 {
+    echo "Copying the Channel Genesis block to S3"
+    if [[ $(aws configure list) && $? -eq 0 ]]; then
+        aws s3api put-object --bucket $S3BucketNameOrderer --key org0/mychannel.block --body ${DATA}/mychannel.block
+        aws s3api put-object-acl --bucket $S3BucketNameOrderer --key org0/mychannel.block --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+        aws s3api put-object-acl --bucket $S3BucketNameOrderer --key org0/mychannel.block --acl public-read
+    else
+        echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
+    fi
+    echo "Copying the Channel Genesis block to S3 complete"
+}
+
+# copy the Channel Genesis block from S3 to the new Fabric org
+function copyChannelGenesisFromS3 {
+    echo "Copying the Channel Genesis block from S3"
+    if [[ $(aws configure list) && $? -eq 0 ]]; then
+        sudo chown ec2-user ${DATA}/org0-ca-chain.pem
+        aws s3api get-object --bucket $S3BucketNameOrderer --key org0/mychannel.block ${DATA}/mychannel.block
+    else
+        echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
+    fi
+    echo "Copying the Channel Genesis block from S3 complete"
+}
 
 # create S3 bucket to copy files from the Fabric orderer organisation. Bucket will be read-only to other organisations
 function createS3BucketForOrderer {
