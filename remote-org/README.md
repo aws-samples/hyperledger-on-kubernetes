@@ -85,12 +85,15 @@ You can do this using the S3 method below, or by copying and pasting the file co
 choose to copy/paste the file contents, be careful of the line feeds. Cloud9 seems to update multi-line strings, such as
 long keys, by adding line feeds. 
 
-To copy using S3:
+#### Copy using S3
+We will be copying from the existing network to the new organisation, and from the new organisation to the existing network.
+We'll use two S3 buckets for this, each owned and writable by different accounts, but read-only to everyone else.
 
 On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
 ```bash
 cd
 cd hyperledger-on-kubernetes
+./remote-org/scripts/copy-tofrom-S3.sh createS3BucketForOrderer
 ./remote-org/scripts/copy-tofrom-S3.sh copyEnvToS3
 ```
 
@@ -141,6 +144,23 @@ to the existing network. The certificates of interest are the admincerts, cacert
 org's msp folder. This folder is located on the EFS drive here: /opt/share/rca-data/orgs/<org name>/msp
 
 Copy the certificate and key information from the new org to the Fabric network in the main Kubernetes cluster, as follows:
+
+On the EC2 bastion in the new org.
+```bash
+cd
+cd hyperledger-on-kubernetes
+./remote-org/scripts/copy-tofrom-S3.sh createS3BucketForNewOrg
+./remote-org/scripts/copy-tofrom-S3.sh copyCertsToS3
+```
+
+
+On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
+```bash
+cd
+cd hyperledger-on-kubernetes
+./remote-org/scripts/copy-tofrom-S3.sh copyCertsFromS3
+```
+
 
 * SSH into the EC2 bastion you created in the new AWS account, which is hosting the new organisation
 * In the home directory, execute `sudo tar cvf org7msp.tar  /opt/share/rca-data/orgs/org7/msp`, to zip up the org's msp

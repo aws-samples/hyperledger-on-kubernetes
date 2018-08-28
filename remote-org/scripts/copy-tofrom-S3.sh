@@ -19,47 +19,51 @@ set +e
 
 NEW_ORG="org7"
 
+# copy the file env.sh from the Fabric orderer network to S3
 function copyEnvToS3 {
     echo "Copying the env file to S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
-        aws s3api put-object --bucket $S3BucketName --key ${NEW_ORG}/env.sh --body /opt/share/rca-scripts/env.sh
-        aws s3api put-object-acl --bucket $S3BucketName --key ${NEW_ORG}/env.sh --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
-        aws s3api put-object-acl --bucket $S3BucketName --key ${NEW_ORG}/env.sh --acl public-read
+        aws s3api put-object --bucket $S3BucketNameOrderer --key ${NEW_ORG}/env.sh --body ${SCRIPTS}/env.sh
+        aws s3api put-object-acl --bucket $S3BucketNameOrderer --key ${NEW_ORG}/env.sh --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+        aws s3api put-object-acl --bucket $S3BucketNameOrderer --key ${NEW_ORG}/env.sh --acl public-read
     else
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
     fi
     echo "Copying the env file to S3 complete"
 }
 
+# copy the file env.sh from S3 to the new Fabric org
 function copyEnvFromS3 {
     echo "Copying the env file from S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
-        sudo chown ec2-user /opt/share/rca-scripts/env.sh
-        aws s3api get-object --bucket $S3BucketName --key ${NEW_ORG}/env.sh /opt/share/rca-scripts/env.sh
+        sudo chown ec2-user ${SCRIPTS}/env.sh
+        aws s3api get-object --bucket $S3BucketNameOrderer --key ${NEW_ORG}/env.sh ${SCRIPTS}/env.sh
     else
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
     fi
     echo "Copying the env file from S3 complete"
 }
 
+# copy the certificates for the new Fabric org to S3
 function copyCertsToS3 {
     echo "Copying the certs for the new org to S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
         cd $HOME
-        sudo tar -cvf ${NEW_ORG}msp.tar /opt/share/rca-data/orgs/org7/msp
-        aws s3api put-object --bucket $S3BucketName --key ${NEW_ORG}/${NEW_ORG}msp.tar --body ${NEW_ORG}msp.tar
-        aws s3api put-object-acl --bucket $S3BucketName --key ${NEW_ORG}/${NEW_ORG}msp.tar --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
-        aws s3api put-object-acl --bucket $S3BucketName --key ${NEW_ORG}/${NEW_ORG}msp.tar --acl public-read
+        sudo tar -cvf ${NEW_ORG}msp.tar ${DATA}/orgs/org7/msp
+        aws s3api put-object --bucket $S3BucketNameNewOrg --key ${NEW_ORG}/${NEW_ORG}msp.tar --body ${NEW_ORG}msp.tar
+        aws s3api put-object-acl --bucket $S3BucketNameNewOrg --key ${NEW_ORG}/${NEW_ORG}msp.tar --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+        aws s3api put-object-acl --bucket $S3BucketNameNewOrg --key ${NEW_ORG}/${NEW_ORG}msp.tar --acl public-read
     else
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
     fi
     echo "Copying the certs for the new org to S3 complete"
 }
 
+# copy the certificates for the new Fabric org from S3 to the Fabric orderer network
 function copyCertsFromS3 {
     echo "Copying the certs from S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
-        aws s3api get-object --bucket $S3BucketName --key ${NEW_ORG}/${NEW_ORG}msp.tar ~/${NEW_ORG}msp.tar
+        aws s3api get-object --bucket $S3BucketNameNewOrg --key ${NEW_ORG}/${NEW_ORG}msp.tar ~/${NEW_ORG}msp.tar
         cd /
         sudo tar xvf ~/${NEW_ORG}msp.tar
     else
@@ -68,30 +72,50 @@ function copyCertsFromS3 {
     echo "Copying the certs from S3 complete"
 }
 
-function createS3Bucket {
+# create S3 bucket to copy files from the Fabric orderer organisation. Bucket will be read-only to other organisations
+function createS3BucketForOrderer {
     #create the s3 bucket
-    echo -e "creating s3 bucket $S3BucketName"
+    echo -e "creating s3 bucket for orderer org: $S3BucketNameOrderer"
     #quick way of determining whether the AWS CLI is installed and a default profile exists
     if [[ $(aws configure list) && $? -eq 0 ]]; then
         if [[ "$region" == "us-east-1" ]]; then
-            aws s3api create-bucket --bucket $S3BucketName --region $region
+            aws s3api create-bucket --bucket $S3BucketNameOrderer --region $region
         else
-            aws s3api create-bucket --bucket $S3BucketName --region $region --create-bucket-configuration LocationConstraint=$region
+            aws s3api create-bucket --bucket $S3BucketNameOrderer --region $region --create-bucket-configuration LocationConstraint=$region
         fi
-        aws s3api put-bucket-acl --bucket $S3BucketName --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
-        aws s3api put-bucket-acl --bucket $S3BucketName --acl public-read
+        aws s3api put-bucket-acl --bucket $S3BucketNameOrderer --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+        aws s3api put-bucket-acl --bucket $S3BucketNameOrderer --acl public-read
     else
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
     fi
     echo "Creating the S3 bucket complete"
 }
 
-SDIR=$(dirname "$0")
+# create S3 bucket to copy files from the new organisation. Bucket will be read-only to other organisations
+function createS3BucketForNewOrg {
+    #create the s3 bucket
+    echo -e "creating s3 bucket for new org $NEW_ORG: $S3BucketNameNewOrg"
+    #quick way of determining whether the AWS CLI is installed and a default profile exists
+    if [[ $(aws configure list) && $? -eq 0 ]]; then
+        if [[ "$region" == "us-east-1" ]]; then
+            aws s3api create-bucket --bucket $S3BucketNameNewOrg --region $region
+        else
+            aws s3api create-bucket --bucket $S3BucketNameNewOrg --region $region --create-bucket-configuration LocationConstraint=$region
+        fi
+        aws s3api put-bucket-acl --bucket $S3BucketNameNewOrg --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+        aws s3api put-bucket-acl --bucket $S3BucketNameNewOrg --acl public-read
+    else
+        echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
+    fi
+    echo "Creating the S3 bucket complete"
+}
+
 DATADIR=/opt/share/
 SCRIPTS=$DATADIR/rca-scripts
-REPO=hyperledger-on-kubernetes
+DATA=$DATADIR/rca-data
 region=us-west-2
-S3BucketName=mcdg-blockchain-workshop
+S3BucketNameOrderer=mcdg-blockchain-orderer
+S3BucketNameNewOrg=mcdg-blockchain-neworg
 
 # This is a little hack I found here: https://stackoverflow.com/questions/8818119/how-can-i-run-a-function-from-a-script-in-command-line
 # that allows me to call this bash script and invoke a specific function from the command line
