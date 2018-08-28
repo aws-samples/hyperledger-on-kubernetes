@@ -16,6 +16,11 @@ and its members.
 The README below will focus on integrating a new organisation into an existing Fabric network, where the new org could
 be running its peers anywhere.
 
+## TODO
+Step 2 currently uses the env.sh file to provide configuration for the new org. This file also contains details of 
+the orderer org, which results in step 2 generating and creating Kubernetes pods for org0 and the new org. We do not
+need org0. It would be better if we do not generate anything for org0 in the account for the new org.
+
 ## What is the process for creating a new organisation?
 The process for adding a new, remote organisation to an existing network is as follows:
 
@@ -153,7 +158,6 @@ cd hyperledger-on-kubernetes
 ./remote-org/scripts/copy-tofrom-S3.sh copyCertsToS3
 ```
 
-
 On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
 ```bash
 cd
@@ -161,26 +165,25 @@ cd hyperledger-on-kubernetes
 ./remote-org/scripts/copy-tofrom-S3.sh copyCertsFromS3
 ```
 
-
-* SSH into the EC2 bastion you created in the new AWS account, which is hosting the new organisation
-* In the home directory, execute `sudo tar cvf org7msp.tar  /opt/share/rca-data/orgs/org7/msp`, to zip up the org's msp
-directory. Replace 'org7' with your org name
-* Exit the SSH, back to your local laptop or host
-* Copy the tar file to your local laptop or host using (replace with your directory name, EC2 DNS and keypair):
-  `scp -i /Users/edgema/Documents/apps/eks/eks-fabric-key-account1.pem ec2-user@ec2-34-228-23-44.compute-1.amazonaws.com:/home/ec2-user/org7msp.tar /Users/edgema/Documents/apps/hyperledger-on-kubernetes/org7msp.tar`
-* Copy the tar file to your SSH EC2 host in your original AWS account (the one hosting the main Fabric network) using (replace with your directory name, EC2 DNS and keypair): 
- `scp -i /Users/edgema/Documents/apps/eks/eks-fabric-key.pem org7msp.tar ec2-user@ec2-18-236-169-96.us-west-2.compute.amazonaws.com:/home/ec2-user/org7msp.tar`
-* SSH into the EC2 bastion in your original Kubernetes cluster in your original AWS account
-* `cd /`
-* `sudo tar xvf ~/org7msp.tar` - this should extract they certs for the new org onto the EFS drive, at /opt/share
-
 ### Step 2a - Copy the orderer pem file - Fabric Orderer Org
 Copy the orderer cert pem file from the original EC2 bastion to the new EC2 bastion. The pem file should be in the same
-directory on both - i.e. on the EFS drive accessible to the Kubernetes clusters.
+directory on both - i.e. on the EFS drive accessible to the Kubernetes clusters. The new organisation will need the
+orderer certs when it connects to the orderer endpoint.
 
-You can either use scp for this, or just copy and paste the contents (I use 'vi' to make sure there are no issues with carriage returns/line feeds in the file)
+On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
+```bash
+cd
+cd hyperledger-on-kubernetes
+./remote-org/scripts/copy-tofrom-S3.sh copyOrdererPEMToS3
+```
 
-/opt/share/rca-data/org0-ca-chain.pem
+On the EC2 bastion in the new org.
+```bash
+cd
+cd hyperledger-on-kubernetes
+./remote-org/scripts/copy-tofrom-S3.sh copyOrdererPEMFromS3
+```
+
 
 ### Step 3 - Update channel config to include new org - Fabric Orderer Org
 On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
