@@ -38,7 +38,7 @@ DATADIR=/opt/share/
 SCRIPTS=$DATADIR/rca-scripts
 REPO=hyperledger-on-kubernetes
 source $SCRIPTS/env.sh
-source $HOME/$REPO/signorgconfig.sh
+source $HOME/$REPO/fabric-main/signorgconfig.sh
 main
 
 

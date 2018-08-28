@@ -41,6 +41,6 @@ DATADIR=/opt/share/
 SCRIPTS=$DATADIR/rca-scripts
 REPO=hyperledger-on-kubernetes
 source $SCRIPTS/env.sh
-source $HOME/$REPO/utilities.sh
+source $HOME/$REPO/fabric-main/utilities.sh
 main
 

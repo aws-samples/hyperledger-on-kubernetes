@@ -185,6 +185,10 @@ cd hyperledger-on-kubernetes
 ```
 
 ### Step 3 - Update channel config to include new org - Fabric Orderer Org
+This step generates a new channel config for the new org. It does this by fetching the current channel config,
+generating a new channel config, then comparing the new and old configs to create a 'diff'. The 'diff' will be applied
+to the channel in step 5, after it has been signed by the network members in step 4.
+
 On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
 
 * Edit the file `./remote-org/step3-create-channel-config.sh`, and add the new org and domain to the two ENV variables at the 
@@ -201,13 +205,125 @@ vi remote-org/step3-create-channel-config.sh
 ./remote-org/step3-create-channel-config.sh
 ```
 
+Check the results:
+
+```bash
+kubectl logs job/addorg-fabric-setup -n org1
+```
+
+You should see something like this:
+
+```bash
+File '/data/updateorg' exists - peer 'org1' admin creating a new org 'org7'
+##### 2018-08-28 01:49:59 cloneFabricSamples
+Cloning into 'fabric-samples'...
+##### 2018-08-28 01:49:59 cloned FabricSamples
+Switched to a new branch 'release-1.1'
+Branch release-1.1 set up to track remote branch release-1.1 from origin.
+##### 2018-08-28 01:49:59 checked out version 1.1 of FabricSamples
+##### 2018-08-28 01:49:59 cloneFabric
+##### 2018-08-28 01:49:59 Generating the channel config for new org 'org7'
+/usr/local/bin/configtxgen
+##### 2018-08-28 01:49:59 Printing the new Org configuration for 'org7' at '/data'
+2018-08-28 01:49:59.755 UTC [common/tools/configtxgen] main -> INFO 001 Loading configuration
+##### 2018-08-28 01:49:59 Fetching the configuration block into '/tmp/config_block.pb' of the channel 'mychannel'
+##### 2018-08-28 01:49:59 peer channel fetch config '/tmp/config_block.pb' -c 'mychannel' '-o orderer1-org0.org0:7050 --tls --cafile /data/org0-ca-chain.pem --clientauth --keyfile /data/tls/peer1-org1-cli-client.key --certfile /data/tls/peer1-org1-cli-client.crt'
+2018-08-28 01:49:59.902 UTC [msp] GetLocalMSP -> DEBU 001 Returning existing local MSP
+2018-08-28 01:49:59.902 UTC [msp] GetDefaultSigningIdentity -> DEBU 002 Obtaining default signing identity
+2018-08-28 01:49:59.930 UTC [channelCmd] InitCmdFactory -> INFO 003 Endorser and orderer connections initialized
+2018-08-28 01:49:59.930 UTC [msp] GetLocalMSP -> DEBU 004 Returning existing local MSP
+2018-08-28 01:49:59.930 UTC [msp] GetDefaultSigningIdentity -> DEBU 005 Obtaining default signing identity
+2018-08-28 01:49:59.931 UTC [msp] GetLocalMSP -> DEBU 006 Returning existing local MSP
+2018-08-28 01:49:59.931 UTC [msp] GetDefaultSigningIdentity -> DEBU 007 Obtaining default signing identity
+2018-08-28 01:49:59.931 UTC [msp/identity] Sign -> DEBU 008 Sign: plaintext: 0A9B090A3708021A0608C7D492DC0522...411BA59C3E6D12080A020A0012020A00 
+2018-08-28 01:49:59.931 UTC [msp/identity] Sign -> DEBU 009 Sign: digest: FD6A53DB0F7C7B659DD417B87BC8331D9197D534F1E1626AE3EAC492D495369D 
+2018-08-28 01:49:59.934 UTC [channelCmd] readBlock -> DEBU 00a Received block: 18
+2018-08-28 01:49:59.934 UTC [msp] GetLocalMSP -> DEBU 00b Returning existing local MSP
+2018-08-28 01:49:59.934 UTC [msp] GetDefaultSigningIdentity -> DEBU 00c Obtaining default signing identity
+2018-08-28 01:49:59.937 UTC [msp] GetLocalMSP -> DEBU 00d Returning existing local MSP
+2018-08-28 01:49:59.937 UTC [msp] GetDefaultSigningIdentity -> DEBU 00e Obtaining default signing identity
+2018-08-28 01:49:59.938 UTC [msp/identity] Sign -> DEBU 00f Sign: plaintext: 0A9B090A3708021A0608C7D492DC0522...499E120C0A041A02080512041A020805 
+2018-08-28 01:49:59.938 UTC [msp/identity] Sign -> DEBU 010 Sign: digest: DC48000A1AA4E8502B934D9CCA0761401F0E546B018BCACCBBA69579E2F36144 
+2018-08-28 01:49:59.942 UTC [channelCmd] readBlock -> DEBU 011 Received block: 5
+2018-08-28 01:49:59.942 UTC [main] main -> INFO 012 Exiting.....
+##### 2018-08-28 01:49:59 fetched config block
+##### 2018-08-28 01:49:59 About to start createConfigUpdate
+##### 2018-08-28 01:49:59 Creating config update payload for the new organization 'org7'
+##### 2018-08-28 01:49:59 configtxlator_pid:50
+##### 2018-08-28 01:49:59 Sleeping 5 seconds for configtxlator to start...
+2018-08-28 01:49:59.960 UTC [configtxlator] startServer -> INFO 001 Serving HTTP requests on 0.0.0.0:7059
+/tmp /data
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 77422    0 51163  100 26259  2528k  1297k --:--:-- --:--:-- --:--:-- 2629k
+##### 2018-08-28 01:50:05 Checking whether org 'org7' exists in the channel config
+##### 2018-08-28 01:50:05 About to execute jq '.channel_group.groups.Application.groups | contains({org7})'
+##### 2018-08-28 01:50:05 Org 'org7' does not exist in the channel config
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 50439    0 15319  100 35120   324k   744k --:--:-- --:--:-- --:--:--  762k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 64487    0 19834  100 44653   422k   951k --:--:-- --:--:-- --:--:--  969k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 40341    0  4702  100 35639   103k   783k --:--:-- --:--:-- --:--:--  790k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 14088    0  9386  100  4702  1919k   961k --:--:-- --:--:-- --:--:-- 2291k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 12675    0  4728  100  7947  1845k  3101k --:--:-- --:--:-- --:--:-- 3880k
+total 160
+-rw-r--r-- 1 root root  7947 Aug 28 01:50 org7_config_update_as_envelope.json
+-rw-r--r-- 1 root root  4728 Aug 28 01:50 org7_config_update_as_envelope.pb
+-rw-r--r-- 1 root root  9386 Aug 28 01:50 org7_config_update.json
+-rw-r--r-- 1 root root 44653 Aug 28 01:50 org7_updated_config.json
+-rw-r--r-- 1 root root 35120 Aug 28 01:50 org7_config.json
+-rw-r--r-- 1 root root 51163 Aug 28 01:50 org7_config_block.json
+##### 2018-08-28 01:50:05 Created config update payload for the new organization 'org7', in file /data/org7_config_update_as_envelope.pb
+/data
+##### 2018-08-28 01:50:05 Congratulations! The config file for the new org 'org7' was successfully added by peer 'org1' admin. Now it must be signed by all org admins
+##### 2018-08-28 01:50:05 After this pod completes, run the pod which contains the script addorg-fabric-sign.sh
+```
+
+You should also check that the channel config file has been created. Look for the file titled: `<org>_config_update_as_envelope.pb`.
+If you are interested in seeing human readable versions of the channel config, I save each of the stages in a directory,
+in this case titled: `addorg-org7-20180828-0150`. Here you can see JSON versions of the original channel config and the
+diff between new and current configs.
+
+```bash
+$ ls -lt /opt/share/rca-data
+total 104
+drwxr-xr-x 2 root     root      6144 Aug 28 01:50 addorg-org7-20180828-0150
+-rw-r--r-- 1 root     root      4728 Aug 28 01:50 org7_config_update_as_envelope.pb
+-rw-r--r-- 1 root     root       316 Aug 28 01:49 channel.tx
+-rw-r--r-- 1 root     root     19340 Aug 28 01:49 genesis.block
+```
+
 ### Step 4 - Sign channel config created in step 3 - Fabric Orderer Org
+The channel config generated in step 3 must now be signed by the network members. A channel config update is really just
+another transaction in Fabric, known as a 'configuration transaction', and as such it must be endorsed by network members 
+in accordance with the modification policy for the channel. The default modification policy for the channel Application group
+is MAJORITY, which means a majority of admins need to sign the config update. 
+
+To allow admins in different organisations to sign the channel config you will need to pass the
+channel config file to each member in the network, one-by-one, and have them sign the channel config. Each member signature
+must be applied in turn so that we end up with a package that has the signatures of all endorsing members. Alternatively,
+you could send the channel config to all members simuntaneously and wait to receive signed responses, but then you would
+have to extract the signatures from the individual responses and create a single package which contains the config update
+plus all the required signatures.
+
+If you created the network in Part 1, you will have 2 peers running in this network, peer1 and peer2, both of whom will
+sign the channel config. The script below will run 
+
 On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
 
-* Run the script `./remote-org/step4-sign-channel-config.sh`.
+* Run the script:
  
-You may need to run this against multiple organisations, depending on how your Fabric network is structured. The channel
-config must be signed by the orgs specified in the channel update policy.
+```bash
+./remote-org/step4-sign-channel-config.sh
+``` 
 
 ### Step 5 - Update channel config created in step 3 - Fabric Orderer Org
 On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
