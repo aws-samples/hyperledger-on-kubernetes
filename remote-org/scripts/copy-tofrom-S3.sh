@@ -71,7 +71,6 @@ function copyCertsFromS3 {
     fi
     echo "Copying the certs from S3 complete"
 }
-/opt/share/rca-data/org0-ca-chain.pem
 
 # copy the orderer PEM file from the Fabric orderer network to S3
 function copyOrdererPEMToS3 {
@@ -115,7 +114,7 @@ function copyChannelGenesisToS3 {
 function copyChannelGenesisFromS3 {
     echo "Copying the Channel Genesis block from S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
-        sudo chown ec2-user ${DATA}/org0-ca-chain.pem
+        sudo chown ec2-user ${DATA}/mychannel.block
         aws s3api get-object --bucket $S3BucketNameOrderer --key org0/mychannel.block ${DATA}/mychannel.block
     else
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
