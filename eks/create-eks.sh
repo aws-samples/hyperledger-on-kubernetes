@@ -47,6 +47,7 @@ cat ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh
 
 echo Running ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh - this will use CloudFormation to create the EC2 bastion and EFS
 cd ~/hyperledger-on-kubernetes/
+git checkout efs/deploy-ec2.sh
 ./efs/deploy-ec2.sh
 
 sudo yum -y install jq

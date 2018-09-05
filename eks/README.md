@@ -40,7 +40,7 @@ In the Cloud9 console, click 'Create Environment'
 2. Provide a name for your environment, e.g. eks-c9, and click **Next Step**
 3. Leave everything as default and click **Next Step**
 4. Click **Create environment**. It would typically take 30-60s to create your Cloud9 IDE
-5. We need to turn off the Cloud9 temporarily provided IAM credentials. 
+5. We need to turn off the Cloud9 temporary provided IAM credentials. 
 
 ![toggle-credentials](images/toggle-credentials.png "Toggle Credentials")
 

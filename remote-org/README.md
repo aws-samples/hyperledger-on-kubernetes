@@ -182,6 +182,7 @@ On the EC2 bastion in the new org.
 cd
 cd hyperledger-on-kubernetes
 ./remote-org/scripts/copy-tofrom-S3.sh copyOrdererPEMFromS3
+ls -l /opt/share/rca-data/org0-ca-chain.pem
 ```
 
 ### Step 3 - Update channel config to include new org - Fabric Orderer Org
@@ -503,14 +504,8 @@ On the EC2 bastion in the new org.
 cd
 cd hyperledger-on-kubernetes
 ./remote-org/scripts/copy-tofrom-S3.sh copyChannelGenesisFromS3
+ls -l /opt/share/rca-data/mychannel.block
 ```
-
-
-* Copy the <channel-name>.block file to your local laptop or host using (replace with your directory name, EC2 DNS and keypair):
- `scp -i /Users/edgema/Documents/apps/eks/eks-fabric-key.pem ec2-user@ec2-18-236-169-96.us-west-2.compute.amazonaws.com:/opt/share/rca-data/mychannel.block mychannel.block`
-* Copy the local <channel-name>.block file to the EFS drive in your new AWS account using (replace with your directory name, EC2 DNS and keypair):
- `scp -i /Users/edgema/Documents/apps/eks/eks-fabric-key-account1.pem /Users/edgema/Documents/apps/hyperledger-on-kubernetes/mychannel.block  ec2-user@ec2-34-228-23-44.compute-1.amazonaws.com:/opt/share/rca-data/mychannel.block`
-
 
 The certificates used when a peer connects to an orderer for channel specific tasks (such as joining a channel
 or instantiating chaincode) are the certs contained in the channel config block. It should be pretty obvious that 
@@ -519,6 +514,61 @@ However, when the peer joins the channel it will read the blocks in the channel 
 eventually ending up with the latest config (created in steps 3-5 above).
 
 ### Step 8 - Join the channel - New Fabric Org
+The final step is to join the peer to the channel. After the peer successfully joins the channel it will start receiving
+blocks of transactions and build its own copy of the ledger and world state.
+
 On the EC2 bastion in the new org.
 
-Run the script `./remote-org/step8-join-channel.sh`. 
+* Run the script:
+ 
+```bash
+./remote-org/step8-join-channel.sh
+``` 
+
+Check the results. Replace the org below with your own:
+
+```bash
+$ kubectl logs job/addorg-fabric-join -n org7
+File '/data/updateorg' exists - joining a new org 'org7'
+##### 2018-08-28 03:28:19 Organisation 'org7' is joining the channel 'mychannel'
+##### 2018-08-28 03:28:19 cloneFabricSamples
+Cloning into 'fabric-samples'...
+##### 2018-08-28 03:28:19 cloned FabricSamples
+Switched to a new branch 'release-1.1'
+Branch release-1.1 set up to track remote branch release-1.1 from origin.
+##### 2018-08-28 03:28:20 checked out version 1.1 of FabricSamples
+##### 2018-08-28 03:28:20 cloneFabric
+##### 2018-08-28 03:28:20 Peer michaelpeer1-org7.org7 is attempting to join channel 'mychannel' (attempt #1) ...
+output of peer channel join is '2018-08-28 03:28:20.188 UTC [msp] GetLocalMSP -> DEBU 001 Returning existing local MSP
+2018-08-28 03:28:20.188 UTC [msp] GetDefaultSigningIdentity -> DEBU 002 Obtaining default signing identity
+2018-08-28 03:28:20.233 UTC [channelCmd] InitCmdFactory -> INFO 003 Endorser and orderer connections initialized
+2018-08-28 03:28:20.246 UTC [msp/identity] Sign -> DEBU 004 Sign: plaintext: 0ABF090A5B08011A0B08D48293DC0510...9BB89C4126D81A080A000A000A000A00 
+2018-08-28 03:28:20.246 UTC [msp/identity] Sign -> DEBU 005 Sign: digest: 92DC8792446A7090AE5B3070C1F57285DABD4FB7026A1A3935A9955027D39F4F 
+2018-08-28 03:28:20.364 UTC [channelCmd] executeJoin -> INFO 006 Successfully submitted proposal to join channel
+2018-08-28 03:28:20.364 UTC [main] main -> INFO 007 Exiting.....'
+##### 2018-08-28 03:28:20 Peer michaelpeer1-org7.org7 successfully joined channel 'mychannel'
+##### 2018-08-28 03:28:20 Congratulations! The new org has joined the channel 'mychannel', new org 'org7'
+```
+
+Now we check whether new peer is receiving blocks and building a ledger and world state. Replace the peer name
+and org below. You should see blocks being committed to storage. Ignore any messages related to gossip and expired members.
+
+```bash
+$ kubectl logs michaelpeer1-org7-59fdf7bbc8-42n6j  -n org7 -c michaelpeer1-org7 | grep block
+.
+.
+2018-08-28 03:28:27.399 UTC [committer/txvalidator] Validate -> DEBU 1176 expecting 1 block validation responses
+2018-08-28 03:28:27.400 UTC [committer/txvalidator] validateTx -> DEBU 1177 validateTx starts for block 0xc422b68860 env 0xc422ef66c0 txn 0
+2018-08-28 03:28:27.404 UTC [committer/txvalidator] validateTx -> DEBU 11b4 validateTx completes for block 0xc422b68860 env 0xc422ef66c0 txn 0
+2018-08-28 03:28:27.405 UTC [kvledger] CommitWithPvtData -> DEBU 11b7 Channel [mychannel]: Validating state for block [18]
+2018-08-28 03:28:27.405 UTC [lockbasedtxmgr] ValidateAndPrepare -> DEBU 11b8 Validating new block with num trans = [1]
+2018-08-28 03:28:27.405 UTC [valimpl] ValidateAndPrepareBatch -> DEBU 11b9 ValidateAndPrepareBatch() for block number = [18]
+2018-08-28 03:28:27.411 UTC [kvledger] CommitWithPvtData -> DEBU 11d5 Channel [mychannel]: Committing block [18] to storage
+2018-08-28 03:28:27.412 UTC [pvtdatastorage] Prepare -> DEBU 11d6 Saved 0 private data write sets for block [18]
+.
+.
+```
+
+We have successfully created a new org, with its own CA, and added this org to an existing Fabric network. We have
+then joined a remote peer belonging to the new org to the existing Fabric network and are seeing blocks of transactions
+being replicated to this peer node.
