@@ -39,6 +39,8 @@ echo -e "SUBNETS: $SUBNETS"
 # Convert SUBNETS to an array
 IFS=',' read -r -a SUBNETSARR <<< "$SUBNETS"
 
+git checkout efs/deploy-ec2.sh
+
 echo Update the ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh config file
 sed -e "s/{VPCID}/${VPCID}/g" -e "s/{REGION}/${region}/g" -e "s/{SUBNETA}/${SUBNETSARR[0]}/g" -e "s/{SUBNETB}/${SUBNETSARR[1]}/g" -e "s/{SUBNETC}/${SUBNETSARR[2]}/g" -i ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh
 
@@ -47,7 +49,6 @@ cat ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh
 
 echo Running ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh - this will use CloudFormation to create the EC2 bastion and EFS
 cd ~/hyperledger-on-kubernetes/
-git checkout efs/deploy-ec2.sh
 ./efs/deploy-ec2.sh
 
 sudo yum -y install jq
