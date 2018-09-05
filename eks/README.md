@@ -85,6 +85,31 @@ It will take around 20 minutes to create your EKS cluster, so go and get a cup o
 
 If you need to delete the EKS cluster, run `eksctl delete cluster —name=<CLUSTER_NAME>` to trigger the deletion of the stack.
 
+The last few statements in the `create-eks.sh` will copy the aws and kubectl config to your bastion host. It may fail 
+with the error below.
+
+```bash
+Are you sure you want to continue connecting (yes/no)? yes
+lost connection
+```
+
+If you see this, execute the statements manually. Just copy and paste the following into your Cloud9 terminal to 
+copy across the related files.
+
+```bash
+sudo yum -y install jq
+PublicDnsNameBastion=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=EFS FileSystem Mounted Instance" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
+PublicDnsNameEKSWorker=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=eks-fabric-default-Node" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
+echo public DNS of EC2 bastion host: $PublicDnsNameBastion
+echo public DNS of EKS worker nodes: $PublicDnsNameEKSWorker
+
+echo Prepare the EC2 bastion for use by copying the kubeconfig and aws config and credentials files from Cloud9
+cd ~
+scp -i eks-c9-keypair.pem -q ~/kubeconfig.eks-fabric.yaml  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/kubeconfig.eks-fabric.yaml
+scp -i eks-c9-keypair.pem -q ~/.aws/config  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/config
+scp -i eks-c9-keypair.pem -q ~/.aws/credentials  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/credentials
+```
+
 ### Step 2: Install EFS utils on each Kubernetes worker node 
 
 EFS utils is required on each Kubernetes worker node to enable the worker to mount the EFS used to store the Hyperledger 
