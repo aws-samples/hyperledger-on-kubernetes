@@ -1,21 +1,5 @@
 # Hyperledger Fabric on Kubernetes - Part 4: Fabric workshop - creating remote peers
 
-# TODO
-
-* gen-fabric should only generate the files and namespaces required by the workshop, not all the files used by fabric-main
-
-# Issues from first workshop
-done - EFS - people did not run. Put this in line and not at ened 
-done - Too many README files
-Include the eksctl in my README - not a separate
-For step 1 - put everything in the same README - not a separate README
-Update heptio for Mac
-done - Some people started the wrong peer node - the TLS one, not the notls peer
-done - Make it clear the URL for the orderer is the correct URL - we don't need to give one.
-Too much work so I'll skip this - Can we include the ENV vars in Step 10 in the Register POD so that people do not export
-done - Change the main repo to be a table of contents that points to the other sections
-done - Just default to one org, instead of leeting them choose org1, org2, etc.
-
 ## The Workshop
 This workshop builds remote Hyperledger Fabric peers in other AWS accounts/regions, connects them to the Fabric orderer 
 organisation, installs the 'marbles' chaincode, and allows workshop participants to have fun swapping marbles. Each workshop 
