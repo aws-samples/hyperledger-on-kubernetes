@@ -280,6 +280,7 @@ function genWorkshopRemotePeers {
             PORTCHAIN=$((PORTCHAIN+2))
             PORTEND=$((PORTCHAIN-1))
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" workshop-remote-peer/k8s/fabric-deployment-workshop-remote-peer.yaml > ${K8SYAML}/fabric-deployment-workshop-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
+            sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" workshop-remote-peer/k8s/fabric-nlb-workshop-remote-peer.yaml > ${K8SYAML}/fabric-nlb-workshop-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             COUNT=$((COUNT+1))
         done
         peerport=$((peerport+100))

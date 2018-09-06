@@ -258,7 +258,7 @@ There are a few things of interest in the pod yaml file:
 * The peer is bootstrapped using a script, which you can view by opening 'scripts/start-peer.sh'
 * The peer is exposed using a Kubernetes service
 
-So let's deploy the peer and check the logs. You may need to wait a few seconds before 'kubectl logs' will return the log
+So let's deploy the peer and check the logs. You may need to wait 30 seconds before 'kubectl logs' will return the log
 entries, as Kubernetes downloads and starts your container:
 
 ```bash
@@ -572,7 +572,7 @@ Since the transaction is sent to the orderer, you need to provide the orderer en
 orderer DNS below is correct - it was updated by the facilitator prior to this workshop:
 
 ```bash
-export ORDERER_CONN_ARGS="-o a8a50caf493b511e8834f06b86f026a6-77ab14764e60b4a1.elb.us-west-2.amazonaws.com:7050"
+export ORDERER_CONN_ARGS="-o ad29a8d6fb18f11e88a630a41a1b1730-3df3e8f72ecd8942.elb.us-west-2.amazonaws.com:7050"
 peer chaincode invoke -C mychannel -n marbles-workshop -c '{"Args":["set_owner","m999999999990","o9999999999999999990", "United Marbles"]}' $ORDERER_CONN_ARGS
 peer chaincode query -C mychannel -n marbles-workshop -c '{"Args":["read_everything"]}' 
 ```
@@ -608,7 +608,7 @@ These files should already exist in the k8s/ directory:
 cd
 cd hyperledger-on-kubernetes
 kubectl apply -f k8s/fabric-nlb-ca-org1.yaml
-kubectl apply -f k8s/fabric-nlb-remote-peer-michaelpeer1-org1.yaml
+kubectl apply -f k8s/fabric-nlb-workshop-remote-peer-michaelpeer1-org1.yaml
 ```
 
 Check whether the service endpoints were created. You should see the start of a DNS endpoint in the EXTERNAL-IP column. If
@@ -706,7 +706,7 @@ should be correct:
 ```json
     "orderers": {
         "orderer3-org0.org0": {
-            "url": "grpc://a8a50caf493b511e8834f06b86f026a6-77ab14764e60b4a1.elb.us-west-2.amazonaws.com:7050",
+            "url": "grpc://ad29a8d6fb18f11e88a630a41a1b1730-3df3e8f72ecd8942.elb.us-west-2.amazonaws.com:7050",
 ```
 
 * Replace the peer URL (both url and eventUrl) with the endpoint you obtained in Step 11 when 
