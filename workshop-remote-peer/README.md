@@ -820,6 +820,8 @@ debug: Open your browser to http://localhost:8080 and login as "admin"
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ```
 
+Note: you may need to reduce the size of your terminal window to access the Cloud9 menu.
+
 At the top of your Cloud9 page you'll see a menu with the option `AWS Cloud9` at the top left. Top right you will
 see a link titled `Preview`. Select this, then select `Preview Running Application`. This will open the Marbles UI
 in a browser window within the Cloud9 page. You can also open this in a browser. In the Cloud9 browser window, on the
@@ -862,9 +864,9 @@ You may need to wait a few seconds between the invoke statements, and for your n
 There is no issue with running these statements multiple times.
 
 ```bash
-export ORDERER_CONN_ARGS="-o a8a50caf493b511e8834f06b86f026a6-77ab14764e60b4a1.elb.us-west-2.amazonaws.com:7050"
-peer chaincode invoke -C mychannel -n marbles-workshop -c '{"Args":["init_owner","o9999999999999999990","bob", "United Marbles"]}' $ORDERER_CONN_ARGS
-peer chaincode invoke -C mychannel -n marbles-workshop -c '{"Args":["init_marble","m999999999990", "blue", "35", "o9999999999999999990", "United Marbles"]}' $ORDERER_CONN_ARGS
+export ORDERER_CONN_ARGS="-o ad29a8d6fb18f11e88a630a41a1b1730-3df3e8f72ecd8942.elb.us-west-2.amazonaws.com:7050"
+peer chaincode invoke -C mychannel -n marbles-workshop -c '{"Args":["init_owner","o9999999988899999990","bob", "United Marbles"]}' $ORDERER_CONN_ARGS
+peer chaincode invoke -C mychannel -n marbles-workshop -c '{"Args":["init_marble","m999988899990", "blue", "35", "o9999999988899999990", "United Marbles"]}' $ORDERER_CONN_ARGS
 peer chaincode query -C mychannel -n marbles-workshop -c '{"Args":["read_everything"]}'
 ```
 
