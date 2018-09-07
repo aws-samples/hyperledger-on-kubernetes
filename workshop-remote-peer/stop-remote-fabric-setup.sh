@@ -27,6 +27,7 @@ function main {
         stopRCA $HOME $REPO $DELETE_ORG
         stopPVC $HOME $REPO $DELETE_ORG
         getDomain $DELETE_ORG
+        kubectl delete svc --all -n $DOMAIN
         removeNamespaces $HOME $REPO $DOMAIN
     done
     kubectl delete pv --all
