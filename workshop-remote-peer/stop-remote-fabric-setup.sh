@@ -21,7 +21,7 @@ function main {
     set +e
     stopTest $HOME $REPO
     for DELETE_ORG in $ORGS; do
-        stopRemotePeers $HOME $REPO $DELETE_ORG
+        stopWorkshopRemotePeers $HOME $REPO $DELETE_ORG
         stopRegisterPeers $HOME $REPO $DELETE_ORG
         stopICA $HOME $REPO $DELETE_ORG
         stopRCA $HOME $REPO $DELETE_ORG

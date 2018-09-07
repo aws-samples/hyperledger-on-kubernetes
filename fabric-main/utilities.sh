@@ -732,6 +732,26 @@ function stopRemotePeers {
     confirmDeploymentsStopped remote-peer
 }
 
+# there is no start method for this as it is started manually by the workshop attendees. See Part 4 of the main README
+function stopWorkshopRemotePeers {
+    if [ $# -ne 3 ]; then
+        echo "Usage: stopWorkshopRemotePeers <home-dir> <repo-name> <delete-org>"
+        exit 1
+    fi
+    local HOME=$1
+    local REPO=$2
+    local ORG=$3
+    cd $HOME
+    log "Deleting Workshop Remote Peers in K8s"
+
+    local COUNT=1
+    while [[ "$COUNT" -le $NUM_PEERS ]]; do
+        kubectl delete -f $REPO/k8s/fabric-deployment-workshop-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
+        COUNT=$((COUNT+1))
+    done
+    confirmDeploymentsStopped remote-peer
+}
+
 function startTestABAC {
     if [ $# -ne 2 ]; then
         echo "Usage: startTestABAC <home-dir> <repo-name>"
