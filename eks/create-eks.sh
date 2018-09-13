@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-region=us-east-1
+region=us-west-2
 
 echo Download the kubectl and heptio-authenticator-aws binaries and save to ~/bin
 mkdir ~/bin
