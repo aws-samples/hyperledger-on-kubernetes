@@ -19,9 +19,9 @@ sleep 10
 echo Create the EKS cluster
 cd ~
 if [ $region == "us-east-1" ]; then
-    eksctl create cluster --ssh-public-key eks-c9-keypair --name eks-fabric --region $region --kubeconfig=./kubeconfig.eks-fabric.yaml --zones=us-east-1a,us-east-1b,us-east-1d
+    eksctl create cluster --ssh-access --ssh-public-key eks-c9-keypair --name eks-fabric --region $region --kubeconfig=./kubeconfig.eks-fabric.yaml --zones=us-east-1a,us-east-1b,us-east-1d
 else
-    eksctl create cluster --ssh-public-key eks-c9-keypair --name eks-fabric --region $region --kubeconfig=./kubeconfig.eks-fabric.yaml
+    eksctl create cluster --ssh-access --ssh-public-key eks-c9-keypair --name eks-fabric --region $region --kubeconfig=./kubeconfig.eks-fabric.yaml
 fi
 
 echo Check whether kubectl can access your Kubernetes cluster
