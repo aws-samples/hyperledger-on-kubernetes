@@ -514,7 +514,7 @@ However, when the peer joins the channel it will read the blocks in the channel 
 eventually ending up with the latest config (created in steps 3-5 above).
 
 ### Step 8 - Join the channel - New Fabric Org
-The final step is to join the peer to the channel. After the peer successfully joins the channel it will start receiving
+The next step is to join the peer to the channel. After the peer successfully joins the channel it will start receiving
 blocks of transactions and build its own copy of the ledger and world state.
 
 On the EC2 bastion in the new org.
@@ -569,6 +569,42 @@ $ kubectl logs michaelpeer1-org7-59fdf7bbc8-42n6j  -n org7 -c michaelpeer1-org7 
 .
 ```
 
+### Step 9 - Install chaincode - New Fabric Org
+Install chaincode on the new peer so it can take part in transactions and query the world state.
+
+On the EC2 bastion in the new org.
+
+* Run the script:
+ 
+```bash
+./remote-org/step9-install-chaincode.sh
+``` 
+
+Check the results. Replace the org below with your own:
+
+```bash
+$ kubectl logs job/fabric-installcc -n org7
+```
+
+### Step 10 - Test the chaincode - New Fabric Org
+Test the chaincode on the new peer.
+
+On the EC2 bastion in the new org.
+
+* Run the script:
+ 
+```bash
+./remote-org/step10-test-chaincode.sh
+``` 
+
+Check the results. Replace the org below with your own:
+
+```bash
+$ kubectl logs job/fabric-testcc -n org7
+```
+
+### Pat yourself on the back
 We have successfully created a new org, with its own CA, and added this org to an existing Fabric network. We have
 then joined a remote peer belonging to the new org to the existing Fabric network and are seeing blocks of transactions
-being replicated to this peer node.
+being replicated to this peer node. Depending on the endorsement policy of the channel, we can now invoke transactions
+on this new peer, and we can also query transactions against the peer's world state.

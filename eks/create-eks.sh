@@ -30,10 +30,10 @@ kubectl --kubeconfig=./kubeconfig.eks-fabric.yaml get nodes
 echo Create the EC2 bastion instance and the EFS that stores the Fabric cryptographic material
 echo These will be created in the same VPC as the EKS cluster
 
-VPCID=$(aws cloudformation describe-stacks --stack-name EKS-eks-fabric-VPC --query 'Stacks[0].Outputs[?OutputKey==`VpcId`].OutputValue' --output text)
+VPCID=$(aws cloudformation describe-stacks --stack-name eksctl-eks-fabric-cluster --query 'Stacks[0].Outputs[?OutputKey==`VPC`].OutputValue' --output text)
 echo -e "VPCID: $VPCID"
 
-SUBNETS=$(aws cloudformation describe-stacks --stack-name EKS-eks-fabric-VPC --query 'Stacks[0].Outputs[?OutputKey==`SubnetIds`].OutputValue' --output text)
+SUBNETS=$(aws cloudformation describe-stacks --stack-name eksctl-eks-fabric-cluster --query 'Stacks[0].Outputs[?OutputKey==`Subnets`].OutputValue' --output text)
 echo -e "SUBNETS: $SUBNETS"
 
 # Convert SUBNETS to an array

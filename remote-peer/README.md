@@ -100,6 +100,14 @@ and store these in S3. You can then download them to your EC2 bastion and copy t
 Note that this will only work if you have the AWS CLI configured on your EC2 bastion (which you would have if you are using EKS).
 If this script indicates it's unable to copy the 'tar', you can do it manually following the steps in `./facilitator/copy-crypto-to-S3.sh`
 
+* Copy the crypto material to S3:
+
+```bash
+cd
+cd hyperledger-on-kubernetes/workshop-remote-peer
+./facilitator/copy-crypto-to-S3.sh
+```
+
 * SSH into the EC2 bastion you created in the new AWS account and download the crypto information:
 
 ```bash
