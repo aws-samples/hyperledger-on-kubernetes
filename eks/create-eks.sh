@@ -30,20 +30,25 @@ kubectl --kubeconfig=./kubeconfig.eks-fabric.yaml get nodes
 echo Create the EC2 bastion instance and the EFS that stores the Fabric cryptographic material
 echo These will be created in the same VPC as the EKS cluster
 
-VPCID=$(aws cloudformation describe-stacks --stack-name eksctl-eks-fabric-cluster --query 'Stacks[0].Outputs[?OutputKey==`VPC`].OutputValue' --output text)
+echo installing jq
+sudo yum -y install jq
+
+echo Getting VPC and Subnets from eksctl
+VPCID=$(eksctl get cluster  --name=eks-fabric --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.VpcId' | tr -d '"')
 echo -e "VPCID: $VPCID"
 
-SUBNETS=$(aws cloudformation describe-stacks --stack-name eksctl-eks-fabric-cluster --query 'Stacks[0].Outputs[?OutputKey==`Subnets`].OutputValue' --output text)
+SUBNETS=$(eksctl get cluster  --name=eks-fabric --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.SubnetIds')
+SUBNETA=$(echo $SUBNETS | jq '.[0]' | tr -d '"')
+SUBNETB=$(echo $SUBNETS | jq '.[1]' | tr -d '"')
+SUBNETC=$(echo $SUBNETS | jq '.[2]' | tr -d '"')
 echo -e "SUBNETS: $SUBNETS"
-
-# Convert SUBNETS to an array
-IFS=',' read -r -a SUBNETSARR <<< "$SUBNETS"
+echo -e "SUBNETS: $SUBNETA, $SUBNETB, $SUBNETC"
 
 cd ~/hyperledger-on-kubernetes
 git checkout efs/deploy-ec2.sh
 
 echo Update the ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh config file
-sed -e "s/{VPCID}/${VPCID}/g" -e "s/{REGION}/${region}/g" -e "s/{SUBNETA}/${SUBNETSARR[0]}/g" -e "s/{SUBNETB}/${SUBNETSARR[1]}/g" -e "s/{SUBNETC}/${SUBNETSARR[2]}/g" -i ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh
+sed -e "s/{VPCID}/${VPCID}/g" -e "s/{REGION}/${region}/g" -e "s/{SUBNETA}/${SUBNETA}/g" -e "s/{SUBNETB}/${SUBNETB}/g" -e "s/{SUBNETC}/${SUBNETC}/g" -i ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh
 
 echo ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh script has been updated with your parameters
 cat ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh
@@ -52,7 +57,6 @@ echo Running ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh - this will use Cloud
 cd ~/hyperledger-on-kubernetes/
 ./efs/deploy-ec2.sh
 
-sudo yum -y install jq
 PublicDnsNameBastion=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=EFS FileSystem Mounted Instance" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
 PublicDnsNameEKSWorker=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=eks-fabric-0-Node" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
 echo public DNS of EC2 bastion host: $PublicDnsNameBastion
