@@ -119,9 +119,10 @@ The EKS worker nodes (i.e. the EC2 instances for the EKS cluster) should be easy
 name is prefixed with your EKS cluster name, e.g. `eks-fabric-default-Node`. Clicking on each instance will show you the 
 security group and the public DNS, which you'll need when you SSH into the instance.
 
-Before we can SSH into the Kubernetes worker nodes, we need to update the security group to allow SSH ingress.
+It should no longer be necessary to manually update the security group to allow SSH - this should have been done
+for you by eksctl, by passing the `--ssh-access` flag. However, if you are unable to SSH due to the security group 
+not allowing SSH access, you can update it following the instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/authorizing-access-to-an-instance.html#add-rule-authorize-access
 
-You can do this from the console following the instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/authorizing-access-to-an-instance.html#add-rule-authorize-access
 If you'll SSH from your Mac, you can update the security group to allow SSH from your IP only. If you'll SSH from Cloud9,
 the quickest way is to allow SSH to all. (if someone has a more secure idea, please let me know).
 
@@ -135,8 +136,10 @@ ls -l eks-c9-keypair.pem
 
 The public DNS for the EKS worker nodes and the EC2 bastion instance was printed to the terminal by the script you ran 
 in Step 1. You can obtain the DNS from there, otherwise the EC2 instances are easy enough to identify the EC2 console.
-Replace the public DNS of your EC2 bastion instance and the path to your keypair file in the statement below. Now SSH 
-into each worker node and install the EFS utils:
+Replace the public DNS in the statements below with the public DNS of either your EC2 bastion instance or EKS worker nodes,
+and check the path to your keypair file.
+ 
+Now SSH into each worker node and install the EFS utils:
 
 ```bash
 cd
