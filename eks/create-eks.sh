@@ -39,6 +39,7 @@ echo -e "SUBNETS: $SUBNETS"
 # Convert SUBNETS to an array
 IFS=',' read -r -a SUBNETSARR <<< "$SUBNETS"
 
+cd ~/hyperledger-on-kubernetes
 git checkout efs/deploy-ec2.sh
 
 echo Update the ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh config file
