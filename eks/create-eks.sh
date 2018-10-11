@@ -54,7 +54,7 @@ cd ~/hyperledger-on-kubernetes/
 
 sudo yum -y install jq
 PublicDnsNameBastion=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=EFS FileSystem Mounted Instance" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
-PublicDnsNameEKSWorker=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=eks-fabric-default-Node" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
+PublicDnsNameEKSWorker=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=eks-fabric-0-Node" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
 echo public DNS of EC2 bastion host: $PublicDnsNameBastion
 echo public DNS of EKS worker nodes: $PublicDnsNameEKSWorker
 
