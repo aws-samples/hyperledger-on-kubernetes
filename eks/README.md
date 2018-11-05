@@ -260,8 +260,9 @@ The EKS cluster, EFS and the EC2 bastion are now ready for you to deploy Hyperle
 
 # Cleanup
 
-Cleanup your Hyperledger Fabric nodes. There are 'stop' scripts in each of the Parts. The key component to delete
-is the Kubernetes Service, especially those that create ELBs or NLBs.
+Cleanup your Hyperledger Fabric nodes. There are 'stop' scripts in each of the Parts. For example, Part1 - `fabric-main` 
+- has a script called `stop-fabric.sh`, which will bring down all the Fabric pods. The key components to delete
+are the Kubernetes Services, especially those that create ELBs or NLBs.
 
 Delete the ec2-cmd-client CloudFormation stack, to remove your EFS and bastion EC2 instance.
 
@@ -278,6 +279,10 @@ If eksctl cannot delete your EKS cluster, do the following:
 * In the EKS console, delete the EKS cluster. This will delete the control plane (master nodes, etc.)
 
 Finally, delete the CloudFormation stack for your Cloud9 intance. Also, in the Cloud9 console, delete the instance.
+
+If the CloudFormation stack that deletes the DefaultNodeGroup or the EKS cluster fails, it might be related to network interfaces still 
+present in the VPC. This could be caused by target groups belonging to an ALB, possibly created by a Kubernetes Service.
+You can either delete the Kubernetes Service, or remove the ALB's and Target Groups in the AWS EC2 console.
 
 # Appendix
 ## Manual steps to create EKS cluster

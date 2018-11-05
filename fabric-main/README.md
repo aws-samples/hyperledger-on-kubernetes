@@ -68,16 +68,21 @@ cd hyperledger-on-kubernetes/fabric-main
 ./start-fabric.sh
 ```
 
+This script can be run multiple times. For example, if there is an error with one of the steps in the script, you can
+stop the script, fix the error and rerun. Since it standard Kubernetes commands to deploy resources there is no impact
+if the resource is already deployment.
+
 ### Step 5: Confirm the test cases ran successfully
-The test cases are run by deploying the following Kubernetes pods:
+The test cases are run automatically by the `./start-fabric.sh` script above. The test cases work by deploying the 
+following Kubernetes pods:
 
 * fabric-deployment-test-fabric-abac.yaml
 * fabric-deployment-test-fabric-marbles.yaml
 * fabric-deployment-test-fabric-marbles-workshop.yaml
 
-which execute the scripts 'test-fabric-abac.sh', 'test-fabric-marbles.sh' and 'test-fabric-marbles-workshop.sh'. These will run in the org1 
-namespace, and will act as Fabric clients, executing actions against the Fabric network. You should check the results
-of the test cases to make sure they complete successfully.
+which execute the test scripts 'test-fabric-abac.sh', 'test-fabric-marbles.sh' and 'test-fabric-marbles-workshop.sh'. These 
+will run in the org1 namespace, and will act as Fabric clients, executing actions against the Fabric network. You should 
+check the results of the test cases to make sure they complete successfully.
 
 On the EC2 bastion instance:
 
@@ -91,7 +96,7 @@ kubectl logs test-fabric-marbles-workshop-6868bf7886-97599 -n org1
 
 It can take up to 3 minutes for the test cases to run, so don't get too despondent if it seems to take a while to
 query or instantiate chaincode. Chaincode runs in its own Docker container, and it sometimes take a while to pull
-and create the container.
+the Docker image and create the container.
 
 The final lines of the 'test-fabric' log file should look as follows:
 

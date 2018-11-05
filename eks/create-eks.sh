@@ -34,10 +34,10 @@ echo installing jq
 sudo yum -y install jq
 
 echo Getting VPC and Subnets from eksctl
-VPCID=$(eksctl get cluster  --name=eks-fabric --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.VpcId' | tr -d '"')
+VPCID=$(eksctl get cluster  --name=eks-fabric --region $region --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.VpcId' | tr -d '"')
 echo -e "VPCID: $VPCID"
 
-SUBNETS=$(eksctl get cluster  --name=eks-fabric --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.SubnetIds')
+SUBNETS=$(eksctl get cluster  --name=eks-fabric --region $region --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.SubnetIds')
 SUBNETA=$(echo $SUBNETS | jq '.[0]' | tr -d '"')
 SUBNETB=$(echo $SUBNETS | jq '.[1]' | tr -d '"')
 SUBNETC=$(echo $SUBNETS | jq '.[2]' | tr -d '"')
