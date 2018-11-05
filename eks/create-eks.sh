@@ -12,7 +12,7 @@ sudo mv /tmp/eksctl /usr/local/bin
 
 echo Create a keypair
 cd ~
-aws ec2 create-key-pair --key-name eks-c9-keypair --query 'KeyMaterial' --output text > eks-c9-keypair.pem
+aws ec2 create-key-pair --key-name eks-c9-keypair --region $region --query 'KeyMaterial' --output text > eks-c9-keypair.pem
 chmod 400 eks-c9-keypair.pem
 sleep 10
 
@@ -34,10 +34,10 @@ echo installing jq
 sudo yum -y install jq
 
 echo Getting VPC and Subnets from eksctl
-VPCID=$(eksctl get cluster  --name=eks-fabric --region $region --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.VpcId' | tr -d '"')
+VPCID=$(eksctl get cluster --name=eks-fabric --region $region --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.VpcId' | tr -d '"')
 echo -e "VPCID: $VPCID"
 
-SUBNETS=$(eksctl get cluster  --name=eks-fabric --region $region --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.SubnetIds')
+SUBNETS=$(eksctl get cluster --name=eks-fabric --region $region --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.SubnetIds')
 SUBNETA=$(echo $SUBNETS | jq '.[0]' | tr -d '"')
 SUBNETB=$(echo $SUBNETS | jq '.[1]' | tr -d '"')
 SUBNETC=$(echo $SUBNETS | jq '.[2]' | tr -d '"')
