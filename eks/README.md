@@ -8,8 +8,10 @@ be accessed from the EKS cluster as well as from the EC2 bastion.
 You have a number of options when creating the Kubernetes cluster in which you'll deploy Hyperledger Fabric:
  
 * The easiest option is to use eksctl to create an AWS EKS (Elastic Container Service for Kubernetes) cluster. Note that
-eksctl creates an EKS cluster with worker nodes in public subnets. For production use you'll probably want your worker 
-nodes in private subnets, so use the method below to create a production-ready EKS cluster.
+eksctl is a moving target: initially it created an EKS cluster with worker nodes in public subnets. From v.01.9 it supports
+private subnets using the `--node-private-networking` flag. For production use you'll probably want your worker 
+nodes in private subnets, so you can use the eksctl feature just mentioned, or use the method below that follows the AWS
+documentation to create a production-ready EKS cluster.
 * You can create an EKS cluster following the instructions in the AWS documentation at: https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html
 * You can use KOPS to create a cluster: https://github.com/kubernetes/kops
 * Or you can use an existing Kubernetes cluster, as long as you can SSH into the worker nodes
@@ -84,6 +86,11 @@ cd hyperledger-on-kubernetes
 It will take around 20 minutes to create your EKS cluster, so go and get a cup of coffee. 
 
 If you need to delete the EKS cluster, run `eksctl delete cluster —name=<CLUSTER_NAME>` to trigger the deletion of the stack.
+
+The script `create-eks.sh` also runs the script `efs/deploy-ec2.sh`. Note that this script obtains the list of subnets
+created by eksctl. Since eksctl now creates public and private subnets, the script only uses the first 3 subnets in the list.
+The subnets are ordered with public appearing before private - let's hope this ordering remains, otherwise we'll need
+some way to identify which are the public and private subnets.
 
 The last few statements in the `create-eks.sh` will copy the aws and kubectl config to your bastion host. It may fail 
 with the error below.
@@ -274,13 +281,14 @@ Don't forget to remove your EKS cluster. Instructions can be found here:
 
 If eksctl cannot delete your EKS cluster, do the following:
 
-* Delete the CloudFormation stacks, DefaultNodeGroup, ServiceRole, VPC (prefixed with your EKS cluster name)
+* Delete the CloudFormation stack: eksctl-eks-fabric-cluster and eksctl-eks-fabric-nodegroup-0 (or similar names, 
+depending on how you named your eks cluster)
 * Delete the EC2 keypair you created. It will be in the EC2 console, under Key Pairs
 * In the EKS console, delete the EKS cluster. This will delete the control plane (master nodes, etc.)
 
 Finally, delete the CloudFormation stack for your Cloud9 intance. Also, in the Cloud9 console, delete the instance.
 
-If the CloudFormation stack that deletes the DefaultNodeGroup or the EKS cluster fails, it might be related to network interfaces still 
+If the CloudFormation stack that deletes the eksctl-eks-fabric-cluster and eksctl-eks-fabric-nodegroup-0 fails, it might be related to network interfaces still 
 present in the VPC. This could be caused by target groups belonging to an ALB, possibly created by a Kubernetes Service.
 You can either delete the Kubernetes Service, or remove the ALB's and Target Groups in the AWS EC2 console.
 
@@ -417,7 +425,7 @@ For the next step you'll need the VPC ID and Subnets of your EKS cluster. You ca
 replacing the EKS stack name with your own. There should be three subnets
 
 ```bash
-aws cloudformation describe-stacks --stack-name EKS-eks-fabric-VPC --query 'Stacks[0].Outputs[*].OutputValue' --output text  
+aws cloudformation describe-stacks --stack-name eksctl-eks-fabric-cluster --query 'Stacks[0].Outputs' --output json  --region us-east-1         
 ```
 
 In the repo directory:
@@ -429,7 +437,8 @@ vi efs/deploy-ec2.sh
 In the repo directory, check the parameters in `efs/deploy-ec2.sh` and update them as follows:
 * The VPC and Subnet should be those of your existing K8s cluster worker nodes, which you obtained above. There is no
 need to map subnetA in 'efs/deploy-ec2.sh' specifically to subnet-A in AWS, as long as you map all three subnets. I.e.
-if you map subnetB to the real subnetC it won't cause any issues.
+if you map subnetB to the real subnetC it won't cause any issues. Map the subnets that contain your EKS worker nodes - this 
+could be the public subnet or private subnet, depending on the options you used to create your EKS cluster.
 * Keyname is the AWS EC2 keypair you used for your EKS cluster. It is NOT the name of the .pem file you saved locally.
 You'll use the same keypair to access the EC2 bastion created by deploy-ec2.sh
 * VolumeName is the name assigned to your EFS volume. There is no need to change this
