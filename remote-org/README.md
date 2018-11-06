@@ -502,7 +502,7 @@ At this point the peer has not joined any channels, and does not have a ledger o
 Before the peer in the new org joins the channel, it must be able to connect to the Orderer Service Node (OSN) running
 in the Orderer org. It obtains the endpoint for the OSN from the channel genesis block
 
-The file mychannel.block ('mychannel' refers to the channel name and may differ if you have changed the channel name)
+The file `mychannel.block` ('mychannel' refers to the channel name and may differ if you have changed the channel name)
 would have been created when you first created the channel in the Orderer network. It will
 be on the EFS drive, in /opt/share/rca-data. If you can't find it, you can always pull it from the channel itself 
 using `peer channel fetch 0 mychannel.block`.
