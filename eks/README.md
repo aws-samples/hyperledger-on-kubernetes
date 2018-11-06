@@ -275,7 +275,7 @@ Delete the ec2-cmd-client CloudFormation stack, to remove your EFS and bastion E
 
 Don't forget to remove your EKS cluster. Instructions can be found here:
 
-* eksctl: eksctl delete cluster —name=eks-fabric
+* eksctl: `eksctl delete cluster —name=eks-fabric`
 * EKS: https://docs.aws.amazon.com/eks/latest/userguide/delete-cluster.html
 * Kops: https://github.com/kubernetes/kops/blob/master/docs/cli/kops_delete_cluster.md
 

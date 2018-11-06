@@ -132,59 +132,9 @@ You have a few options:
 * [Part 4:](../workshop-remote-peer/README.md) Run the Fabric workshop, where participants add their own remote peers, running in their own AWS accounts
 
 
-#########################################################################################################################
-Between these lines, this part of the README can be removed as its covered in other READMEs
-
-### Join the peer to a channel
-I've created the script, 'peer-join-channel.sh' to join the peer to the channel and install the chaincode. There is a 
-matching YAML in k8s-templates (k8s-templates/fabric-deployment-peer-join-channel.yaml) that will be used to generate a 
-single YAML in the k8s folder (by gen-fabric.sh). This YAML is named `k8s/fabric-deployment-peer-join-channel-org1.yaml`,
-and once it is deployed to K8s it will invoke 'peer-join-channel.sh' and join the remote peer to the Fabric channel.
-
-If you want to join a different peer or org to the channel besides the one generated for you in
-`k8s/fabric-deployment-peer-join-channel-org1.yaml`, simply edit this file and change the peer and domain details. Then:
-
-```bash
-kubectl apply -f k8s/fabric-deployment-peer-join-channel-org1.yaml
-```
-
-This will connect the new peer to the channel. You can then check the peer logs to ensure
-all the TX are being sent to the new peer.
-
-
-### Step 9: Adding a new org
-Execute the script 'start-addorgs.sh'. This does the following:
-
-* Generates a new env.sh file that includes a new org
-* copies the new env file (scripts/envaddorgs.sh) as scripts/env.sh. The new file contains org1, org2 and a new org, org3
-* Reruns the gen-fabric.sh to generate the templates for org3
-* Reruns the same commands as start-fabric.sh, to create the org3 namespace and then start the RCA, ICA and generate the channel artifacts for org3
-* Runs the process that creates a new genesis block for the channel (see scripts/addorg*):
-    * Generates a new config for the new org
-    * Gets the latest config block from the channel
-    * Decodes the latest config block and merges in the changes for the new org config
-    * Wraps the new config in an envelope
-    * Signs the envelope; each peer admin must sign the envelope
-    * Updates the channel to include the new config
-* Creates a new endorsement policy that includes the new org. This involves:
-    * Creating a new version of the chaincode
-    * Install the new version of the chaincode on each peer that will endorse it
-    * Upgrade the chaincode (similar to instantiate), which includes the new endorsement policy
-* Starts the new peers for the new org
-* Joins the new org to the channel. At this point it will sync the ledger. Once sync'd it will start endorsing/committing TX
-
-At a more detailed level, the process works as follows:
-
-* addorg-fabric-setup.sh runs in org1. This creates an envelope wrapping the new channel config, as a protobuf (.pb) file.
-The file is signed by org1 and stored in the shared EFS drive, at: /$DATA/${NEW_ORG}_config_update_as_envelope.pb
-* addorg-fabric-sign.sh runs. This runs in every org except org1, and signs the /$DATA/${NEW_ORG}_config_update_as_envelope.pb file
-* addorg-fabric-join.sh runs in the new org and joins the new org to the channel
-* addorg-fabric-installcc.sh runs in every org, and installs a new version of the chaincode
-* addorg-fabric-upgradecc.sh runs in org1 and upgrades the chaincode, applying the new endorsement policy that allows the
-new org to endorse TX
-
 ##################################################################################################################################
 
+# General Info
 ## Paths
 Paths are relative to the shared EFS drive:
 
