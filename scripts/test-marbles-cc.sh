@@ -26,9 +26,8 @@ function main {
 
    cloneFabricSamples
 
-   log "Testing marbles chaincode"
+   log "Test network using $CHAINCODE_NAME chaincode"
 
-   # Set ORDERER_PORT_ARGS to the args needed to communicate with the 1st orderer
    IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
    # if we are running this script in an account remote from the main orderer account, make sure we use the
    # NLB endpoint for the orderer. Otherwise, assume we are running in the same K8s cluster as the orderer and use the local endpoint.
@@ -38,86 +37,96 @@ function main {
        initOrdererVars ${OORGS[0]} 1
    fi
    export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --tls --cafile $CA_CHAINFILE --clientauth"
-#   export ORDERER_PORT_ARGS="-o $ORDERER_HOST:7050 --cafile $CA_CHAINFILE"
 
    # Convert PEER_ORGS to an array named PORGS
    IFS=', ' read -r -a PORGS <<< "$PEER_ORGS"
 
-   # Instantiate chaincode on the 1st peer of the 2nd org
+   # Instantiate chaincode
    makePolicy
-   instantiateChaincode
-   chaincodeInit
-   sleep 10
-
-   # Query chaincode from the 1st peer of the 1st org
    initPeerVars ${PORGS[0]} 1
-   switchToUserIdentity
+   switchToAdminIdentity
+   instantiateChaincode
+
+   # Query chaincode
+   switchToMarbleIdentity
+   sleep 5
+   chaincodeInit
+   sleep 5
    chaincodeQuery
 
-   # Invoke chaincode on the 1st peer of the 1st org
+   # Invoke chaincode
    initPeerVars ${PORGS[0]} 1
-   switchToUserIdentity
+   switchToMarbleIdentity
    transferMarble
 
-   # Query chaincode on 2nd peer of 1st org
+   # Query chaincode
    sleep 10
    initPeerVars ${PORGS[0]} 1
-   switchToUserIdentity
+   switchToMarbleIdentity
    chaincodeQuery
 
-   log "Congratulations! The marbles chaincode was tested successfully."
+   # Invoke chaincode
+   initPeerVars ${PORGS[0]} 1
+   switchToMarbleIdentity
+   transferMarbleAgain
+
+   # Query chaincode
+   sleep 10
+   initPeerVars ${PORGS[0]} 1
+   switchToMarbleIdentity
+   chaincodeQuery
+
+   log "Congratulations! $CHAINCODE_NAME chaincode tests ran successfully."
 
    done=true
 }
 
 # git clone fabric-samples. We need this repo for the chaincode
 function cloneFabricSamples {
-   log "cloneFabricSamples"
+   log "clone Marbles app: https://github.com/IBM-Blockchain/marbles.git"
    mkdir -p /opt/gopath/src/github.com/hyperledger
    cd /opt/gopath/src/github.com/hyperledger
-   git clone https://github.com/hyperledger/fabric-samples.git
-   log "cloned FabricSamples"
-   cd fabric-samples
-   git checkout release-1.1
-   log "checked out version 1.1 of FabricSamples"
-
-   log "cloneFabric"
+   git clone https://github.com/IBM-Blockchain/marbles.git
+   log "cloned Marbles app"
+   cd marbles
    mkdir /opt/gopath/src/github.com/hyperledger/fabric
 }
 
 function instantiateChaincode {
-   initPeerVars ${PORGS[0]} 1
    switchToAdminIdentity
    log "Instantiating marbles chaincode on $PEER_HOST ..."
    peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v 1.0 -c '{"Args":["init"]}' -P "$POLICY" $ORDERER_CONN_ARGS
 }
 
 function chaincodeInit {
-   # Invoke chaincode on the 1st peer of the 1st org
-   initPeerVars ${PORGS[0]} 1
-   switchToUserIdentity
-   log "Initialising marbles on $PEER_HOST ..."
-   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["initMarble","marble1","blue","21","edge"]}' $ORDERER_CONN_ARGS
-   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["initMarble","marble2","red","27","braendle"]}' $ORDERER_CONN_ARGS
+   log "Initialising marbles on $PEER_NAME ..."
+   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["init_owner","o3333333333333333330","edge2", "United Marbles"]}' $ORDERER_CONN_ARGS
+   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["init_owner","o3333333333333333331","braendle2", "United Marbles"]}' $ORDERER_CONN_ARGS
+   sleep 5
+   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["init_marble","m333333333330", "green", "50", "o3333333333333333330", "United Marbles"]}' $ORDERER_CONN_ARGS
+   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["init_marble","m333333333331", "orange", "35", "o3333333333333333331", "United Marbles"]}' $ORDERER_CONN_ARGS
 }
 
 function chaincodeQuery {
    set +e
-   log "Querying marbles chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_HOST' ..."
-   sleep 1
-   peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["readMarble","marble1"]}' >& log.txt
+   log "Querying marbles chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_NAME' ..."
+   peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["read_everything"]}' >& log.txt
    cat log.txt
-   peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["readMarble","marble2"]}' >& log.txt
-   cat log.txt
-   log "Successfully queried marbles chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_HOST' ..."
+   log "Successfully queried marbles chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_NAME' ..."
 }
 
 function transferMarble {
    set +e
-   log "Transferring marbles in the channel '$CHANNEL_NAME' on the peer '$PEER_HOST' ..."
-   sleep 1
-   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["transferMarble","marble2","edge"]}' $ORDERER_CONN_ARGS
-   log "Successfully transferred marbles in the channel '$CHANNEL_NAME' on the peer '$PEER_HOST' ..."
+   log "Transferring marbles in the channel '$CHANNEL_NAME' on the peer '$PEER_NAME' ..."
+   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["set_owner","m333333333331","o3333333333333333330", "United Marbles"]}' $ORDERER_CONN_ARGS
+   log "Successfully transferred marbles in the channel '$CHANNEL_NAME' on the peer '$PEER_NAME' ..."
+}
+
+function transferMarbleAgain {
+   set +e
+   log "Transferring marbles in the channel '$CHANNEL_NAME' on the peer '$PEER_NAME' ..."
+   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["set_owner","m333333333331","o3333333333333333331", "United Marbles"]}' $ORDERER_CONN_ARGS
+   log "Successfully transferred marbles in the channel '$CHANNEL_NAME' on the peer '$PEER_NAME' ..."
 }
 
 function makePolicy  {
