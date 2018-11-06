@@ -49,16 +49,12 @@ function main {
 
 # git clone fabric-samples. We need this repo for the chaincode
 function cloneFabricSamples {
-   log "cloneFabricSamples"
+   log "clone Marbles app: https://github.com/IBM-Blockchain/marbles.git"
    mkdir -p /opt/gopath/src/github.com/hyperledger
    cd /opt/gopath/src/github.com/hyperledger
-   git clone https://github.com/hyperledger/fabric-samples.git
-   log "cloned FabricSamples"
-   cd fabric-samples
-   git checkout release-1.1
-   log "checked out version 1.1 of FabricSamples"
-
-   log "cloneFabric"
+   git clone https://github.com/IBM-Blockchain/marbles.git
+   log "cloned Marbles app"
+   cd marbles
    mkdir /opt/gopath/src/github.com/hyperledger/fabric
 }
 

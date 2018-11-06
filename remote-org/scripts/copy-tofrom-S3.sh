@@ -49,7 +49,7 @@ function copyCertsToS3 {
     echo "Copying the certs for the new org to S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
         cd $HOME
-        sudo tar -cvf ${NEW_ORG}msp.tar ${DATA}/orgs/org7/msp
+        sudo tar -cvf ${NEW_ORG}msp.tar ${DATA}/orgs/${NEW_ORG}/msp
         aws s3api put-object --bucket $S3BucketNameNewOrg --key ${NEW_ORG}/${NEW_ORG}msp.tar --body ${NEW_ORG}msp.tar
         aws s3api put-object-acl --bucket $S3BucketNameNewOrg --key ${NEW_ORG}/${NEW_ORG}msp.tar --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
         aws s3api put-object-acl --bucket $S3BucketNameNewOrg --key ${NEW_ORG}/${NEW_ORG}msp.tar --acl public-read
