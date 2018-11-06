@@ -66,6 +66,10 @@ In the new AWS account:
 top of the file
 
 In the original AWS account with the main Fabric network:
+* Edit the file `remote-org/scripts/copy-tofrom-S3.sh`, and add the new org to the ENV variable at the 
+top of the file
+
+In the original AWS account with the main Fabric network:
 * Edit the file `remote-org/step3-create-channel-config.sh`, and add the new org and domain to the two ENV variables at the 
 top of the file
 
