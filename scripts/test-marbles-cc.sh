@@ -18,6 +18,7 @@
 set +e
 
 source $(dirname "$0")/env.sh
+CHAINCODE_NAME=marblescc
 
 function main {
 
@@ -88,7 +89,7 @@ function instantiateChaincode {
    initPeerVars ${PORGS[0]} 1
    switchToAdminIdentity
    log "Instantiating marbles chaincode on $PEER_HOST ..."
-   peer chaincode instantiate -C $CHANNEL_NAME -n marblescc -v 1.0 -c '{"Args":["init"]}' -P "$POLICY" $ORDERER_CONN_ARGS
+   peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v 1.0 -c '{"Args":["init"]}' -P "$POLICY" $ORDERER_CONN_ARGS
 }
 
 function chaincodeInit {
@@ -96,17 +97,17 @@ function chaincodeInit {
    initPeerVars ${PORGS[0]} 1
    switchToUserIdentity
    log "Initialising marbles on $PEER_HOST ..."
-   peer chaincode invoke -C $CHANNEL_NAME -n marblescc -c '{"Args":["initMarble","marble1","blue","21","edge"]}' $ORDERER_CONN_ARGS
-   peer chaincode invoke -C $CHANNEL_NAME -n marblescc -c '{"Args":["initMarble","marble2","red","27","braendle"]}' $ORDERER_CONN_ARGS
+   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["initMarble","marble1","blue","21","edge"]}' $ORDERER_CONN_ARGS
+   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["initMarble","marble2","red","27","braendle"]}' $ORDERER_CONN_ARGS
 }
 
 function chaincodeQuery {
    set +e
    log "Querying marbles chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_HOST' ..."
    sleep 1
-   peer chaincode query -C $CHANNEL_NAME -n marblescc -c '{"Args":["readMarble","marble1"]}' >& log.txt
+   peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["readMarble","marble1"]}' >& log.txt
    cat log.txt
-   peer chaincode query -C $CHANNEL_NAME -n marblescc -c '{"Args":["readMarble","marble2"]}' >& log.txt
+   peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["readMarble","marble2"]}' >& log.txt
    cat log.txt
    log "Successfully queried marbles chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_HOST' ..."
 }
@@ -115,7 +116,7 @@ function transferMarble {
    set +e
    log "Transferring marbles in the channel '$CHANNEL_NAME' on the peer '$PEER_HOST' ..."
    sleep 1
-   peer chaincode invoke -C $CHANNEL_NAME -n marblescc -c '{"Args":["transferMarble","marble2","edge"]}' $ORDERER_CONN_ARGS
+   peer chaincode invoke -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["transferMarble","marble2","edge"]}' $ORDERER_CONN_ARGS
    log "Successfully transferred marbles in the channel '$CHANNEL_NAME' on the peer '$PEER_HOST' ..."
 }
 

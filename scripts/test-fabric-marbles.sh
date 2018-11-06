@@ -29,7 +29,7 @@
 set +e
 
 source $(dirname "$0")/env.sh
-CHAINCODE_NAME=marbles-workshop
+CHAINCODE_NAME=marblescc
 
 function main {
 
