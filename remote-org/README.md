@@ -95,7 +95,8 @@ We will be copying from the existing network to the new organisation, and from t
 We'll use two S3 buckets for this, each owned and writable by different accounts, but read-only to everyone else.
 
 Before executing the steps below, change the bucket names in the script to unique names. S3 bucket names must be
-globally unique.
+globally unique. NOTE that you will need to do this on BOTH bastions, for both the new org and the existing Fabric network,
+making sure the bucket names match on each bastion.
 
 Change the following variables to match your own S3 buckets:
 * S3BucketNameOrderer=mcdg-blockchain-orderer
@@ -136,9 +137,10 @@ and generate the certs/keys for the new org. The keys will be stored in EFS, whi
 EC2 bastion and your Kubernetes worker nodes (this is done in Part 1, when you built the EKS cluster).
 
 Once the script completes, check the logs of the register pod in EKS to confirm it has registered and enrolled the appropriate
-identities:
+identities. You'll need to change the pod name in the statement below:
 
 ```bash
+kubectl get po -n org7
 kubectl logs register-org-org7-85cbf5997b-ggmkr -n org7
 ```
 
@@ -159,7 +161,7 @@ statusCode=201 (201 Created)
 
 To join a new Fabric organisation to an existing Fabric network, you need to copy the public certificates for the new org
 to the existing network. The certificates of interest are the admincerts, cacerts and tlscacerts found in the new
-org's msp folder. This folder is located on the EFS drive here: /opt/share/rca-data/orgs/<org name>/msp
+org's msp folder. This folder is located on the EFS drive here: /opt/share/rca-data/orgs/\<org name\>/msp
 
 Copy the certificate and key information from the new org to the Fabric network in the main Kubernetes cluster, as follows:
 
@@ -443,11 +445,12 @@ On the EC2 bastion in the new org.
 ./remote-org/step6-start-new-peer.sh
 ``` 
 
-Check the results. First check the results for the registration of the new user for the new org. Do a `kubectl get po -n <new org>
-to get the pod name, then (replace the pod name below with your own. Also replace the org number to match your own):
+Check the results. First check the results for the registration of the new user for the new org. Do a `kubectl get po -n <new org>`
+to get the pod name, then replace the pod name below with your own. Also replace the org number to match your own:
 
 ```bash
-$ kubectl logs register-p-org7-6d44b8ccd4-4vlfk   -n org7
+$ kubectl get po -n org7
+$ kubectl logs register-p-org7-6d44b8ccd4-4vlfk -n org7
 ##### 2018-08-28 02:55:33 Registering peer for org org7 ...
 ##### 2018-08-28 02:55:33 Enrolling with ica-org7.org7 as bootstrap identity ...
 .
@@ -467,7 +470,7 @@ Password: michaelpeer1-org7pw
 Then check that the peer started successfully. The key log entry is `Started peer with ID`:
 
 ```bash
-$ kubectl logs michaelpeer1-org7-59fdf7bbc8-42n6j  -n org7 -c michaelpeer1-org7
+$ kubectl logs michaelpeer1-org7-59fdf7bbc8-42n6j -n org7 -c michaelpeer1-org7
 ##### 2018-08-28 02:56:14 Preparing to start peer 'michaelpeer1-org7', host 'michaelpeer1-org7.org7', enrolled via 'https://michaelpeer1-org7:michaelpeer1-org7pw@ica-org7.org7:7054' with MSP at '/opt/gopath/src/github.com/hyperledger/fabric/peer/msp'
 2018/08/28 02:56:14 [DEBUG] Home directory: /opt/gopath/src/github.com/hyperledger/fabric/peer
 .
@@ -499,11 +502,12 @@ At this point the peer has not joined any channels, and does not have a ledger o
 Before the peer in the new org joins the channel, it must be able to connect to the Orderer Service Node (OSN) running
 in the Orderer org. It obtains the endpoint for the OSN from the channel genesis block
 
-The file <channel-name>.block would have been created when you first created the channel in the Orderer network. It will
+The file mychannel.block ('mychannel' refers to the channel name and may differ if you have changed the channel name)
+would have been created when you first created the channel in the Orderer network. It will
 be on the EFS drive, in /opt/share/rca-data. If you can't find it, you can always pull it from the channel itself 
 using `peer channel fetch 0 mychannel.block`.
 
-Copy the <channel-name>.block file from the main Fabric network to the new org, as follows:
+Copy the mychannel.block file from the main Fabric network to the new org, as follows:
 
 On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
 ```bash
