@@ -61,7 +61,7 @@ function cloneFabricSamples {
 function installChaincode {
    switchToAdminIdentity
    log "Installing marbles chaincode on $PEER_HOST ..."
-   peer chaincode install -n marblescc -v 1.0 -p github.com/hyperledger/fabric-samples/chaincode/marbles02/go
+   peer chaincode install -n marblescc -v 1.0 -p github.com/hyperledger/marbles/chaincode/src/marbles
 }
 
 main
