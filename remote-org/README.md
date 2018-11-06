@@ -94,6 +94,19 @@ long keys, by adding line feeds.
 We will be copying from the existing network to the new organisation, and from the new organisation to the existing network.
 We'll use two S3 buckets for this, each owned and writable by different accounts, but read-only to everyone else.
 
+Before executing the steps below, change the bucket names in the script to unique names. S3 bucket names must be
+globally unique.
+
+Change the following variables to match your own S3 buckets:
+* S3BucketNameOrderer=mcdg-blockchain-orderer
+* S3BucketNameNewOrg=mcdg-blockchain-neworg
+
+```bash
+cd
+cd hyperledger-on-kubernetes
+vi ./remote-org/scripts/copy-tofrom-S3.sh 
+```
+
 On the EC2 bastion in the existing Fabric network, i.e. where the orderer is running.
 ```bash
 cd

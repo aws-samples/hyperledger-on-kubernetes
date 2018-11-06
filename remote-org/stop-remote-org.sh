@@ -42,5 +42,5 @@ SCRIPTS=$DATA/rca-scripts
 REPO=hyperledger-on-kubernetes
 cd $HOME/$REPO
 source $SCRIPTS/env.sh
-source utilities.sh
+source fabric-main/utilities.sh
 main
