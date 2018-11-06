@@ -30,17 +30,17 @@ sudo mv /tmp/eksctl /usr/local/bin
 
 echo Create a keypair
 cd ~
-aws ec2 create-key-pair --key-name eks-c9-keypair --region $region --query 'KeyMaterial' --output text > eks-c9-keypair.pem
-chmod 400 eks-c9-keypair.pem
+aws ec2 create-key-pair --key-name eks-c9-nobastion-keypair --region $region --query 'KeyMaterial' --output text > eks-c9-nobastion-keypair.pem
+chmod 400 eks-c9-nobastion-keypair.pem
 sleep 10
 
 echo Create the EKS cluster
 cd ~
 if [ $region == "us-east-1" ]; then
-    eksctl create cluster --ssh-access --ssh-public-key eks-c9-keypair --name eks-fabric --region $region --kubeconfig=./kubeconfig.eks-fabric.yaml --zones=us-east-1a,us-east-1b,us-east-1d
+    eksctl create cluster --ssh-access --ssh-public-key eks-c9-nobastion-keypair --name eks-simple --region $region --kubeconfig=./kubeconfig.eks-simple.yaml --zones=us-east-1a,us-east-1b,us-east-1d
 else
-    eksctl create cluster --ssh-access --ssh-public-key eks-c9-keypair --name eks-fabric --region $region --kubeconfig=./kubeconfig.eks-fabric.yaml
+    eksctl create cluster --ssh-access --ssh-public-key eks-c9-nobastion-keypair --name eks-simple --region $region --kubeconfig=./kubeconfig.eks-simple.yaml
 fi
 
 echo Check whether kubectl can access your Kubernetes cluster
-kubectl --kubeconfig=./kubeconfig.eks-fabric.yaml get nodes
+kubectl --kubeconfig=./kubeconfig.eks-simple.yaml get nodes
