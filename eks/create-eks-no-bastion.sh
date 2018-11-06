@@ -44,3 +44,6 @@ fi
 
 echo Check whether kubectl can access your Kubernetes cluster
 kubectl --kubeconfig=./kubeconfig.eks-simple.yaml get nodes
+
+echo installing jq
+sudo yum -y install jq
