@@ -15,7 +15,7 @@ and displays the peers ledger state in a colourful UI.
 ![Marbles Workshop Architecture](../architecture/WorkshopRemotePeer.png "Marbles Workshop Architecture")
 
 * You will interact with Hyperledger Fabric using the Marbles application, which is a Node.js application that you will
-run locally on your laptop. During this workshop you will configure and run this application.
+run locally (or in Cloud9). During this workshop you will configure and run this application.
 * The Marbles application will connect to a Fabric peer running in your own AWS account, in any region you choose. During
 this workshop you will configure and run the Fabric peer.
 * The Marbles application also connects to an Orderer service, which orders the transactions and groups them into blocks.
@@ -41,8 +41,23 @@ an [~/.aws/credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cl
 or [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html). For more information 
 read the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html).
 * Git installed locally. See https://git-scm.com/downloads
-* Node JS installed. You'll need version > 6.10.1, but it must be 6.x.x. See https://nodejs.org/en/download/. If you have a different 
-version, you can uninstall it (on Mac), and install the correct version using homebrew:
+
+
+For both Cloud9 and laptop you'll need to have Node installed. You'll need version > 6.10.1, but it must be 6.x.x. 
+See https://nodejs.org/en/download/. If you have a different version, you can either use `nvm` to use a specific version
+or uninstall it (on Mac), and install the correct version using homebrew.
+
+### Cloud9
+
+Node should already be installed. Check the version:
+
+```bash
+node --version
+npm --version
+```
+
+### Mac
+* Node JS installed. 
 
 ```bash
 brew uninstall node --force
@@ -404,8 +419,19 @@ kubectl logs deploy/michaelpeer1-org1 -n org1 -c michaelpeer1-org1
 
 ### Step 8: Install the marbles chaincode
 To install the marbles chaincode we'll first clone the chaincode repo to our 'register' container, then install the
-chaincode to the peer. 'exec' back in to the 'register' container, rerun the export statements from Step 6, and do 
-the following:
+chaincode to the peer. 'exec' back in to the 'register' container, rerun the export statements from Step 6 (replicated
+below for convenience), and do the following:
+
+```bash
+export CORE_PEER_TLS_ENABLED=false
+export CORE_PEER_TLS_CLIENTAUTHREQUIRED=false
+export CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+export CORE_PEER_ID=michaelpeer1-org1
+export CORE_PEER_ADDRESS=michaelpeer1-org1.org1:7051
+export CORE_PEER_LOCALMSPID=org1MSP
+export CORE_PEER_MSPCONFIGPATH=/data/orgs/org1/admin/msp
+```
+
 
 ```bash
 mkdir -p /opt/gopath/src/github.com/hyperledger
@@ -461,7 +487,17 @@ us by Fabric to act as a root CA and manage the registration and enrollment of i
 
 Once again, 'exec' into the register container.
  
-Run the export statements from Step 6. Then execute the statements below.
+Run the export statements from Step 6 (replicated below for convenience). Then execute the statements below.
+
+```bash
+export CORE_PEER_TLS_ENABLED=false
+export CORE_PEER_TLS_CLIENTAUTHREQUIRED=false
+export CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+export CORE_PEER_ID=michaelpeer1-org1
+export CORE_PEER_ADDRESS=michaelpeer1-org1.org1:7051
+export CORE_PEER_LOCALMSPID=org1MSP
+export CORE_PEER_MSPCONFIGPATH=/data/orgs/org1/admin/msp
+```
 
 ```bash
 export FABRIC_CA_CLIENT_HOME=/etc/hyperledger/fabric/orgs/org1/user
@@ -532,7 +568,17 @@ When we say 'run a query', we really mean 'execute chaincode that queries the wo
 inside a Docker container. The first time you run chaincode it may take around 30 seconds as the Docker container that hosts 
 the chaincode is downloaded and created.
 
-Rerun the export statements from Step 6.
+Rerun the export statements from Step 6 (replicated below for convenience):
+
+```bash
+export CORE_PEER_TLS_ENABLED=false
+export CORE_PEER_TLS_CLIENTAUTHREQUIRED=false
+export CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+export CORE_PEER_ID=michaelpeer1-org1
+export CORE_PEER_ADDRESS=michaelpeer1-org1.org1:7051
+export CORE_PEER_LOCALMSPID=org1MSP
+export CORE_PEER_MSPCONFIGPATH=/data/orgs/org1/admin/msp
+```
 
 ```bash
 export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/orgs/org1/user/msp
@@ -577,10 +623,11 @@ endpoint. See the statement 'export ORDERER_CONN_ARGS=')
 Before we continue, there is a bug in EKS that requires us to edit an IAM policy. A missing permission in an EKS role
 currently prevents the creation of load balancers, so we will edit the EKS role manually and add the permission.
 
-In the IAM Console, in the AWS account containing your EKS cluster, find the role starting with `EKS-eks-fabric-ServiceRol-AWS`. In
-my account this is `arn:aws:iam::123456789012:role/EKS-eks-fabric-ServiceRol-AWSServiceRoleForAmazonE-1XD9JDMQKT7F9`. In
-the Permissions tab, find the policy titled `EKS-eks-fabric-ServiceRole-NLB`. Select JSON, then Edit Policy. Add this
-permission to the policy: "iam:CreateServiceLinkedRole". Make sure to use the same indents, and include a comma if
+In the IAM Console, in the AWS account containing your EKS cluster, find the role starting with `EKS-eks-fabric-ServiceRol-AWS`,
+or `eksctl-eks-fabric-cluster-ServiceRole`, depending on whether you used eksctl to create your EKS cluster. In
+my account this is `arn:aws:iam::506709822501:role/eksctl-eks-fabric-cluster-ServiceRole-I70T2EI24KWN`. In
+the Permissions tab, find the policy titled `eksctl-eks-fabric-cluster-PolicyNLB` (or similar). Select JSON, then Edit Policy. 
+Add this permission to the policy: "iam:CreateServiceLinkedRole". Make sure to use the same indents, and include a comma if
 necessary. Review and save the policy.
 
 Let's create the AWS Network Load Balancer (NLB) endpoints for the peer and the ca. The K8s YAML files to create these would 
@@ -679,7 +726,7 @@ curl  https://raw.githubusercontent.com/aws-samples/hyperledger-on-kubernetes/ma
 curl  https://raw.githubusercontent.com/aws-samples/hyperledger-on-kubernetes/master/workshop-remote-peer/marbles/marbles_eks.json -o marbles_eks.json
 ```
 
-Still in the config directory, edit connection_profile_eks.json:
+Still in the config directory, edit `connection_profile_eks.json`:
 
 * Do a global search & replace on 'michaelpeer', replacing it with your peer name
 * In the 'replace' commands below, make sure you do not change the port number, nor remove the protocol (e.g. grpc://)
@@ -828,7 +875,17 @@ to do this, but did not include this function in the UI. So we'll do it the hard
 
 On your EC2 bastion instance, do the following:
 * 'exec' into the register container
-* enter the export statements you used in Step 6
+* enter the export statements you used in Step 6 (replicated below for convenience):
+
+```bash
+export CORE_PEER_TLS_ENABLED=false
+export CORE_PEER_TLS_CLIENTAUTHREQUIRED=false
+export CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+export CORE_PEER_ID=michaelpeer1-org1
+export CORE_PEER_ADDRESS=michaelpeer1-org1.org1:7051
+export CORE_PEER_LOCALMSPID=org1MSP
+export CORE_PEER_MSPCONFIGPATH=/data/orgs/org1/admin/msp
+```
 * identify yourself as a user by executing the command below:
 
 ```bash
