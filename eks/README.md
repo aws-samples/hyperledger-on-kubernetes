@@ -210,14 +210,13 @@ kubectl get nodes
 ```
 
 You should see the nodes belonging to your new K8s cluster. You may see more nodes, depending on the size of the Kubernetes
-cluster you created:
+cluster you created. If you are using EKS you will NOT see any master nodes:
 
 ```bash
 $ kubectl get nodes
-NAME                            STATUS    ROLES     AGE       VERSION
-ip-172-20-37-228.ec2.internal   Ready     master    48d       v1.9.6
-ip-172-20-60-179.ec2.internal   Ready     node      48d       v1.9.6
-ip-172-20-67-10.ec2.internal    Ready     node      48d       v1.9.6
+NAME                                           STATUS   ROLES    AGE   VERSION
+ip-192-168-62-115.us-west-2.compute.internal   Ready    <none>   2d    v1.10.3
+ip-192-168-77-242.us-west-2.compute.internal   Ready    <none>   2d    v1.10.3
 ```
 
 ### Step 4: Clone this repo to your EC2 instance
