@@ -556,7 +556,7 @@ Since the transaction is sent to the orderer, you need to provide the orderer en
 orderer DNS below is correct - it was updated by the facilitator prior to this workshop:
 
 ```bash
-export ORDERER_CONN_ARGS="-o ad29a8d6fb18f11e88a630a41a1b1730-3df3e8f72ecd8942.elb.us-west-2.amazonaws.com:7050"
+export ORDERER_CONN_ARGS="-o ae1c0be5ee31111e8bc5e06d80436fb8-e2d2261530926342.elb.us-west-2.amazonaws.com:7050"
 peer chaincode invoke -C mychannel -n marbles-workshop -c '{"Args":["set_owner","m999999999990","o9999999999999999990", "United Marbles"]}' $ORDERER_CONN_ARGS
 peer chaincode query -C mychannel -n marbles-workshop -c '{"Args":["read_everything"]}' 
 ```
@@ -690,7 +690,7 @@ should be correct:
 ```json
     "orderers": {
         "orderer3-org0.org0": {
-            "url": "grpc://ad29a8d6fb18f11e88a630a41a1b1730-3df3e8f72ecd8942.elb.us-west-2.amazonaws.com:7050",
+            "url": "grpc://ae1c0be5ee31111e8bc5e06d80436fb8-e2d2261530926342.elb.us-west-2.amazonaws.com:7050",
 ```
 
 * Replace the peer URL (both url and eventUrl) with the endpoint you obtained in Step 11 when 
@@ -848,7 +848,7 @@ You may need to wait a few seconds between the invoke statements, and for your n
 There is no issue with running these statements multiple times.
 
 ```bash
-export ORDERER_CONN_ARGS="-o ad29a8d6fb18f11e88a630a41a1b1730-3df3e8f72ecd8942.elb.us-west-2.amazonaws.com:7050"
+export ORDERER_CONN_ARGS="-o ae1c0be5ee31111e8bc5e06d80436fb8-e2d2261530926342.elb.us-west-2.amazonaws.com:7050"
 peer chaincode invoke -C mychannel -n marbles-workshop -c '{"Args":["init_owner","o9999999988899999990","bob", "United Marbles"]}' $ORDERER_CONN_ARGS
 peer chaincode invoke -C mychannel -n marbles-workshop -c '{"Args":["init_marble","m999988899990", "blue", "35", "o9999999988899999990", "United Marbles"]}' $ORDERER_CONN_ARGS
 peer chaincode query -C mychannel -n marbles-workshop -c '{"Args":["read_everything"]}'
