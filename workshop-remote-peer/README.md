@@ -42,22 +42,10 @@ or [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-
 read the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html).
 * Git installed locally. See https://git-scm.com/downloads
 
-
-For both Cloud9 and laptop you'll need to have Node installed. You'll need version > 6.10.1, but it must be 6.x.x. 
-See https://nodejs.org/en/download/. If you have a different version, you can either use `nvm` to use a specific version
-or uninstall it (on Mac), and install the correct version using homebrew.
-
-### Cloud9
-
-Node should already be installed. Check the version:
-
-```bash
-node --version
-npm --version
-```
-
 ### Mac
-* Node JS installed. 
+You'll need to have Node.js installed. You'll need a version > 6.10.1, but it must be 6.x.x. 
+See https://nodejs.org/en/download/. If you have a different version, you can either use `nvm` to use a specific version
+or uninstall it (on Mac), and install the correct version using homebrew. 
 
 ```bash
 brew uninstall node --force
@@ -81,6 +69,18 @@ $ npm -v
 ```
 
 * npm installed. It should have been installed together with node in the step above. If not, see https://www.npmjs.com/get-npm
+
+
+### Cloud9
+
+After completing Step 1 below, make sure Cloud9 has the correct version of Node.js installed. Check the version:
+
+```bash
+node --version
+npm --version
+```
+
+You'll need a version > 6.10.1, but it must be 6.x.x. 
 
 ## Getting Started
  
