@@ -625,8 +625,8 @@ currently prevents the creation of load balancers, so we will edit the EKS role 
 
 In the IAM Console, in the AWS account containing your EKS cluster, find the role starting with `EKS-eks-fabric-ServiceRol-AWS`,
 or `eksctl-eks-fabric-cluster-ServiceRole`, depending on whether you used eksctl to create your EKS cluster. In
-my account this is `arn:aws:iam::506709822501:role/eksctl-eks-fabric-cluster-ServiceRole-I70T2EI24KWN`. In
-the Permissions tab, find the policy titled `eksctl-eks-fabric-cluster-PolicyNLB` (or similar). Select JSON, then Edit Policy. 
+my account this is `arn:aws:iam::123456789012:role/eksctl-eks-fabric-cluster-ServiceRole-I70T2EI24KWN`. In the Permissions 
+tab, find the policy titled `eksctl-eks-fabric-cluster-PolicyNLB` (or similar). Select JSON, then Edit Policy. 
 Add this permission to the policy: "iam:CreateServiceLinkedRole". Make sure to use the same indents, and include a comma if
 necessary. Review and save the policy.
 
