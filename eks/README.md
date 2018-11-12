@@ -85,7 +85,7 @@ cd hyperledger-on-kubernetes
 
 It will take around 20 minutes to create your EKS cluster, so go and get a cup of coffee. 
 
-If you need to delete the EKS cluster, run `eksctl delete cluster —name=<CLUSTER_NAME>` to trigger the deletion of the stack.
+If you need to delete the EKS cluster, run `eksctl delete cluster --name=<CLUSTER_NAME>` to trigger the deletion of the stack.
 
 The script `create-eks.sh` also runs the script `efs/deploy-ec2.sh`. Note that this script obtains the list of subnets
 created by eksctl. Since eksctl now creates public and private subnets, the script only uses the first 3 subnets in the list.
@@ -275,7 +275,7 @@ Delete the ec2-cmd-client CloudFormation stack, to remove your EFS and bastion E
 
 Don't forget to remove your EKS cluster. Instructions can be found here:
 
-* eksctl: `eksctl delete cluster —name=eks-fabric`
+* eksctl: `eksctl delete cluster --name=eks-fabric`
 * EKS: https://docs.aws.amazon.com/eks/latest/userguide/delete-cluster.html
 * Kops: https://github.com/kubernetes/kops/blob/master/docs/cli/kops_delete_cluster.md
 
@@ -283,8 +283,9 @@ If eksctl cannot delete your EKS cluster, do the following:
 
 * Delete the CloudFormation stack: eksctl-eks-fabric-cluster and eksctl-eks-fabric-nodegroup-0 (or similar names, 
 depending on how you named your eks cluster)
-* Delete the EC2 keypair you created. It will be in the EC2 console, under Key Pairs
 * In the EKS console, delete the EKS cluster. This will delete the control plane (master nodes, etc.)
+
+Delete the EC2 keypair you created. It will be in the EC2 console, under Key Pairs
 
 Finally, delete the CloudFormation stack for your Cloud9 intance. Also, in the Cloud9 console, delete the instance.
 

@@ -940,19 +940,20 @@ Delete the ec2-cmd-client CloudFormation stack, to remove your EFS and bastion E
 
 Don't forget to remove your EKS cluster. Instructions can be found here:
 
-* eksctl: eksctl delete cluster —name=<CLUSTER_NAME>
+* eksctl: eksctl delete cluster --name=<CLUSTER_NAME>
 * EKS: https://docs.aws.amazon.com/eks/latest/userguide/delete-cluster.html
 * Kops: https://github.com/kubernetes/kops/blob/master/docs/cli/kops_delete_cluster.md
 
 If eksctl cannot delete your EKS cluster, do the following:
 
 * Delete the CloudFormation stacks: DefaultNodeGroup, ControlPlane, ServiceRole, VPC (prefixed with your EKS cluster name)
-* Delete the EC2 keypair you created. It will be in the EC2 console, under Key Pairs
 * Delete the keypair PEM file. In your Cloud9 instance, in your home directory, delete the file eks-c9-keypair.pem
 * Delete the EKS cluster in the EKS console
 
 In the Cloud9 console, delete your Cloud9 instance. This will delete the corresponding CloudFormation stack for your Cloud9 instance. 
 If it doesn't, you can delete the Cloud9 stack manually.
+
+Delete the EC2 keypair you created. It will be in the EC2 console, under Key Pairs
 
 ### Debugging Fabric on Kubernetes
 
