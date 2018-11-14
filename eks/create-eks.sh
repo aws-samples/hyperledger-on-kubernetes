@@ -15,7 +15,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-region=us-west-2
+region=us-east-1
 
 echo Download the kubectl and heptio-authenticator-aws binaries and save to ~/bin
 mkdir ~/bin

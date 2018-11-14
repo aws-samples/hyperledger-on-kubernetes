@@ -104,7 +104,7 @@ If you see this, execute the statements manually. Just copy and paste the follow
 copy across the related files. Change the `region` variable if necessary.
 
 ```bash
-export region=us-west-2
+export region=us-east-1
 sudo yum -y install jq
 PublicDnsNameBastion=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=EFS FileSystem Mounted Instance" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
 PublicDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-0-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
@@ -289,9 +289,10 @@ Delete the EC2 keypair you created. It will be in the EC2 console, under Key Pai
 
 Finally, delete the CloudFormation stack for your Cloud9 intance. Also, in the Cloud9 console, delete the instance.
 
-If the CloudFormation stack that deletes the eksctl-eks-fabric-cluster and eksctl-eks-fabric-nodegroup-0 fails, it might be related to network interfaces still 
-present in the VPC. This could be caused by target groups belonging to an ALB, possibly created by a Kubernetes Service.
-You can either delete the Kubernetes Service, or remove the ALB's and Target Groups in the AWS EC2 console.
+If the CloudFormation stack that deletes the eksctl-eks-fabric-cluster and eksctl-eks-fabric-nodegroup-0 fails, it might be 
+related to network interfaces still present in the VPC. This could be caused by target groups belonging to an ALB or NLB, possibly 
+created by a Kubernetes Service. You can either delete the Kubernetes Service, or remove the ALB's/NLB's and Target Groups in 
+the AWS EC2 console.
 
 # Appendix
 ## Manual steps to create EKS cluster

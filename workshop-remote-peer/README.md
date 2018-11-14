@@ -936,6 +936,10 @@ Cleanup your Hyperledger Fabric nodes:
 ./workshop-remote-peer/stop-remote-fabric-setup.sh
 ```
 
+If you do not run the statement above, you may still have load balancers in your AWS account. Use the EC2 console to
+find the NLBs or ELBs created for use by Hyperledger, and delete them. You'll also need to delete the associated
+Target Groups, which can also be found in the EC2 console.
+
 Delete the ec2-cmd-client CloudFormation stack, to remove your EFS and bastion EC2 instance.
 
 Don't forget to remove your EKS cluster. Instructions can be found here:
@@ -946,9 +950,9 @@ Don't forget to remove your EKS cluster. Instructions can be found here:
 
 If eksctl cannot delete your EKS cluster, do the following:
 
-* Delete the CloudFormation stacks: DefaultNodeGroup, ControlPlane, ServiceRole, VPC (prefixed with your EKS cluster name)
+* Delete the CloudFormation stacks: eksctl-eks-fabric-nodegroup-0, eksctl-eks-fabric-cluster (could differ depending on your EKS cluster name)
+* Delete the EKS cluster in the EKS console. This should be deleted by the CloudFormation stacks above, but best to double check.
 * Delete the keypair PEM file. In your Cloud9 instance, in your home directory, delete the file eks-c9-keypair.pem
-* Delete the EKS cluster in the EKS console
 
 In the Cloud9 console, delete your Cloud9 instance. This will delete the corresponding CloudFormation stack for your Cloud9 instance. 
 If it doesn't, you can delete the Cloud9 stack manually.
