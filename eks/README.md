@@ -20,7 +20,8 @@ Whichever method you choose, you will need SSH access to the Kubernetes worker n
 EFS utils is used to mount the EFS (Elastic File System) used to store the Hyperledger Fabric CA certs/keys. 
 Instructions on how to do this are in the section 'Install EFS utils on each Kubernetes worker node' below.
 
-This README will focus on creating an EKS cluster using eksctl. 
+This README will focus on creating an EKS cluster using eksctl. For details on how to create a K8s cluster using KOPS
+see Appendix B in this README.
 
 ## Creating an EKS cluster using Cloud9 and eksctl
 
@@ -220,7 +221,7 @@ ip-192-168-77-242.us-west-2.compute.internal   Ready    <none>   2d    v1.10.3
 ```
 
 ### Step 4: Clone this repo to your EC2 instance
-On the EC2 instance created in Step 2 above, in the home directory, clone this repo:
+Now SSH into the EC2 bastion instance created in Step 1. In the home directory, clone this repo:
 
 ```bash
 cd
@@ -230,7 +231,7 @@ git clone https://github.com/aws-samples/hyperledger-on-kubernetes
 This repo contains the scripts you'll use to setup your Fabric peer.
 
 ### Step 5: Configure the EFS server URL
-On the EC2 instance created in Step 2 above, in the newly cloned hyperledger-on-kubernetes directory, update the following
+SSH into the EC2 bastion instance created in Step 1, in the newly cloned hyperledger-on-kubernetes directory, update the following
 scripts so that the EFSSERVER variable contains the full URL of the EFS server created in Step 1:
  
 * fabric-main/gen-fabric.sh
@@ -294,7 +295,7 @@ related to network interfaces still present in the VPC. This could be caused by 
 created by a Kubernetes Service. You can either delete the Kubernetes Service, or remove the ALB's/NLB's and Target Groups in 
 the AWS EC2 console.
 
-# Appendix
+# Appendix A
 ## Manual steps to create EKS cluster
 
 Step 1 of this README provides a bash script `eks/create-eks.sh`, which you use to create your EKS cluster, and provision
@@ -493,3 +494,753 @@ scp -i eks-c9-keypair.pem  ~/.aws/credentials  ec2-user@ec2-52-206-72-54.compute
 ```
 
 If you performed these steps manually, you can continue from Step 2 in this README.
+
+# Appendix B
+## Creating a K8s cluster using KOPS
+
+You may do this if you can't use EKS due to it not being available in your region.
+
+The steps to build a cluster using KOPS can be found here:
+
+https://github.com/kubernetes/kops/blob/master/docs/aws.md
+
+To get started, follow Step 1 in this README to create a Cloud9 instance, including the steps for `aws configure`. Do NOT
+go past point 8 - you don't want to create the EKS cluster.
+
+### Install Kops and create cluster
+You must use KOPS v1.11 or later - do NOT use latest, which is still 1.10, as it fails with DNS errors. You also need
+to use Debian Stretch (i.e. v9), not Jessie (v8), as the EFS util you install below will not install on v8.
+
+```bash
+curl -Lo kops https://github.com/kubernetes/kops/releases/download/1.11.0-beta.1/kops-linux-amd64
+chmod +x ./kops
+sudo mv ./kops /usr/local/bin/
+```
+
+Install kubectl:
+
+```bash
+curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+```
+
+Create an S3 bucket for storing the KOPS config:
+
+```bash
+aws s3api create-bucket --bucket mcldg-kops-state-store  --region us-east-1
+```
+
+Decide on a name for your cluster and export it, and the S3 bucket:
+
+```bash
+export NAME=fabric.k8s.local
+export KOPS_STATE_STORE=s3://mcldg-kops-state-store
+```
+
+Create ssh keypair with no passphrase:
+
+```bash
+ssh-keygen 
+```
+
+kops create cluster \
+    --node-count 2 \
+    --zones ap-southeast-1a,ap-southeast-1b,ap-southeast-1c \
+    --master-zones ap-southeast-1a,ap-southeast-1b,ap-southeast-1c \
+    --node-size m5.large\
+    --master-size t2.medium \
+    --topology private \
+    --networking amazon-vpc-routed-eni  \
+    ${NAME}
+
+I did the steps below as it resolves the DNS issue seen in earlier versions of KOPS. I don't know if its required in v1.11, 
+but I've included it anyway. The DNS issue is reported here, with my comments at the botton: https://github.com/kubernetes/kops/issues/4391.
+
+```bash
+kops edit cluster --name $NAME
+```
+
+And add the section below below spec:
+
+```bash
+spec:
+  hooks:
+  - name: fix-dns.service
+    roles:
+    - Node
+    - Master
+    before:
+    - network-pre.target
+    - kubelet.service
+    manifest: |
+      Type=oneshot
+      ExecStart=/usr/sbin/modprobe br_netfilter
+      [Unit]
+      Wants=network-pre.target
+      [Install]
+      WantedBy=multi-user.target
+```
+
+Then update the cluster:
+
+```bash
+kops update cluster fabric.k8s.local --yes
+```
+
+You should see this after a few minutes:
+
+```bash
+ * validate cluster: kops validate cluster
+ * list nodes: kubectl get nodes --show-labels
+ * ssh to the master: ssh -i ~/.ssh/id_rsa admin@api.fabric.k8s.local
+ * the admin user is specific to Debian. If not using Debian please use the appropriate user based on your OS.
+```
+
+### Create the EFS and Bastion
+Create a keypair:
+
+```bash
+aws ec2 create-key-pair --key-name fabric-keypair --query 'KeyMaterial' --output text > fabric-keypair.pem
+chmod 400 fabric-keypair.pem
+```
+
+Edit the file efs/ec2-for-efs-3AZ.yaml. I make a couple of small changes to this to support the private topology
+created by KOPS. Its easier just to copy the whole file below:
+
+```yamlex
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This template creates an Amazon EFS file system and mount target and
+  associates it with Amazon EC2 instances in an Auto Scaling group. **WARNING** This
+  template creates Amazon EC2 instances and related resources. You will be billed
+  for the AWS resources used if you create a stack from this template.
+Parameters:
+  InstanceType:
+    Description: WebServer EC2 instance type
+    Type: String
+    Default: m4.large
+    AllowedValues:
+    - t1.micro
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - m1.small
+    - m1.medium
+    - m1.large
+    - m1.xlarge
+    - m2.xlarge
+    - m2.2xlarge
+    - m2.4xlarge
+    - m3.medium
+    - m3.large
+    - m3.xlarge
+    - m3.2xlarge
+    - m4.large
+    - c1.medium
+    - c1.xlarge
+    - c3.large
+    - c3.xlarge
+    - c3.2xlarge
+    - c3.4xlarge
+    - c3.8xlarge
+    - c4.large
+    - c4.xlarge
+    - c4.2xlarge
+    - c4.4xlarge
+    - c4.8xlarge
+    - g2.2xlarge
+    - r3.large
+    - r3.xlarge
+    - r3.2xlarge
+    - r3.4xlarge
+    - r3.8xlarge
+    - i2.xlarge
+    - i2.2xlarge
+    - i2.4xlarge
+    - i2.8xlarge
+    - d2.xlarge
+    - d2.2xlarge
+    - d2.4xlarge
+    - d2.8xlarge
+    - hi1.4xlarge
+    - hs1.8xlarge
+    - cr1.8xlarge
+    - cc2.8xlarge
+    - cg1.4xlarge
+    ConstraintDescription: Must be a valid EC2 instance type.
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 key pair to enable SSH access to the ECS
+      instances
+  AsgMaxSize:
+    Type: Number
+    Description: Maximum size and initial desired capacity of Auto Scaling Group
+    Default: '2'
+  VPCId:
+    Description: VPCId in which to create the EFS volume and EC2 instance
+    Type: String
+  SSHLocation:
+    Description: The IP address range that can be used to connect to the EC2 instances
+      by using SSH
+    Type: String
+    MinLength: '9'
+    MaxLength: '18'
+    Default: 0.0.0.0/0
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  SubnetAPublic:
+    Description: public subnet to create the EFS mount target
+    Type: String
+  SubnetA:
+    Description: subnet to create the EFS mount target
+    Type: String
+  SubnetB:
+    Description: subnet to create the EFS mount target
+    Type: String
+  SubnetC:
+    Description: subnet to create the EFS mount target
+    Type: String
+  VolumeName:
+    Description: The name to be used for the EFS volume
+    Type: String
+    MinLength: '1'
+    Default: myEFSvolume
+  MountPoint:
+    Description: The Linux mount point for the EFS volume
+    Type: String
+    MinLength: '1'
+    Default: myEFSvolume
+Mappings:
+  AWSInstanceType2Arch:
+    t1.micro:
+      Arch: PV64
+    t2.micro:
+      Arch: HVM64
+    t2.small:
+      Arch: HVM64
+    t2.medium:
+      Arch: HVM64
+    m1.small:
+      Arch: PV64
+    m1.medium:
+      Arch: PV64
+    m1.large:
+      Arch: PV64
+    m1.xlarge:
+      Arch: PV64
+    m2.xlarge:
+      Arch: PV64
+    m2.2xlarge:
+      Arch: PV64
+    m2.4xlarge:
+      Arch: PV64
+    m3.medium:
+      Arch: HVM64
+    m3.large:
+      Arch: HVM64
+    m3.xlarge:
+      Arch: HVM64
+    m3.2xlarge:
+      Arch: HVM64
+    m4.large:
+      Arch: HVM64
+    c1.medium:
+      Arch: PV64
+    c1.xlarge:
+      Arch: PV64
+    c3.large:
+      Arch: HVM64
+    c3.xlarge:
+      Arch: HVM64
+    c3.2xlarge:
+      Arch: HVM64
+    c3.4xlarge:
+      Arch: HVM64
+    c3.8xlarge:
+      Arch: HVM64
+    c4.large:
+      Arch: HVM64
+    c4.xlarge:
+      Arch: HVM64
+    c4.2xlarge:
+      Arch: HVM64
+    c4.4xlarge:
+      Arch: HVM64
+    c4.8xlarge:
+      Arch: HVM64
+    g2.2xlarge:
+      Arch: HVMG2
+    r3.large:
+      Arch: HVM64
+    r3.xlarge:
+      Arch: HVM64
+    r3.2xlarge:
+      Arch: HVM64
+    r3.4xlarge:
+      Arch: HVM64
+    r3.8xlarge:
+      Arch: HVM64
+    i2.xlarge:
+      Arch: HVM64
+    i2.2xlarge:
+      Arch: HVM64
+    i2.4xlarge:
+      Arch: HVM64
+    i2.8xlarge:
+      Arch: HVM64
+    d2.xlarge:
+      Arch: HVM64
+    d2.2xlarge:
+      Arch: HVM64
+    d2.4xlarge:
+      Arch: HVM64
+    d2.8xlarge:
+      Arch: HVM64
+    hi1.4xlarge:
+      Arch: HVM64
+    hs1.8xlarge:
+      Arch: HVM64
+    cr1.8xlarge:
+      Arch: HVM64
+    cc2.8xlarge:
+      Arch: HVM64
+  AWSRegionArch2AMI:
+    us-east-1:
+      PV64: ami-1ccae774
+      HVM64: ami-1ecae776
+      HVMG2: ami-8c6b40e4
+    us-east-2:
+      HVM64: ami-f63b1193
+    us-west-2:
+      PV64: ami-ff527ecf
+      HVM64: ami-e7527ed7
+      HVMG2: ami-abbe919b
+    us-west-1:
+      PV64: ami-d514f291
+      HVM64: ami-d114f295
+      HVMG2: ami-f31ffeb7
+    eu-west-1:
+      PV64: ami-bf0897c8
+      HVM64: ami-a10897d6
+      HVMG2: ami-d5bc24a2
+    eu-central-1:
+      PV64: ami-ac221fb1
+      HVM64: ami-a8221fb5
+      HVMG2: ami-7cd2ef61
+    ap-northeast-1:
+      PV64: ami-27f90e27
+      HVM64: ami-cbf90ecb
+      HVMG2: ami-6318e863
+    ap-southeast-1:
+      PV64: ami-acd9e8fe
+      HVM64: ami-68d8e93a
+      HVMG2: ami-3807376a
+    ap-southeast-2:
+      PV64: ami-ff9cecc5
+      HVM64: ami-fd9cecc7
+      HVMG2: ami-89790ab3
+    sa-east-1:
+      PV64: ami-bb2890a6
+      HVM64: ami-b52890a8
+      HVMG2: NOT_SUPPORTED
+    cn-north-1:
+      PV64: ami-fa39abc3
+      HVM64: ami-f239abcb
+      HVMG2: NOT_SUPPORTED
+Resources:
+  CloudWatchPutMetricsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+  CloudWatchPutMetricsRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: CloudWatch_PutMetricData
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: CloudWatchPutMetricData
+          Effect: Allow
+          Action:
+          - cloudwatch:PutMetricData
+          Resource:
+          - "*"
+      Roles:
+      - Ref: CloudWatchPutMetricsRole
+  CloudWatchPutMetricsInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: CloudWatchPutMetricsRole
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Ref: VPCId
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp:
+          Ref: SSHLocation
+      - IpProtocol: tcp
+        FromPort: '80'
+        ToPort: '80'
+        CidrIp: 0.0.0.0/0
+  MountTargetSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Ref: VPCId
+      GroupDescription: Security group for mount target
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '2049'
+        ToPort: '2049'
+        CidrIp: 0.0.0.0/0
+  FileSystem:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      PerformanceMode: generalPurpose
+      FileSystemTags:
+      - Key: Name
+        Value:
+          Ref: VolumeName
+  MountTargetA:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: FileSystem
+      SubnetId:
+        Ref: SubnetA
+      SecurityGroups:
+      - Ref: MountTargetSecurityGroup
+  MountTargetB:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: FileSystem
+      SubnetId:
+        Ref: SubnetB
+      SecurityGroups:
+      - Ref: MountTargetSecurityGroup
+  MountTargetC:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: FileSystem
+      SubnetId:
+        Ref: SubnetC
+      SecurityGroups:
+      - Ref: MountTargetSecurityGroup
+  LaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          MountConfig:
+          - setup
+          - mount
+          - install
+        setup:
+          packages:
+            yum:
+              nfs-utils: []
+          files:
+            "/home/ec2-user/post_nfsstat":
+              content: !Sub |
+                #!/bin/bash
+
+                INPUT="$(cat)"
+                CW_JSON_OPEN='{ "Namespace": "EFS", "MetricData": [ '
+                CW_JSON_CLOSE=' ] }'
+                CW_JSON_METRIC=''
+                METRIC_COUNTER=0
+
+                for COL in 1 2 3 4 5 6; do
+
+                 COUNTER=0
+                 METRIC_FIELD=$COL
+                 DATA_FIELD=$(($COL+($COL-1)))
+
+                 while read line; do
+                   if [[ COUNTER -gt 0 ]]; then
+
+                     LINE=`echo $line | tr -s ' ' `
+                     AWS_COMMAND="aws cloudwatch put-metric-data --region ${AWS::Region}"
+                     MOD=$(( $COUNTER % 2))
+
+                     if [ $MOD -eq 1 ]; then
+                       METRIC_NAME=`echo $LINE | cut -d ' ' -f $METRIC_FIELD`
+                     else
+                       METRIC_VALUE=`echo $LINE | cut -d ' ' -f $DATA_FIELD`
+                     fi
+
+                     if [[ -n "$METRIC_NAME" && -n "$METRIC_VALUE" ]]; then
+                       INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+                       CW_JSON_METRIC="$CW_JSON_METRIC { \"MetricName\": \"$METRIC_NAME\", \"Dimensions\": [{\"Name\": \"InstanceId\", \"Value\": \"$INSTANCE_ID\"} ], \"Value\": $METRIC_VALUE },"
+                       unset METRIC_NAME
+                       unset METRIC_VALUE
+
+                       METRIC_COUNTER=$((METRIC_COUNTER+1))
+                       if [ $METRIC_COUNTER -eq 20 ]; then
+                         # 20 is max metric collection size, so we have to submit here
+                         aws cloudwatch put-metric-data --region ${AWS::Region} --cli-input-json "`echo $CW_JSON_OPEN ${!CW_JSON_METRIC%?} $CW_JSON_CLOSE`"
+
+                         # reset
+                         METRIC_COUNTER=0
+                         CW_JSON_METRIC=''
+                       fi
+                     fi
+
+
+
+                     COUNTER=$((COUNTER+1))
+                   fi
+
+                   if [[ "$line" == "Client nfs v4:" ]]; then
+                     # the next line is the good stuff
+                     COUNTER=$((COUNTER+1))
+                   fi
+                 done <<< "$INPUT"
+                done
+
+                # submit whatever is left
+                aws cloudwatch put-metric-data --region ${AWS::Region} --cli-input-json "`echo $CW_JSON_OPEN ${!CW_JSON_METRIC%?} $CW_JSON_CLOSE`"
+              mode: '000755'
+              owner: ec2-user
+              group: ec2-user
+            "/home/ec2-user/crontab":
+              content: "* * * * * /usr/sbin/nfsstat | /home/ec2-user/post_nfsstat\n"
+              owner: ec2-user
+              group: ec2-user
+          commands:
+            01_createdir:
+              command: !Sub "mkdir -p /${MountPoint}"
+        mount:
+          commands:
+            01_mount:
+              command: !Sub >
+                mount -t nfs4 -o nfsvers=4.1 ${FileSystem}.efs.${AWS::Region}.amazonaws.com:/ /${MountPoint}
+            02_permissions:
+              command: !Sub "chown ec2-user:ec2-user /${MountPoint}"
+        install:
+          commands:
+            01_git:
+              command: sudo yum -y upgrade && sudo yum -y install git
+            03_kubectl_curl:
+              command: curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+            04_kubectl_install:
+              command: chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/kubectl
+            05_iamauth_install:
+              command: cd /home/ec2-user && curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator && chmod +x ./aws-iam-authenticator && mkdir -p /home/ec2-user/bin && cp ./aws-iam-authenticator /home/ec2-user/bin/aws-iam-authenticator && export PATH=/home/ec2-user/bin:$PATH && echo 'export PATH=/home/ec2-user/bin:$PATH' >> ~/.bashrc
+            06_heptio_install:
+              command: cd /home/ec2-user && curl -o heptio-authenticator-aws https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws && chmod +x heptio-authenticator-aws && mv heptio-authenticator-aws /home/ec2-user/bin/
+    Properties:
+      AssociatePublicIpAddress: true
+      ImageId:
+        Fn::FindInMap:
+        - AWSRegionArch2AMI
+        - Ref: AWS::Region
+        - Fn::FindInMap:
+          - AWSInstanceType2Arch
+          - Ref: InstanceType
+          - Arch
+      InstanceType:
+        Ref: InstanceType
+      KeyName:
+        Ref: KeyName
+      SecurityGroups:
+      - Ref: InstanceSecurityGroup
+      IamInstanceProfile:
+        Ref: CloudWatchPutMetricsInstanceProfile
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum install -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource LaunchConfiguration --configsets MountConfig --region ${AWS::Region}
+          crontab /home/ec2-user/crontab
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AutoScalingGroup --region ${AWS::Region}
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn:
+    - MountTargetA
+    - MountTargetB
+    - MountTargetC
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+        Count: '1'
+    Properties:
+      VPCZoneIdentifier:
+      - Ref: SubnetAPublic
+      LaunchConfigurationName:
+        Ref: LaunchConfiguration
+      MinSize: '1'
+      MaxSize:
+        Ref: AsgMaxSize
+      DesiredCapacity: '1'
+      Tags:
+      - Key: Name
+        Value: EFS FileSystem Mounted Instance
+        PropagateAtLaunch: 'true'
+Outputs:
+  MountTargetID:
+    Description: Mount target ID
+    Value:
+      Ref: MountTargetA
+  FileSystemID:
+    Description: File system ID
+    Value:
+      Ref: FileSystem
+
+```
+
+
+Edit the file: efs/deploy-ec2.sh & replace the following. The VPC is where K8s is installed, and the subnets are where the K8s worker nodes are running. 
+KOPS will create public and private subnets. There is one public subnet required, the others are private. You can easily determine this by looking at
+the tags for the subnets. KOPS tags the private subnets with 'private'. Leave the other ENV variables in the file as they are.
+
+```bash
+region=ap-southeast-1
+vpcid=vpc-01d2ae37703c36362
+subnetapublic=subnet-05b149164381dc4c8
+subneta=subnet-0b1575296d2206ee4
+subnetb=subnet-0e84e41062b2868c6
+subnetc=subnet-0972f11fae5a6c07a
+keypairname=fabric-keypair
+volumename=dltefs
+mountpoint=opt/share
+
+aws cloudformation deploy --stack-name ec2-cmd-client --template-file efs/ec2-for-efs-3AZ.yaml \
+--capabilities CAPABILITY_NAMED_IAM \
+--parameter-overrides VPCId=$vpcid SubnetAPublic=$subnetapublic SubnetA=$subneta SubnetB=$subnetb SubnetC=$subnetc \
+KeyName=$keypairname VolumeName=$volumename MountPoint=$mountpoint \
+--region $region
+
+```
+
+Execute the file and check the results in the CloudFormation console:
+
+```bash
+cd ~/hyperledger-on-kubernetes/
+./efs/deploy-ec2.sh
+```
+
+List the DNS for the bastion and the K8s worker nodes:
+
+```bash
+export region=ap-southeast-1
+export NAME=fabric.k8s.local
+
+PublicDnsNameBastion=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=EFS FileSystem Mounted Instance" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
+echo public DNS of EC2 bastion host: $PublicDnsNameBastion
+
+PrivateDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=nodes.${NAME}" | jq '.Reservations | .[] | .Instances | .[] | .PrivateDnsName' | tr -d '"')                                                                                                                                                                                                                  
+echo private DNS of EKS worker nodes: $PrivateDnsNameEKSWorker
+```
+
+Copy the kubeconfig, AWS config and keys to the bastion host. You may have to run this twice, as the first time it ask
+you to confirm your connection:
+
+```bash
+cd ~
+scp -i ~/fabric-keypair.pem -q ~/.kube/config  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/kubeconfig
+scp -i ~/fabric-keypair.pem -q ~/.aws/config  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/config
+scp -i ~/fabric-keypair.pem -q ~/.aws/credentials  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/credentials
+scp -i ~/fabric-keypair.pem -q ~/.ssh/id_rsa  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/id_rsa
+scp -i ~/fabric-keypair.pem -q ~/.ssh/id_rsa.pub ec2-user@${PublicDnsNameBastion}:/home/ec2-user/id_rsa.pub
+```
+
+SSH into the bastion:
+
+```bash
+ssh ec2-user@${PublicDnsNameBastion} -i ~/fabric-keypair.pem
+```
+
+Copy the kubeconfig, AWS config and keys to the right locations:
+
+```bash
+mkdir -p /home/ec2-user/.aws
+cd /home/ec2-user/.aws
+mv /home/ec2-user/config .
+mv /home/ec2-user/credentials .
+
+mkdir -p ~/.kube
+mv /home/ec2-user/kubeconfig ~/.kube/config
+
+mkdir -p /home/ec2-user/.ssh
+cd /home/ec2-user/.ssh
+mv /home/ec2-user/id_rsa .
+mv /home/ec2-user/id_rsa.pub .
+```
+
+SSH to each K8s worker node and install EFS utils. SSH into the bastion first, then from there to the worker nodes. 
+They are in private subnets so need the bastion.
+
+If using Debian K8s worker nodes:
+
+```bash
+ssh admin@ip-172-20-101-50.ap-southeast-1.compute.internal (use the internal DNS)
+```
+
+Follow the instructions here to install efs-utils: https://github.com/aws/efs-utils
+
+```bash
+git clone https://github.com/aws/efs-utils
+cd efs-utils
+sudo apt-get update
+sudo apt-get -y install binutils
+./build-deb.sh
+sudo apt-get -y install ./build/amazon-efs-utils*deb
+```
+
+If using Amazon Linux (which doesn't seem to work for me. The DNS service has errors):
+
+```bash
+ssh ec2-user@ip-172-20-101-50.ap-southeast-1.compute.internal (use the internal DNS)
+```
+
+Install EFS utils:
+
+```bash
+sudo yum update -y
+sudo yum install -y amazon-efs-utils
+```
+
+Continue with Step 4 in creating an EKS cluster in https://github.com/aws-samples/hyperledger-on-kubernetes/blob/master/eks/README.md
+
+### Delete the cluster:
+
+```bash
+export NAME=fabric.k8s.local
+export KOPS_STATE_STORE=s3://mcldg-kops-state-store
+kops delete cluster --name $NAME
+```
+
+

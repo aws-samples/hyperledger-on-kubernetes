@@ -74,8 +74,7 @@ Parameters:
     ConstraintDescription: Must be a valid EC2 instance type.
   KeyName:
     Type: AWS::EC2::KeyPair::KeyName
-    Description: Name of an existing EC2 key pair to enable SSH access to the ECS
-      instances
+    Description: Name of an existing EC2 key pair to enable SSH access to the EC2 instance
   AsgMaxSize:
     Type: Number
     Description: Maximum size and initial desired capacity of Auto Scaling Group
