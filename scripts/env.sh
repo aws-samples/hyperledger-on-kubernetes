@@ -42,7 +42,11 @@ NUM_PEERS=2
 ##--END REPLACE CONTENTS--##
 #####################################################################################
 # The remainder of this file contains variables which typically would not be changed.
+# The exception would be FABRIC_TAG, which you use to change to a different Fabric version.
 #####################################################################################
+
+# The tag of the docker images to download for Fabric CA and Fabric. Equates to the Fabric version
+FABRIC_TAG="1.4"
 
 # Leave these blank. They are populated by other scripts
 EXTERNAL_ORDERER_ADDRESSES=""

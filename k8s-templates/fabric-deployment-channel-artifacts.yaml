@@ -37,7 +37,7 @@ spec:
     spec:
      containers:
        - name: channel-artifacts
-         image: hyperledger/fabric-ca-tools:x86_64-1.1.0
+         image: hyperledger/fabric-tools:%FABRIC_TAG%
          command: ["sh"]
          args:  ["-c", "/scripts/gen-channel-artifacts.sh 2>&1; while true; do sleep 90; done;"]
          volumeMounts:

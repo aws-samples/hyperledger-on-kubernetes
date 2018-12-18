@@ -41,7 +41,7 @@ spec:
          ports:
           - containerPort: 5984
        - name: peer%NUM%-%ORG%
-         image: hyperledger/fabric-ca-peer:x86_64-1.1.0
+         image: hyperledger/fabric-peer:%FABRIC_TAG%
          env:
           - name: FABRIC_CA_CLIENT_HOME
             value: /opt/gopath/src/github.com/hyperledger/fabric/peer

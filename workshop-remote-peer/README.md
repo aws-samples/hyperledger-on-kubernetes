@@ -285,7 +285,7 @@ and it does not maintain any ledger state. To start building a ledger on the pee
 ### Step 6: Join the peer to a channel
 To give you a better understanding of Fabric, we are going to carry out the steps to join a peer to a channel manually.
 We need to carry out the steps from within a container running in the Kubernetes cluster. We'll use the 'register'
-container you started in step 4, as this runs the fabric-ca-tools image, which will provide us a CLI (command line interface)
+container you started in step 4, as this runs the fabric-tools image, which will provide us a CLI (command line interface)
 to interact with the peer. You can confirm this by:
 
 ```bash
@@ -298,11 +298,11 @@ Then describe the register pod using the pod name (replace the pod name below wi
 kubectl describe po register-p-org1-66bd5688b4-rrpw6 -n org1
 ```
 
-Look at the Image Id attribute. You'll see it contains something like the entry below. fabric-ca-tools provides a CLI
+Look at the Image Id attribute. You'll see it contains something like the entry below. fabric-tools provides a CLI
 we can use to interact with a Fabric network:
 
 ```bash
-docker-pullable://hyperledger/fabric-ca-tools@sha256:e4dfa9b12a854e3fb691fece50e4a52744bc584af809ea379d27c4e035cbf008
+docker-pullable://hyperledger/fabric-tools@sha256:e4dfa9b12a854e3fb691fece50e4a52744bc584af809ea379d27c4e035cbf008
 ```
 
 OK, so let's 'exec' into the register container (replace the pod name below with your own):
