@@ -37,7 +37,7 @@ spec:
     spec:
      containers:
        - name: test-fabric-marbles
-         image: hyperledger/fabric-ca-tools:x86_64-1.1.0
+         image: hyperledger/fabric-tools:%FABRIC_TAG%
          env:
           - name: GOPATH
             value: /opt/gopath

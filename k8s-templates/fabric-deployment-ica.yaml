@@ -37,7 +37,7 @@ spec:
     spec:
      containers:
        - name: ica-%ORG%
-         image: hyperledger/fabric-ca:x86_64-1.1.0
+         image: hyperledger/fabric-ca:%FABRIC_TAG%
          env:
          - name:  FABRIC_CA_SERVER_HOME
            value: /etc/hyperledger/fabric-ca

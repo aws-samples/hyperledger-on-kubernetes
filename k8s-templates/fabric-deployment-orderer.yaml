@@ -37,7 +37,7 @@ spec:
     spec:
      containers:
        - name: orderer%NUM%-%ORG%
-         image: hyperledger/fabric-ca-orderer:x86_64-1.1.0
+         image: hyperledger/fabric-orderer:%FABRIC_TAG%
          env:
           - name: FABRIC_CA_CLIENT_HOME
             value: /etc/hyperledger/orderer
