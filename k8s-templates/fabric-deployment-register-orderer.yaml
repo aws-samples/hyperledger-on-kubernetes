@@ -37,7 +37,7 @@ spec:
     spec:
      containers:
        - name: register-o-%ORG%
-         image: hyperledger/fabric-tools:%FABRIC_TAG%
+         image: hyperledger/fabric-ca:%FABRIC_TAG%
          env:
           - name: ORDERERORG
             value: %ORG%
