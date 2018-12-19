@@ -524,23 +524,22 @@ function fatal {
 }
 
 function installFabricCA {
-    # Install fabric-ca. Recent version of Hyperledger Fabric do not include a fabric-ca-tools, fabric-ca-peer, etc., where the
+    # Install fabric-ca. Recent versions of Hyperledger Fabric Docker images do not include fabric-ca-tools, fabric-ca-peer, etc., where the
     # fabric-ca-client is included. So we will need to build fabric-ca-client ourselves.
     log "Installing fabric-ca-client"
 
-    wget https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
-    tar -xzf go1.10.3.linux-amd64.tar.gz
-    mv go /usr/local
-    sleep 5
-    export GOROOT=/usr/local/go
-    export GOPATH=$HOME/go
-    export PATH=$GOROOT/bin:$PATH
-    export PATH=$PATH:$HOME/go/src/github.com/hyperledger/fabric-ca/bin
-    apt-get update
-    apt-get install git-core -y
-    apt-get install libtool libltdl-dev -y
-    apt-get install build-essential -y
-    sleep 5
+#    wget https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
+#    tar -xzf go1.10.3.linux-amd64.tar.gz
+#    mv go /usr/local
+#    sleep 5
+#    export GOROOT=/usr/local/go
+#    export GOPATH=$HOME/go
+#    export PATH=$GOROOT/bin:$PATH
+#    apt-get update
+#    apt-get install git-core -y
+#    apt-get install libtool libltdl-dev -y
+#    apt-get install build-essential -y
+#    sleep 5
     go get -u github.com/hyperledger/fabric-ca/cmd/...
     sleep 10
     cd $HOME/go/src/github.com/hyperledger/fabric-ca
