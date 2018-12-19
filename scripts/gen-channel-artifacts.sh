@@ -81,13 +81,13 @@ function makeConfigTxYaml {
 ################################################################################
 Capabilities:
     Global: &ChannelCapabilities
-        V1_4: true
+        V1_3: true
 
     Orderer: &OrdererCapabilities
-        V1_4: true
+        V1_1: true
 
     Application: &ApplicationCapabilities
-        V1_4: true"
+        V1_3: true"
 
    echo "
 ################################################################################
