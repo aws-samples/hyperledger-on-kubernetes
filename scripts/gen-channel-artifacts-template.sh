@@ -105,7 +105,7 @@ Orderer: &OrdererDefaults
     OrdererType: $ORDERER_TYPE
 
     Addresses:
-        $EXTERNAL_ORDERER_ADDRESSES"
+$EXTERNAL_ORDERER_ADDRESSES"
 
     for ORG in $ORDERER_ORGS; do
       local COUNT=1
@@ -339,7 +339,7 @@ Profiles:
                 Organizations:"
                     for ORG in $PEER_ORGS; do
                       initOrgVars $ORG
-                      echo "          - *${ORG_CONTAINER_NAME}"
+                      echo "                    - *${ORG_CONTAINER_NAME}"
                     done
 
    echo "
