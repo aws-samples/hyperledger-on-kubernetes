@@ -105,7 +105,7 @@ Orderer: &OrdererDefaults
     OrdererType: $ORDERER_TYPE
 
     Addresses:
-        $EXTERNAL_ORDERER_ADDRESSES"
+$EXTERNAL_ORDERER_ADDRESSES"
 
     for ORG in $ORDERER_ORGS; do
       local COUNT=1
