@@ -205,6 +205,10 @@ function genClientTLSCert {
    KEY_FILE=$3
 
    # Get a client cert
+   if ! [ -x "$(command -v fabric-ca-client)" ]; then
+     echo 'fabric-ca-client is not installed - installing it now.'
+     installFabricCA
+   fi
    fabric-ca-client enroll -d --enrollment.profile tls -u $ENROLLMENT_URL -M /tmp/tls --csr.hosts $HOST_NAME
 
    mkdir /$DATA/tls || true
@@ -271,6 +275,10 @@ function switchToAdminIdentity {
       log "Enrolling admin '$ADMIN_NAME' with $CA_HOST ..."
       export FABRIC_CA_CLIENT_HOME=$ORG_ADMIN_HOME
       export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
+      if ! [ -x "$(command -v fabric-ca-client)" ]; then
+         echo 'fabric-ca-client is not installed - installing it now.'
+         installFabricCA
+      fi
       fabric-ca-client enroll -d -u https://$ADMIN_NAME:$ADMIN_PASS@$CA_HOST:7054
       # If admincerts are required in the MSP, copy the cert there now and to my local MSP also
       if [ $ADMINCERTS ]; then
@@ -292,6 +300,10 @@ function switchToUserIdentity {
       dowait "$CA_NAME to start" 60 $CA_LOGFILE $CA_CHAINFILE
       log "Enrolling user '$USER_NAME' for organization $ORG with home directory $FABRIC_CA_CLIENT_HOME ..."
       export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
+      if ! [ -x "$(command -v fabric-ca-client)" ]; then
+         echo 'fabric-ca-client is not installed - installing it now.'
+         installFabricCA
+      fi
       fabric-ca-client enroll -d -u https://$USER_NAME:$USER_PASS@$CA_HOST:7054
       # Set up admincerts directory if required
       if [ $ADMINCERTS ]; then
@@ -308,6 +320,10 @@ function revokeFabricUserAndGenerateCRL {
    export  FABRIC_CA_CLIENT_HOME=$ORG_ADMIN_HOME
    log "Revoking the user '$USER_NAME' of the organization '$ORG' with Fabric CA Client home directory set to $FABRIC_CA_CLIENT_HOME and generating CRL ..."
    export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
+   if ! [ -x "$(command -v fabric-ca-client)" ]; then
+     echo 'fabric-ca-client is not installed - installing it now.'
+     installFabricCA
+   fi
    fabric-ca-client revoke -d --revoke.name $USER_NAME --gencrl
 }
 
@@ -318,6 +334,10 @@ function generateCRL {
    export FABRIC_CA_CLIENT_HOME=$ORG_ADMIN_HOME
    log "Generating CRL for the organization '$ORG' with Fabric CA Client home directory set to $FABRIC_CA_CLIENT_HOME ..."
    export FABRIC_CA_CLIENT_TLS_CERTFILES=$CA_CHAINFILE
+   if ! [ -x "$(command -v fabric-ca-client)" ]; then
+     echo 'fabric-ca-client is not installed - installing it now.'
+     installFabricCA
+   fi
    fabric-ca-client gencrl -d
 }
 
@@ -418,4 +438,32 @@ function log {
 function fatal {
    log "FATAL: $*"
    exit 1
+}
+
+function installFabricCA {
+    # Install fabric-ca. Recent version of Hyperledger Fabric do not include a fabric-ca-tools, fabric-ca-peer, etc., where the
+    # fabric-ca-client is included. So we will need to build fabric-ca-client ourselves.
+    log "Installing fabric-ca-client"
+
+    wget https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
+    tar -xzf go1.10.3.linux-amd64.tar.gz
+    mv go /usr/local
+    sleep 5
+    export GOROOT=/usr/local/go
+    export GOPATH=$HOME/go
+    export PATH=$GOROOT/bin:$PATH
+    export PATH=$PATH:$HOME/go/src/github.com/hyperledger/fabric-ca/bin
+    apt-get update
+    apt-get install git-core -y
+    apt-get install libtool libltdl-dev -y
+    apt-get install build-essential -y
+    sleep 5
+    go get -u github.com/hyperledger/fabric-ca/cmd/...
+    sleep 10
+    cd $HOME/go/src/github.com/hyperledger/fabric-ca
+    make fabric-ca-client
+    sleep 5
+    export PATH=$PATH:$HOME/go/src/github.com/hyperledger/fabric-ca/bin
+
+    log "Install complete - fabric-ca-client"
 }
