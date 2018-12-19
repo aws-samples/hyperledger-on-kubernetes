@@ -349,7 +349,15 @@ Profiles:
             <<: *OrdererDefaults
         Consortium: SampleConsortium
         Application:
-            <<: *ApplicationDefaults"
+            <<: *ApplicationDefaults
+            Organizations:"
+                    for ORG in $PEER_ORGS; do
+                      initOrgVars $ORG
+                      echo "                    - *${ORG_CONTAINER_NAME}"
+                    done
+   echo "
+            Capabilities:
+                <<: *ApplicationCapabilities"
    } > /etc/hyperledger/fabric/configtx.yaml
    # Copy it to the data directory to make debugging easier
    cp /etc/hyperledger/fabric/configtx.yaml /$DATA
