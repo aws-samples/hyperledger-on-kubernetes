@@ -237,7 +237,6 @@ Channel: &ChannelDefaults
     Capabilities:
         <<: *ChannelCapabilities"
 
-
    echo "
 ################################################################################
 #
@@ -349,8 +348,12 @@ Profiles:
         <<: *ChannelDefaults
         Orderer:
             <<: *OrdererDefaults
+            Capabilities:
+                <<: *ChannelCapabilities
         Application:
             <<: *ApplicationDefaults
+            Capabilities:
+                <<: *ApplicationCapabilities
         Consortiums:
             SampleConsortium:
                 Organizations:"
@@ -361,9 +364,8 @@ Profiles:
 
    echo "
     OrgsChannel:
-        <<: *ChannelDefaults
-        Orderer:
-            <<: *OrdererDefaults
+        Capabilities:
+            <<: *ChannelCapabilities
         Consortium: SampleConsortium
         Application:
             <<: *ApplicationDefaults
