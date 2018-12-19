@@ -233,7 +233,6 @@ Channel: &ChannelDefaults
     Capabilities:
         <<: *ChannelCapabilities"
 
-
    echo "
 ################################################################################
 #
@@ -345,28 +344,31 @@ Profiles:
         <<: *ChannelDefaults
         Orderer:
             <<: *OrdererDefaults
+            Capabilities:
+                <<: *ChannelCapabilities
         Application:
             <<: *ApplicationDefaults
+            Capabilities:
+                <<: *ApplicationCapabilities
         Consortiums:
             SampleConsortium:
                 Organizations:"
                     for ORG in $PEER_ORGS; do
                       initOrgVars $ORG
-                      echo "                        - *${ORG_CONTAINER_NAME}"
+                      echo "                - *${ORG_CONTAINER_NAME}"
                     done
 
    echo "
     OrgsChannel:
-        <<: *ChannelDefaults
-        Orderer:
-            <<: *OrdererDefaults
+        Capabilities:
+            <<: *ChannelCapabilities
         Consortium: SampleConsortium
         Application:
             <<: *ApplicationDefaults
             Organizations:"
                     for ORG in $PEER_ORGS; do
                       initOrgVars $ORG
-                      echo "                    - *${ORG_CONTAINER_NAME}"
+                      echo "            - *${ORG_CONTAINER_NAME}"
                     done
    echo "
             Capabilities:
