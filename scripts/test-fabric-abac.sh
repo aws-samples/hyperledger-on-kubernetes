@@ -206,6 +206,7 @@ function chaincodeQuery {
    fi
    set +e
    log "Querying chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_HOST' ..."
+   cd /$DATA
    local rc=1
    local starttime=$(date +%s)
    # Continue to poll until we get a successful response or reach QUERY_TIMEOUT
@@ -228,6 +229,7 @@ function chaincodeQuery {
 function queryAsRevokedUser {
    set +e
    log "Querying the chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_HOST' as revoked user '$USER_NAME' ..."
+   cd /$DATA
    local starttime=$(date +%s)
    # Continue to poll until we get an expected response or reach QUERY_TIMEOUT
    while test "$(($(date +%s)-starttime))" -lt "$QUERY_TIMEOUT"; do

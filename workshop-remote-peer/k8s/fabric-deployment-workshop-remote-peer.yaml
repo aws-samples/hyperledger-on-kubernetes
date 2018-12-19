@@ -71,8 +71,8 @@ spec:
             value: unix:///host/var/run/docker.sock
           - name: CORE_VM_DOCKER_ATTACHSTDOUT
             value: "true"
-          - name: CORE_LOGGING_LEVEL
-            value: DEBUG
+          - name: FABRIC_LOGGING_SPEC
+            value: "peer=DEBUG"
           - name: CORE_PEER_TLS_ENABLED
             value: "false"
           - name: CORE_PEER_TLS_CERT_FILE
