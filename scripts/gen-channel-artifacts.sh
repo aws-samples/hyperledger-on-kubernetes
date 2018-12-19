@@ -39,7 +39,20 @@ function printOrg {
     ID: $ORG_MSP_ID
 
     # MSPDir is the filesystem path which contains the MSP configuration
-    MSPDir: $ORG_MSP_DIR"
+    MSPDir: $ORG_MSP_DIR
+
+    AdminPrincipal: Role.ADMIN
+
+    Policies:
+        Readers:
+            Type: Signature
+            Rule: \"OR(\'$ORG_MSP_ID.member\')\"
+        Writers:
+            Type: Signature
+            Rule: \"OR(\'$ORG_MSP_ID.member\')\"
+        Admins:
+            Type: Signature
+            Rule: \"OR(\'$ORG_MSP_ID.admin\')\""
 }
 
 # printOrdererOrg <ORG>
@@ -343,7 +356,7 @@ Profiles:
                 Organizations:"
                     for ORG in $PEER_ORGS; do
                       initOrgVars $ORG
-                      echo "                        - *${ORG_CONTAINER_NAME}"
+                      echo "                - *${ORG_CONTAINER_NAME}"
                     done
 
    echo "
@@ -357,7 +370,7 @@ Profiles:
             Organizations:"
                     for ORG in $PEER_ORGS; do
                       initOrgVars $ORG
-                      echo "                    - *${ORG_CONTAINER_NAME}"
+                      echo "            - *${ORG_CONTAINER_NAME}"
                     done
    echo "
             Capabilities:
