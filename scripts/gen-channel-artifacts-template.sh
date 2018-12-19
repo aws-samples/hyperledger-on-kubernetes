@@ -54,111 +54,32 @@ function printPeerOrg {
    printOrg
    echo "
     AnchorPeers:
-       # AnchorPeers defines the location of peers which can be used
-       # for cross org gossip communication.  Note, this value is only
-       # encoded in the genesis block (actually, it's also in the channel config block
-       # subsequent to any channel config updates. E.g. if you do 'peer channel update'
-       # followed by 'peer channel fetch config', the config will contain the updated anchor peer info,
-       # in the Application section context
        - Host: $PEER_HOST
          Port: 7051"
 }
 
 function makeConfigTxYaml {
    {
-   echo "################################################################################
+   echo "
+################################################################################
 #
-#   Profile
-#
-#   - Different configuration profiles may be encoded here to be specified
-#   as parameters to the configtxgen tool
+#   SECTION: Capabilities
 #
 ################################################################################
-Profiles:
+Capabilities:
+    Global: &ChannelCapabilities
+        V1_4: true
 
-  OrgsOrdererGenesis:
-    Orderer:
-      # Orderer Type: The orderer implementation to start
-      # Available types are \"solo\" and \"kafka\"
-      OrdererType: $ORDERER_TYPE
-      Addresses:
-        $EXTERNAL_ORDERER_ADDRESSES"
+    Orderer: &OrdererCapabilities
+        V1_4: true
 
-   for ORG in $ORDERER_ORGS; do
-      local COUNT=1
-      while [[ "$COUNT" -le $NUM_ORDERERS ]]; do
-         initOrdererVars $ORG $COUNT
-         echo "        - $ORDERER_HOST:$ORDERER_PORT"
-         COUNT=$((COUNT+1))
-      done
-   done
-
-   echo "
-      # Batch Timeout: The amount of time to wait before creating a batch
-      BatchTimeout: 2s
-
-      # Batch Size: Controls the number of messages batched into a block
-      BatchSize:
-
-        # Max Message Count: The maximum number of messages to permit in a batch
-        MaxMessageCount: 10
-
-        # Absolute Max Bytes: The absolute maximum number of bytes allowed for
-        # the serialized messages in a batch.
-        AbsoluteMaxBytes: 99 MB
-
-        # Preferred Max Bytes: The preferred maximum number of bytes allowed for
-        # the serialized messages in a batch. A message larger than the preferred
-        # max bytes will result in a batch larger than preferred max bytes.
-        PreferredMaxBytes: 512 KB
-
-      Kafka:
-        # Brokers: A list of Kafka brokers to which the orderer connects
-        # NOTE: Use IP:port notation
-        Brokers:
-          - broker.kafka:9092
-          %EXTERNALBROKER%
-
-      # Organizations is the list of orgs which are defined as participants on
-      # the orderer side of the network
-      Organizations:"
-
-   for ORG in $ORDERER_ORGS; do
-      initOrgVars $ORG
-      echo "        - *${ORG_CONTAINER_NAME}"
-   done
-
-   echo "
-    Consortiums:
-
-      SampleConsortium:
-
-        Organizations:"
-
-   for ORG in $PEER_ORGS; do
-      initOrgVars $ORG
-      echo "          - *${ORG_CONTAINER_NAME}"
-   done
-
-   echo "
-  OrgsChannel:
-    Consortium: SampleConsortium
-    Application:
-      <<: *ApplicationDefaults
-      Organizations:"
-
-   for ORG in $PEER_ORGS; do
-      initOrgVars $ORG
-      echo "        - *${ORG_CONTAINER_NAME}"
-   done
+    Application: &ApplicationCapabilities
+        V1_4: true"
 
    echo "
 ################################################################################
 #
 #   Section: Organizations
-#
-#   - This section defines the different organizational identities which will
-#   be referenced later in the configuration.
 #
 ################################################################################
 Organizations:"
@@ -174,19 +95,261 @@ Organizations:"
    echo "
 ################################################################################
 #
-#   SECTION: Application
+#   SECTION: Orderer
+#
+################################################################################
+Orderer: &OrdererDefaults
+
+    # Orderer Type: The orderer implementation to start.
+    # Available types are \"solo\" and \"kafka\".
+    OrdererType: $ORDERER_TYPE
+
+    Addresses:
+        $EXTERNAL_ORDERER_ADDRESSES"
+
+    for ORG in $ORDERER_ORGS; do
+      local COUNT=1
+      while [[ "$COUNT" -le $NUM_ORDERERS ]]; do
+         initOrdererVars $ORG $COUNT
+         echo "        - $ORDERER_HOST:$ORDERER_PORT"
+         COUNT=$((COUNT+1))
+      done
+    done
+
+    echo "
+    # Batch Timeout: The amount of time to wait before creating a batch.
+    BatchTimeout: 2s
+
+    # Batch Size: Controls the number of messages batched into a block.
+    BatchSize:
+
+        # Max Message Count: The maximum number of messages to permit in a
+        # batch.
+        MaxMessageCount: 10
+
+        # Absolute Max Bytes: The absolute maximum number of bytes allowed for
+        # the serialized messages in a batch. If the 'kafka' OrdererType is
+        # selected, set 'message.max.bytes' and 'replica.fetch.max.bytes' on the
+        # Kafka brokers to a value that is larger than this one.
+        AbsoluteMaxBytes: 98 MB
+
+        # Preferred Max Bytes: The preferred maximum number of bytes allowed for
+        # the serialized messages in a batch. A message larger than the
+        # preferred max bytes will result in a batch larger than preferred max
+        # bytes.
+        PreferredMaxBytes: 512 KB
+
+    # Max Channels is the maximum number of channels to allow on the ordering
+    # network. When set to 0, this implies no maximum number of channels.
+    MaxChannels: 0
+
+    Kafka:
+        # Brokers: A list of Kafka brokers to which the orderer connects. Edit
+        # this list to identify the brokers of the ordering service.
+        # NOTE: Use IP:port notation.
+        Brokers:
+            - broker.kafka:9092
+            %EXTERNALBROKER%
+
+    # Organizations is the list of orgs which are defined as participants on
+    # the orderer side of the network.
+    Organizations:"
+
+    for ORG in $ORDERER_ORGS; do
+      initOrgVars $ORG
+      echo "        - *${ORG_CONTAINER_NAME}"
+    done
+
+   echo "
+    # Policies defines the set of policies at this level of the config tree
+    # For Orderer policies, their canonical path is
+    #   /Channel/Orderer/<PolicyName>
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: \"ANY Readers\"
+        Writers:
+            Type: ImplicitMeta
+            Rule: \"ANY Writers\"
+        Admins:
+            Type: ImplicitMeta
+            Rule: \"MAJORITY Admins\"
+        # BlockValidation specifies what signatures must be included in the block
+        # from the orderer for the peer to validate it.
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: \"ANY Writers\"
+
+    # Capabilities describes the orderer level capabilities, see the
+    # dedicated Capabilities section elsewhere in this file for a full
+    # description
+    Capabilities:
+        <<: *OrdererCapabilities"
+
+   echo "
+################################################################################
+#
+#   CHANNEL
 #
 #   This section defines the values to encode into a config transaction or
-#   genesis block for application related parameters
+#   genesis block for channel related parameters.
+#
+################################################################################
+Channel: &ChannelDefaults
+    # Policies defines the set of policies at this level of the config tree
+    # For Channel policies, their canonical path is
+    #   /Channel/<PolicyName>
+    Policies:
+        # Who may invoke the 'Deliver' API
+        Readers:
+            Type: ImplicitMeta
+            Rule: \"ANY Readers\"
+        # Who may invoke the 'Broadcast' API
+        Writers:
+            Type: ImplicitMeta
+            Rule: \"ANY Writers\"
+        # By default, who may modify elements at this config level
+        Admins:
+            Type: ImplicitMeta
+            Rule: \"MAJORITY Admins\"
+
+
+    # Capabilities describes the channel level capabilities, see the
+    # dedicated Capabilities section elsewhere in this file for a full
+    # description
+    Capabilities:
+        <<: *ChannelCapabilities"
+
+
+   echo "
+################################################################################
+#
+#   SECTION: Application
 #
 ################################################################################
 Application: &ApplicationDefaults
+    ACLs: &ACLsDefault
+        # This section provides defaults for policies for various resources
+        # in the system. These \"resources\" could be functions on system chaincodes
+        # (e.g., \"GetBlockByNumber\" on the \"qscc\" system chaincode) or other resources
+        # (e.g.,who can receive Block events). This section does NOT specify the resource's
+        # definition or API, but just the ACL policy for it.
+        #
+        # User's can override these defaults with their own policy mapping by defining the
+        # mapping under ACLs in their channel definition
+
+        #---Lifecycle System Chaincode (lscc) function to policy mapping for access control---#
+
+        # ACL policy for lscc's \"getid\" function
+        lscc/ChaincodeExists: /Channel/Application/Readers
+
+        # ACL policy for lscc's \"getdepspec\" function
+        lscc/GetDeploymentSpec: /Channel/Application/Readers
+
+        # ACL policy for lscc's \"getccdata\" function
+        lscc/GetChaincodeData: /Channel/Application/Readers
+
+        # ACL Policy for lscc's \"getchaincodes\" function
+        lscc/GetInstantiatedChaincodes: /Channel/Application/Readers
+
+        #---Query System Chaincode (qscc) function to policy mapping for access control---#
+
+        # ACL policy for qscc's \"GetChainInfo\" function
+        qscc/GetChainInfo: /Channel/Application/Readers
+
+        # ACL policy for qscc's \"GetBlockByNumber\" function
+        qscc/GetBlockByNumber: /Channel/Application/Readers
+
+        # ACL policy for qscc's  \"GetBlockByHash\" function
+        qscc/GetBlockByHash: /Channel/Application/Readers
+
+        # ACL policy for qscc's \"GetTransactionByID\" function
+        qscc/GetTransactionByID: /Channel/Application/Readers
+
+        # ACL policy for qscc's \"GetBlockByTxID\" function
+        qscc/GetBlockByTxID: /Channel/Application/Readers
+
+        #---Configuration System Chaincode (cscc) function to policy mapping for access control---#
+
+        # ACL policy for cscc's \"GetConfigBlock\" function
+        cscc/GetConfigBlock: /Channel/Application/Readers
+
+        # ACL policy for cscc's \"GetConfigTree\" function
+        cscc/GetConfigTree: /Channel/Application/Readers
+
+        # ACL policy for cscc's \"SimulateConfigTreeUpdate\" function
+        cscc/SimulateConfigTreeUpdate: /Channel/Application/Readers
+
+        #---Miscellanesous peer function to policy mapping for access control---#
+
+        # ACL policy for invoking chaincodes on peer
+        peer/Propose: /Channel/Application/Writers
+
+        # ACL policy for chaincode to chaincode invocation
+        peer/ChaincodeToChaincode: /Channel/Application/Readers
+
+        #---Events resource to policy mapping for access control###---#
+
+        # ACL policy for sending block events
+        event/Block: /Channel/Application/Readers
+
+        # ACL policy for sending filtered block events
+        event/FilteredBlock: /Channel/Application/Readers
 
     # Organizations is the list of orgs which are defined as participants on
-    # the application side of the network
+    # the application side of the network.
     Organizations:
-"
 
+    # Policies defines the set of policies at this level of the config tree
+    # For Application policies, their canonical path is
+    #   /Channel/Application/<PolicyName>
+    Policies: &ApplicationDefaultPolicies
+        Readers:
+            Type: ImplicitMeta
+            Rule: \"ANY Readers\"
+        Writers:
+            Type: ImplicitMeta
+            Rule: \"ANY Writers\"
+        Admins:
+            Type: ImplicitMeta
+            Rule: \"MAJORITY Admins\"
+
+    # Capabilities describes the application level capabilities, see the
+    # dedicated Capabilities section elsewhere in this file for a full
+    # description
+    Capabilities:
+        <<: *ApplicationCapabilities"
+
+   echo "
+################################################################################
+#
+#   Profiles
+#
+################################################################################
+Profiles:
+
+    OrgsOrdererGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+        Application:
+            <<: *ApplicationDefaults
+        Consortiums:
+            SampleConsortium:
+                Organizations:"
+                    for ORG in $PEER_ORGS; do
+                      initOrgVars $ORG
+                      echo "          - *${ORG_CONTAINER_NAME}"
+                    done
+
+   echo "
+    OrgsChannel:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+        Consortium: SampleConsortium
+        Application:
+            <<: *ApplicationDefaults"
    } > /etc/hyperledger/fabric/configtx.yaml
    # Copy it to the data directory to make debugging easier
    cp /etc/hyperledger/fabric/configtx.yaml /$DATA

@@ -14,6 +14,8 @@ log "Preparing to start orderer host '$ORDERER_HOST:$ORDERER_PORT', enrolled via
 
 # Install fabric-ca. Recent version of Hyperledger Fabric do not include a fabric-ca-tools, fabric-ca-peer, etc., where the
 # fabric-ca-client is included. So we will need to build fabric-ca-client ourselves.
+log "Installing fabric-ca-client"
+
 wget https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
 tar -xzf go1.10.3.linux-amd64.tar.gz
 mv go /usr/local
@@ -34,6 +36,7 @@ make fabric-ca-client
 sleep 5
 export PATH=$PATH:$HOME/go/src/github.com/hyperledger/fabric-ca/bin
 
+log "Install complete - fabric-ca-client"
 
 # Enroll to get orderer's TLS cert (using the "tls" profile)
 fabric-ca-client enroll -d --enrollment.profile tls -u $ENROLLMENT_URL -M /tmp/tls --csr.hosts $ORDERER_HOST
