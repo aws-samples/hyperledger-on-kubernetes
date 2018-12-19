@@ -344,10 +344,22 @@ Profiles:
         <<: *ChannelDefaults
         Orderer:
             <<: *OrdererDefaults
+            Organizations:"
+                for ORG in $ORDERER_ORGS; do
+                  initOrgVars $ORG
+                  echo "                    - *${ORG_CONTAINER_NAME}"
+                done
+   echo "
             Capabilities:
-                <<: *ChannelCapabilities
+                <<: *OrdererCapabilities
         Application:
             <<: *ApplicationDefaults
+            Organizations:"
+                for ORG in $ORDERER_ORGS; do
+                  initOrgVars $ORG
+                  echo "                    - *${ORG_CONTAINER_NAME}"
+                done
+   echo "
             Capabilities:
                 <<: *ApplicationCapabilities
         Consortiums:
