@@ -126,7 +126,8 @@ Fabric CA certs/keys.
 
 The EKS worker nodes (i.e. the EC2 instances for the EKS cluster) should be easy to identify in the AWS console as the instance 
 name is prefixed with your EKS cluster name, e.g. `eks-fabric-default-Node`. Clicking on each instance will show you the 
-security group and the public DNS, which you'll need when you SSH into the instance.
+security group and the public DNS, which you'll need when you SSH into the instance. If you created the worker nodes in a
+private subnet there will be no public DNS. You will need to SSH to the worker node from the bastion using the private DNS.
 
 It should no longer be necessary to manually update the security group to allow SSH - this should have been done
 for you by eksctl, by passing the `--ssh-access` flag. However, if you are unable to SSH due to the security group 
@@ -143,10 +144,12 @@ cd
 ls -l eks-c9-keypair.pem
 ```
 
-The public DNS for the EKS worker nodes and the EC2 bastion instance was printed to the terminal by the script you ran 
+The public or private DNS for the EKS worker nodes and the EC2 bastion instance was printed to the terminal by the script you ran 
 in Step 1. You can obtain the DNS from there, otherwise the EC2 instances are easy enough to identify the EC2 console.
 Replace the public DNS in the statements below with the public DNS of either your EC2 bastion instance or EKS worker nodes,
-and check the path to your keypair file.
+and check the path to your keypair file. As mentioned above, if you created the worker nodes in a private subnet there will 
+be no public DNS. You will need to SSH to the worker node from the bastion using the private DNS. The keypair file was copied
+to the bastion for you by the script in Step 1, so SSH into the bastion, then SSH into the worker nodes.
  
 Now SSH into each worker node and install the EFS utils:
 
@@ -282,7 +285,7 @@ Don't forget to remove your EKS cluster. Instructions can be found here:
 
 If eksctl cannot delete your EKS cluster, do the following:
 
-* Delete the CloudFormation stack: eksctl-eks-fabric-cluster and eksctl-eks-fabric-nodegroup-0 (or similar names, 
+* Delete the CloudFormation stack: eksctl-eks-fabric-cluster and eksctl-eks-fabric-nodegroup-* (or similar names, 
 depending on how you named your eks cluster)
 * In the EKS console, delete the EKS cluster. This will delete the control plane (master nodes, etc.)
 
