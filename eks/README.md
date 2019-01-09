@@ -34,9 +34,7 @@ Follow the steps below to create your EKS cluster.
 ## Steps
 
 ### Step 1: Create a Kubernetes cluster
-You need an EKS cluster to start. The easiest way to do this is to create an EKS cluster using the eksctl tool. Open
-the [EKS Readme](../eks/README.md) in this repo and follow the instructions. Once you are complete come back to this README.
-
+You need an EKS cluster to start. The easiest way to do this is to create an EKS cluster using the eksctl tool:
 
 1. Spin up a [Cloud9 IDE](https://us-west-2.console.aws.amazon.com/cloud9/home?region=us-west-2) from the AWS console.
 In the Cloud9 console, click 'Create Environment'
@@ -57,8 +55,7 @@ AWS access key and secret key from here
 * otherwise, log in to the AWS IAM console, find your user and click the `Security Credentials` tab. You can create a new access key here
 and copy the AWS access key and secret key into the `aws configure` command
 
-When running `aws configure` you'll be asked to input a region. Select a region that supports EKS. At the time of writing,
-this includes us-west-2 and us-east-1.
+When running `aws configure` you'll be asked to input a region. Select a region that supports EKS. 
 
 After running `aws configure`, run `aws sts get-caller-identity` and check that the output matches the account
 you'll use to create your EKS cluster, and the access key you configured in `aws configure`.
@@ -74,7 +71,7 @@ cd hyperledger-on-kubernetes
 ```
 
 7. In the Cloud9 terminal, edit the bash script `eks/create-eks.sh` and update the region parameter to match the region in which you want to
-deploy EKS.
+deploy EKS. If you want eksctl to create EKS worker nodes in a private subnet, set `privateNodegroup=true`, otherwise set it to `false`
 
 8. In the Cloud9 terminal, run the bash script:
 

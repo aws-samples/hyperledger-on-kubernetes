@@ -35,14 +35,13 @@ sleep 10
 
 echo Create the EKS cluster
 if [ $privateNodegroup == "true" ]; then
-        privateOption="--node-private-networking"
+    privateOption="--node-private-networking"
 else
-        privateOption=""
+    privateOption=""
 fi
 cd ~
 if [ $region == "us-east-1" ]; then
-    eksctl create cluster ${privateOption} --ssh-access --ssh-public-key eks-c9-keypair --name eks-fabric --region $region --node-type m5.xlarge --kubeconfig=./kubeconfig.eks-fabric.yaml --zones=us-east-1a,us
--east-1b,us-east-1d
+    eksctl create cluster ${privateOption} --ssh-access --ssh-public-key eks-c9-keypair --name eks-fabric --region $region --node-type m5.xlarge --kubeconfig=./kubeconfig.eks-fabric.yaml --zones=us-east-1a,us-east-1b,us-east-1d
 else
     eksctl create cluster ${privateOption} --ssh-access --ssh-public-key eks-c9-keypair --name eks-fabric --region $region --node-type m5.xlarge --kubeconfig=./kubeconfig.eks-fabric.yaml
 fi
@@ -65,9 +64,8 @@ NUMSUBNETS=${#SUBNETS[@]}
 echo -e "Checking that 6 subnets have been created. eksctl created ${NUMSUBNETS} subnets"
 
 if [ $NUMSUBNETS neq 6 ]; then
-        echo -e "6 subnets have not been created for this EKS cluster. There should be 3 public and 3 private. This script will fail if it continues. Stopping now. Investigate why eksctl did not create the req
-uired number of subnets"
-        exit 1
+    echo -e "6 subnets have not been created for this EKS cluster. There should be 3 public and 3 private. This script will fail if it continues. Stopping now. Investigate why eksctl did not create the required number of subnets"
+    exit 1
 fi
 
 SUBNETA=$(echo $SUBNETS | jq '.[0]' | tr -d '"')
@@ -89,22 +87,17 @@ echo Running ~/hyperledger-on-kubernetes/efs/deploy-ec2.sh - this will use Cloud
 cd ~/hyperledger-on-kubernetes/
 ./efs/deploy-ec2.sh
 
-PublicDnsNameBastion=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=EFS FileSystem Mounted Instance" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instan
-ces | .[] | .PublicDnsName' | tr -d '"')
-PublicDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-0-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] |
-.PublicDnsName' | tr -d '"')
+PublicDnsNameBastion=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=EFS FileSystem Mounted Instance" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
 echo public DNS of EC2 bastion host: $PublicDnsNameBastion
 
 if [ $privateNodegroup == "true" ]; then
-        PrivateDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-*-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances
- | .[] | .PrivateDnsName' | tr -d '"')
-        echo private DNS of EKS worker nodes, accessible from Bastion only since they are in a private subnet: $PrivateDnsNameEKSWorker
-        cd ~
-        scp -i eks-c9-keypair.pem -q ~/eks-c9-keypair.pem  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/eks-c9-keypair.pem
+    PrivateDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-*-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PrivateDnsName' | tr -d '"')
+    echo private DNS of EKS worker nodes, accessible from Bastion only since they are in a private subnet: $PrivateDnsNameEKSWorker
+    cd ~
+    scp -i eks-c9-keypair.pem -q ~/eks-c9-keypair.pem  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/eks-c9-keypair.pem
 else
-        PublicDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-*-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances
-| .[] | .PublicDnsName' | tr -d '"')
-        echo public DNS of EKS worker nodes: $PublicDnsNameEKSWorker
+    PublicDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-*-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
+    echo public DNS of EKS worker nodes: $PublicDnsNameEKSWorker
 fi
 
 echo Prepare the EC2 bastion for use by copying the kubeconfig and aws config and credentials files from Cloud9
