@@ -1,0 +1,16 @@
+{
+    "host":"localhost",
+    "port":"3000",
+    "channelName":"mychannel",
+    "chaincodeName":"abaccc",
+    "eventWaitTime":"30000",
+    "peers":[
+        "peer1"
+    ],
+    "admins":[
+       {
+          "username":"admin",
+          "secret":"Adminpwd1!"
+       }
+    ]
+ }

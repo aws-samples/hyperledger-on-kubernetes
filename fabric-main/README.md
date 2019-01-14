@@ -139,6 +139,50 @@ You have a few options:
 ##################################################################################################################################
 
 # General Info
+## The Discover API
+Service discovery is a new feature in Fabric. 
+
+'exec' into one of the test containers, which are based on fabric-tools:
+
+```bash
+
+```
+
+
+Type `discover`
+
+Create a config file:
+
+```bash
+discover --configFile conf.yaml --peerTLSCA /data/org1-ca-chain.pem \
+--userKey /data/orgs/org1/admin/msp/keystore/805807242fc3ca5890d6fcd7bdac6cf31045dcf524275efd58a5465e70fcc243_sk \
+--userCert /data/orgs/org1/admin/msp/signcerts/cert.pem  \
+--tlsCert /data/tls/peer2-org1-client.crt \
+--tlsKey /data/tls/peer2-org1-client.key \
+--MSP org1MSP saveConfig    
+```
+
+Then run the discover command:
+
+```bash
+discover --configFile conf.yaml peers --channel mychannel  --server peer2-org1.org1:7051 
+```
+
+or
+
+```bash
+discover --configFile conf.yaml peers --channel mychannel  --server peer2-org1.org1:7051 | jq .[0].Identity | sed "s/\\\n/\n/g" | sed "s/\"//g"  | openssl x509 -text -noout
+```
+
+```bash
+discover --configFile conf.yaml config --channel mychannel --server peer2-org1.org1:7051 
+discover --configFile conf.yaml endorsers --channel mychannel --server peer2-org1.org1:7051 --chaincode mycc
+```
+
+This does not work on peer1 because 'discover' uses the value of 'CORE_PEER_GOSSIP_EXTERNALENDPOINT' to connect, so you need
+to do a 'kubectl describe' on the pod to see this value. Peer1 is using an NLB endpoint.
+
+
 ## Paths
 Paths are relative to the shared EFS drive:
 
