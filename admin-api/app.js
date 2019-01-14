@@ -33,9 +33,12 @@ var util = require('util');
 var app = express();
 var cors = require('cors');
 var hfc = require('fabric-client');
+const FabricCAServices = require('fabric-ca-client');
+const { FileSystemWallet, X509WalletMixin } = require('fabric-network');
 const uuidv4 = require('uuid/v4');
 
 var connection = require('./connection.js');
+var gateway = require('./gateway.js');
 var query = require('./query.js');
 var invoke = require('./invoke.js');
 var blockListener = require('./blocklistener.js');

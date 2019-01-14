@@ -20,7 +20,7 @@ organizations:
     peers:
       - peer1-org1.org1
     certificateAuthorities:
-      - ica-org1
+      - ca-org1
 
 orderers:
   orderer3-org0.org0:
@@ -38,7 +38,7 @@ peers:
       verify: false
 
 certificateAuthorities:
-  ica-org1:
+  ca-org1:
     url: http://ab04a7f9717ac11e9b99c0a474a321b2-2e24b91adb9f9388.elb.ap-northeast-1.amazonaws.com:7054
     httpOptions:
       verify: false
