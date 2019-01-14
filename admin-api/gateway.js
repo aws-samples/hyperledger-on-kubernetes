@@ -4,11 +4,11 @@ const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, X509WalletMixin } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
-const ccpJSON = fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8');
-const ccp = JSON.parse(ccpJSON);
 
 async function main() {
     try {
+
+        let ccp = yaml.safeLoad(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
 
         // Create a new CA client for interacting with the CA.
         const caURL = ccp.certificateAuthorities['ca-org1'].url;
@@ -31,6 +31,19 @@ async function main() {
         const identity = X509WalletMixin.createIdentity('org1MSP', enrollment.certificate, enrollment.key.toBytes());
         wallet.import('admin', identity);
         console.log('Successfully enrolled admin user "admin" and imported it into the wallet');
+
+        // Set connection options; identity and wallet
+        let connectionOptions = {
+          identity: 'admin',
+          wallet: wallet,
+          discovery: { enabled:true }
+        };
+
+        // Connect to gateway using application specified parameters
+        console.log('Connect to Fabric gateway.');
+        const gateway = new Gateway();
+
+        await gateway.connect(connectionProfile, connectionOptions);
 
     } catch (error) {
         console.error(`Failed to enroll admin user "admin": ${error}`);
