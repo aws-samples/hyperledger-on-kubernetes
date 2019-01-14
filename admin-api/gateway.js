@@ -47,7 +47,7 @@ async function main() {
         console.log('Connect to Fabric gateway.');
         const gateway = new Gateway();
 
-        await gateway.connect(connectionProfile, connectionOptions);
+        await gateway.connect(ccp, connectionOptions);
 
     } catch (error) {
         console.error(`Failed to enroll admin user "admin": ${error}`);
