@@ -131,7 +131,7 @@ app.post('/users', awaitHandler(async (req, res) => {
         logger.info('##### POST on Users - Successfully registered the username %s for organization %s', username, orgName);
 		logger.info('##### POST on Users - getRegisteredUser response %s', response);
 		// Now that we have a username & org, we can start the block listener
-		await blockListener.startBlockListener(channelName, username, orgName, wss);
+		//await blockListener.startBlockListener(channelName, username, orgName, wss);
 		res.json(response);
 	} else {
 		logger.error('##### POST on Users - Failed to register the username %s for organization %s with::%s', username, orgName, response);

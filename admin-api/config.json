@@ -5,12 +5,12 @@
     "chaincodeName":"abaccc",
     "eventWaitTime":"30000",
     "peers":[
-        "peer1"
+        "peer1-org1.org1"
     ],
     "admins":[
        {
-          "username":"admin",
-          "secret":"Adminpwd1!"
+          "username":"admin-org1",
+          "secret":"admin-org1pw"
        }
     ]
  }
