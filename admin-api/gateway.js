@@ -20,7 +20,7 @@ async function main() {
         const wallet = new FileSystemWallet(walletPath);
         console.log(`Wallet path: ${walletPath}`);
         console.log('CA URL: ' + caURL);
-        let enrollID = ccp.certificateAuthorities['ca-org1'].registrar.enrollId;
+        let enrollID = ccp.certificateAuthorities['ca-org1'].registrar[0].enrollId;
         console.log('CA enrollID: ' + enrollID);
 
         // Check to see if we've already enrolled the admin user.
