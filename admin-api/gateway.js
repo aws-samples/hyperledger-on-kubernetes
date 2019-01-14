@@ -33,7 +33,7 @@ async function main() {
         // Enroll the admin user, and import the new identity into the wallet.
         const enrollment = await ca.enroll({ enrollmentID: ccp.certificateAuthorities['ca-org1'].registrar[0].enrollId, enrollmentSecret: ccp.certificateAuthorities['ca-org1'].registrar[0].enrollSecret });
         const identity = X509WalletMixin.createIdentity('org1MSP', enrollment.certificate, enrollment.key.toBytes());
-        wallet.import('admin', identity);
+        await wallet.import('admin', identity);
         console.log('Successfully enrolled admin user "admin" and imported it into the wallet');
 
         // Set connection options; identity and wallet
@@ -42,6 +42,8 @@ async function main() {
           wallet: wallet,
           discovery: { enabled:true }
         };
+        console.log('Wallet identities: ' + wallet.list());
+        console.log('Wallet admin exists: ' + wallet.exists('admin'));
 
         // Connect to gateway using application specified parameters
         console.log('Connect to Fabric gateway.');
