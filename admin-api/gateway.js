@@ -4,6 +4,7 @@ const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, X509WalletMixin } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
+const yaml = require('js-yaml');
 
 async function main() {
     try {
