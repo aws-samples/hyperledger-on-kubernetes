@@ -96,8 +96,8 @@ function getErrorMessage(field) {
 	return response;
 }
 
-gateway.enrollAdmin();
-gateway.adminGateway();
+await gateway.enrollAdmin();
+await gateway.adminGateway();
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// START WEBSOCKET SERVER ///////////////////////
