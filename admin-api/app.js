@@ -177,6 +177,14 @@ app.get('/saveconfigtx', awaitHandler(async (req, res) => {
 	logger.info('##### GET on saveconfigtx - completed');
 }));
 
+// Loads the configtx defined for this Fabric network, and prints out the key info such as orgs
+app.get('/getorgs', awaitHandler(async (req, res) => {
+	logger.info('================ GET on getorgs');
+	logger.info('##### End point : /getorgs');
+    await gateway.getOrgs(hfc.getConfigSetting('configtx-path'));
+	logger.info('##### GET on getorgs - completed');
+}));
+
 // Register and enroll user. A user must be registered and enrolled before any queries
 // or transactions can be invoked
 app.post('/addorg', awaitHandler(async (req, res) => {

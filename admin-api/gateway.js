@@ -76,7 +76,7 @@ async function listNetwork() {
 async function loadConfigtx(configtxPath) {
 
     try {
-        logger.info('Printing out the Fabric configtx.yaml at path: ' + configtxPath);
+        logger.info('Loading the Fabric configtx.yaml at path: ' + configtxPath);
         configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
         logger.info('Configtx loaded: ' + util.inspect(configtx));
     } catch (error) {
@@ -104,13 +104,27 @@ async function saveConfigtx(configtxPath) {
 async function addOrg(configtxPath, org) {
 
     try {
-        logger.info('Saving the Fabric configtx.yaml at path: ' + configtxPath);
+        logger.info('Reading the Fabric configtx.yaml at path: ' + configtxPath);
         await loadConfigtx(configtxPath);
 
         logger.info('Configtx orgs: ' + util.inspect(configtx['Organizations']));
         logger.info('Configtx first org: ' + util.inspect(configtx['Organizations'][0]));
     } catch (error) {
-        logger.error('Failed to saveConfigtx: ' + error);
+        logger.error('Failed to addOrg: ' + error);
+    }
+
+}
+
+async function getOrgs(configtxPath) {
+
+    try {
+        logger.info('Reading the Fabric configtx.yaml at path: ' + configtxPath);
+        await loadConfigtx(configtxPath);
+        for (let org in configtx['Organizations']) {
+            console.log("Orgs in this network are: " + org['Name'] + ' with MSP ' + org['ID']);
+        }
+    } catch (error) {
+        logger.error('Failed to getOrgs: ' + error);
     }
 
 }
@@ -121,3 +135,4 @@ exports.listNetwork = listNetwork;
 exports.loadConfigtx = loadConfigtx;
 exports.saveConfigtx = saveConfigtx;
 exports.addOrg = addOrg;
+exports.getOrgs = getOrgs;
