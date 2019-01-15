@@ -161,6 +161,14 @@ app.get('/listnetwork', awaitHandler(async (req, res) => {
 	logger.info('##### GET on listnetwork - completed');
 }));
 
+// Loads the configtx defined for this Fabric network, and prints out the key info such as orgs
+app.get('/loadconfigtx', awaitHandler(async (req, res) => {
+	logger.info('================ GET on loadconfigtx');
+	logger.info('##### End point : /loadconfigtx');
+    await gateway.loadconfigtx(hfc.getConfigSetting('configtx-path'));
+	logger.info('##### GET on loadconfigtx - completed');
+}));
+
 /************************************************************************************
  * Error handler
  ************************************************************************************/

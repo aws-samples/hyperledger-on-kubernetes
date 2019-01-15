@@ -9,7 +9,30 @@ export HFC_LOGGING='{"debug":"console","info":"console"}'
 
 
 # Pre-requisites
+We need the Fabric binaries so we can run commands such as configtxgen.
 
+```bash
+cd ~
+mkdir fabric-bin
+cd fabric-bin/
+curl -sSL http://bit.ly/2ysbOFE | bash -s 1.4.0
+mv ~/fabric-bin/fabric-samples/bin/* ~/fabric-bin
+rm -rf ~/fabric-bin/fabric-samples
+```
+
+Edit the file `~/.bash_profile`, and add this line towards the end, just before the export $PATH:
+
+```bash
+PATH=$PATH:$HOME/fabric-bin
+export PATH
+```
+
+Source the file, and check that you can execute the Fabric binaries:
+
+```bash
+source ~/.bash_profile 
+peer
+```
 ## Step 1 - Install Node
 On the Fabric client node.
 
