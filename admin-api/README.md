@@ -92,7 +92,7 @@ response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/listNetwork -H 'content-typ
 echo $response
 
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/getorgs -H 'content-type: application/x-www-form-urlencoded')  
-echo 'Register User'
+
 ORG=org4
 echo
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addorg -H 'content-type: application/x-www-form-urlencoded' -d "org=${ORG}")

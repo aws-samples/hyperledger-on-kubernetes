@@ -107,7 +107,7 @@ async function addOrg(configtxPath, org) {
         logger.info('Reading the Fabric configtx.yaml at path: ' + configtxPath);
         await loadConfigtx(configtxPath);
         //Copy an existing org
-        neworg = JSON.parse(JSON.stringify(configtx['Organizations'][0]));
+        let neworg = JSON.parse(JSON.stringify(configtx['Organizations'][0]));
         console.log("Neworg: " + util.inspect(neworg));
         neworg['Name'] = org;
         console.log("Neworg: " + util.inspect(neworg));
