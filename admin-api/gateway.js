@@ -70,3 +70,4 @@ async function listNetwork() {
 
 exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
+exports.listNetwork = listNetwork;

@@ -151,6 +151,14 @@ app.get('/init', awaitHandler(async (req, res) => {
 	logger.info('##### GET on Init - completed');
 }));
 
+// Print out the details of the Fabric network
+app.get('/listnetwork', awaitHandler(async (req, res) => {
+	logger.info('================ GET on listnetwork');
+	logger.info('##### End point : /listnetwork');
+    await gateway.listnetwork();
+	logger.info('##### GET on listnetwork - completed');
+}));
+
 /************************************************************************************
  * Error handler
  ************************************************************************************/
