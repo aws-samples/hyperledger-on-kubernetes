@@ -165,7 +165,7 @@ app.get('/listnetwork', awaitHandler(async (req, res) => {
 app.get('/loadconfigtx', awaitHandler(async (req, res) => {
 	logger.info('================ GET on loadconfigtx');
 	logger.info('##### End point : /loadconfigtx');
-    await gateway.loadconfigtx(hfc.getConfigSetting('configtx-path'));
+    await gateway.loadConfigtx(hfc.getConfigSetting('configtx-path'));
 	logger.info('##### GET on loadconfigtx - completed');
 }));
 

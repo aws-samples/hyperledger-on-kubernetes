@@ -72,7 +72,7 @@ async function listNetwork() {
 }
 
 
-async function loadconfigtx(configtxPath) {
+async function loadConfigtx(configtxPath) {
 
     logger.info('Printing out the Fabric configtx.yaml at path: ' + configtxPath);
     let configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
@@ -83,3 +83,4 @@ async function loadconfigtx(configtxPath) {
 exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
 exports.listNetwork = listNetwork;
+exports.loadConfigtx = loadConfigtx;
