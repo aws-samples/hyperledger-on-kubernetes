@@ -181,7 +181,7 @@ app.get('/saveconfigtx', awaitHandler(async (req, res) => {
 // or transactions can be invoked
 app.post('/addorg', awaitHandler(async (req, res) => {
 	logger.info('================ POST on AddOrg');
-	neworg = req.body.org;
+	let neworg = req.body.org;
 	logger.info('##### End point : /addorg');
 	logger.info('##### POST on addorg - org : ' + neworg);
 	let response = gateway.addOrg(hfc.getConfigSetting('configtx-path'), neworg);
