@@ -62,3 +62,5 @@ echo $response
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/init -H 'content-type: application/x-www-form-urlencoded')
 echo $response
 
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/listNetwork -H 'content-type: application/x-www-form-urlencoded')
+echo $response
