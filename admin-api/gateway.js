@@ -36,7 +36,6 @@ async function enrollAdmin() {
         console.log('Wallet admin exists: ' + util.inspect(wallet.exists('admin')));
     } catch (error) {
         console.error(`Failed to enroll admin user "admin": ${error}`);
-        process.exit(1);
     }
 }
 async function adminGateway() {
@@ -59,6 +58,7 @@ async function adminGateway() {
 
 async function listNetwork() {
 
+    console.log('Printing out the Fabric network');
     let client = gateway.getClient();
     msp = client.getMspid();
     console.log('msp: ' + msp);
