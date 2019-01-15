@@ -1,5 +1,7 @@
 'use strict';
 
+var log4js = require('log4js');
+var logger = log4js.getLogger('Gateway');
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const util = require('util')
@@ -9,33 +11,35 @@ const yaml = require('js-yaml');
 const walletPath = path.join(process.cwd(), 'wallet');
 const wallet = new FileSystemWallet(walletPath);
 const gateway = new Gateway();
+var hfc = require('fabric-client');
+hfc.setLogger(logger);
 
 async function enrollAdmin() {
     try {
         // Check to see if we've already enrolled the admin user.
         const adminExists = await wallet.exists('admin');
         if (adminExists) {
-            console.log('An identity for the admin user "admin" already exists in the wallet');
-            console.log('Wallet identities: ' + util.inspect(wallet.list()));
-            console.log('Wallet admin exists: ' + util.inspect(wallet.exists('admin')));
+            logger.info('An identity for the admin user "admin" already exists in the wallet');
+            logger.info('Wallet identities: ' + util.inspect(wallet.list()));
+            logger.info('Wallet admin exists: ' + util.inspect(wallet.exists('admin')));
             return;
         }
 
         // Create a new CA client for interacting with the CA.
         const caURL = ccp.certificateAuthorities['ca-org1'].url;
-        console.log('CA URL: ' + caURL);
+        logger.info('CA URL: ' + caURL);
         const ca = new FabricCAServices(caURL);
 
         // Enroll the admin user, and import the new identity into the wallet.
         const enrollment = await ca.enroll({ enrollmentID: ccp.certificateAuthorities['ca-org1'].registrar[0].enrollId, enrollmentSecret: ccp.certificateAuthorities['ca-org1'].registrar[0].enrollSecret });
         const identity = X509WalletMixin.createIdentity('org1MSP', enrollment.certificate, enrollment.key.toBytes());
-        console.log(`Wallet path: ${walletPath}`);
+        logger.info(`Wallet path: ${walletPath}`);
         await wallet.import('admin', identity);
-        console.log('Successfully enrolled admin user "admin" and imported it into the wallet');
-        console.log('Wallet identities: ' + util.inspect(wallet.list()));
-        console.log('Wallet admin exists: ' + util.inspect(wallet.exists('admin')));
+        logger.info('Successfully enrolled admin user "admin" and imported it into the wallet');
+        logger.info('Wallet identities: ' + util.inspect(wallet.list()));
+        logger.info('Wallet admin exists: ' + util.inspect(wallet.exists('admin')));
     } catch (error) {
-        console.error(`Failed to enroll admin user "admin": ${error}`);
+        logger.error(`Failed to enroll admin user "admin": ${error}`);
     }
 }
 async function adminGateway() {
@@ -50,7 +54,7 @@ async function adminGateway() {
         };
 
         // Connect to gateway using application specified parameters
-        console.log('Connecting to Fabric gateway.');
+        logger.info('Connecting to Fabric gateway.');
 
         await gateway.connect(ccp, connectionOptions);
 
@@ -58,12 +62,12 @@ async function adminGateway() {
 
 async function listNetwork() {
 
-    console.log('Printing out the Fabric network');
+    logger.info('Printing out the Fabric network');
     let client = gateway.getClient();
     msp = client.getMspid();
-    console.log('msp: ' + msp);
+    logger.info('msp: ' + msp);
     peers = client.getPeersForOrg(msp);
-    console.log('peers: ' + peers);
+    logger.info('peers: ' + peers);
 
 }
 
