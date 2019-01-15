@@ -2,6 +2,12 @@ RESTful API to manage the Fabric network
 
 The RESTful API is a Node.js application that uses the Fabric SDK to interact with the Fabric network
 
+## Debugging
+To turn on debugging, enter this on the command line before starting the node app:
+
+export HFC_LOGGING='{"debug":"console","info":"console"}'
+
+
 # Pre-requisites
 
 ## Step 1 - Install Node
