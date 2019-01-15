@@ -108,8 +108,12 @@ async function addOrg(configtxPath, org) {
         await loadConfigtx(configtxPath);
         //Copy an existing org
         let neworg = JSON.parse(JSON.stringify(configtx['Organizations'][0]));
+        let orgname = neworg['Name'];
+        let mspdir = neworg['MSPDir'];
         console.log("Neworg: " + util.inspect(neworg));
         neworg['Name'] = org;
+        neworg['ID'] = org + 'MSP';
+        neworg['MSPDir'] = mspdir.replace(orgname, org);
         console.log("Neworg: " + util.inspect(neworg));
     } catch (error) {
         logger.error('Failed to addOrg: ' + error);
