@@ -1,8 +1,8 @@
 'use strict';
 
-var log4js = require('log4js');
-var logger = log4js.getLogger('gateway');
 const FabricCAServices = require('fabric-ca-client');
+const Client = require('fabric-client');
+const logger = Client.getLogger('gateway');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const util = require('util')
 const fs = require('fs');
@@ -11,8 +11,6 @@ const yaml = require('js-yaml');
 const walletPath = path.join(process.cwd(), 'wallet');
 const wallet = new FileSystemWallet(walletPath);
 const gateway = new Gateway();
-var hfc = require('fabric-client');
-hfc.setLogger(logger);
 
 async function enrollAdmin() {
     try {
