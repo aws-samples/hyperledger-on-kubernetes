@@ -118,6 +118,8 @@ async function addOrg(configtxPath, org) {
         neworg['Policies']['Writers']['Rule'] = neworg['Policies']['Writers']['Rule'].replace(orgname, org);
         neworg['Policies']['Admins']['Rule'] = neworg['Policies']['Admins']['Rule'].replace(orgname, org);
         console.log("Neworg: " + util.inspect(neworg));
+        configtx['Organizations'][org] = neworg;
+        logger.info('Configtx updated with org: ' + util.inspect(configtx));
     } catch (error) {
         logger.error('Failed to addOrg: ' + error);
     }
