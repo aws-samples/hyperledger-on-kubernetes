@@ -59,3 +59,6 @@ USERID=$(uuidgen)
 echo
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/users -H 'content-type: application/x-www-form-urlencoded' -d "username=${USERID}&orgName=Org1")
 echo $response
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/init -H 'content-type: application/x-www-form-urlencoded')
+echo $response
+

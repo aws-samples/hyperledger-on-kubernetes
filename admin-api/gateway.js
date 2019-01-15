@@ -56,3 +56,7 @@ async function adminGateway() {
         await gateway.connect(ccp, connectionOptions);
 
 }
+
+
+exports.enrollAdmin = enrollAdmin;
+exports.adminGateway = adminGateway;
