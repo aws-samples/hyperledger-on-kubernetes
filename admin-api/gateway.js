@@ -106,9 +106,11 @@ async function addOrg(configtxPath, org) {
     try {
         logger.info('Reading the Fabric configtx.yaml at path: ' + configtxPath);
         await loadConfigtx(configtxPath);
-
-        logger.info('Configtx orgs: ' + util.inspect(configtx['Organizations']));
-        logger.info('Configtx first org: ' + util.inspect(configtx['Organizations'][0]));
+        //Copy an existing org
+        neworg = JSON.parse(JSON.stringify(configtx['Organizations'][0]));
+        console.log("Neworg: " + util.inspect(neworg));
+        neworg['Name'] = org;
+        console.log("Neworg: " + util.inspect(neworg));
     } catch (error) {
         logger.error('Failed to addOrg: ' + error);
     }
@@ -122,8 +124,7 @@ async function getOrgs(configtxPath) {
         await loadConfigtx(configtxPath);
         for (let org in configtx['Organizations']) {
             console.log("Orgs: " + util.inspect(org));
-            console.log("Orgs in this network are: " + org['Name'] + ' with MSP ' + org['ID']);
-            console.log("Orgs in this network are: " + configtx['Organizations'][org]['Name'] + ' with MSP ' + org['ID']);
+            console.log("Orgs in this network are: " + configtx['Organizations'][org]['Name'] + ' with MSP ' + configtx['Organizations'][org]['ID']);
         }
     } catch (error) {
         logger.error('Failed to getOrgs: ' + error);
