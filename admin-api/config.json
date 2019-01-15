@@ -5,7 +5,7 @@
     "chaincodeName":"abaccc",
     "eventWaitTime":"30000",
     "hfc-logging": "{'debug':'console', 'info':'console'}",
-    "configtx-path": "/opt/share/rca-data/configtx.yaml";
+    "configtx-path": "/opt/share/rca-data/configtx.yaml",
     "peers":[
         "peer1-org1.org1"
     ],
