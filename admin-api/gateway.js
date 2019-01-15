@@ -74,9 +74,13 @@ async function listNetwork() {
 
 async function loadConfigtx(configtxPath) {
 
-    logger.info('Printing out the Fabric configtx.yaml at path: ' + configtxPath);
-    let configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
-    logger.info('Configtx loaded: ' + util.inspect(configtx));
+    try {
+        logger.info('Printing out the Fabric configtx.yaml at path: ' + configtxPath);
+        let configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
+        logger.info('Configtx loaded: ' + util.inspect(configtx));
+    } catch (error) {
+        logger.error('Failed to loadConfigtx: ' + error);
+    }
 
 }
 
