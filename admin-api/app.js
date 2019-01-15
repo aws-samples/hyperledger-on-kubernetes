@@ -21,7 +21,7 @@ log4js.configure({
 	  out: { type: 'stdout' },
 	},
 	categories: {
-	  default: { appenders: ['out'], level: 'info' },
+	  default: { appenders: ['out'], level: 'debug' },
 	}
 });
 var logger = log4js.getLogger('FABRICAPI');
