@@ -47,13 +47,23 @@ async function adminGateway() {
         let connectionOptions = {
           identity: 'admin',
           wallet: wallet,
-          discovery: { enabled:true }
+          discovery: { enabled:true, asLocalhost:false }
         };
 
         // Connect to gateway using application specified parameters
         console.log('Connecting to Fabric gateway.');
 
         await gateway.connect(ccp, connectionOptions);
+
+}
+
+async function listNetwork() {
+
+    let client = gateway.getClient();
+    msp = client.getMspid();
+    console.log('msp: ' + msp);
+    peers = client.getPeersForOrg(msp);
+    console.log('peers: ' + peers);
 
 }
 
