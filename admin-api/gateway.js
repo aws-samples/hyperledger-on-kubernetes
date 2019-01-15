@@ -121,7 +121,9 @@ async function getOrgs(configtxPath) {
         logger.info('Reading the Fabric configtx.yaml at path: ' + configtxPath);
         await loadConfigtx(configtxPath);
         for (let org in configtx['Organizations']) {
+            console.log("Orgs: " + util.inspect(org));
             console.log("Orgs in this network are: " + org['Name'] + ' with MSP ' + org['ID']);
+            console.log("Orgs in this network are: " + configtx['Organizations'][org]['Name'] + ' with MSP ' + org['ID']);
         }
     } catch (error) {
         logger.error('Failed to getOrgs: ' + error);
