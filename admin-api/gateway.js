@@ -62,10 +62,11 @@ async function listNetwork() {
 
     logger.info('Printing out the Fabric network');
     let client = gateway.getClient();
-    msp = client.getMspid();
-    logger.info('msp: ' + msp);
-    peers = client.getPeersForOrg(msp);
-    logger.info('peers: ' + peers);
+    logger.info('Client: ' + util.inspect(client));
+    let msp = client.getMspid();
+    logger.info('msp: ' + + util.inspect(msp));
+    let peers = client.getPeersForOrg(msp);
+    logger.info('peers: ' + + util.inspect(peers));
 
 }
 
