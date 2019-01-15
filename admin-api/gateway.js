@@ -11,6 +11,7 @@ const yaml = require('js-yaml');
 const walletPath = path.join(process.cwd(), 'wallet');
 const wallet = new FileSystemWallet(walletPath);
 const gateway = new Gateway();
+let configtx = '';
 
 async function enrollAdmin() {
     try {
@@ -76,10 +77,26 @@ async function loadConfigtx(configtxPath) {
 
     try {
         logger.info('Printing out the Fabric configtx.yaml at path: ' + configtxPath);
-        let configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
+        configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
         logger.info('Configtx loaded: ' + util.inspect(configtx));
     } catch (error) {
         logger.error('Failed to loadConfigtx: ' + error);
+    }
+
+}
+
+async function saveConfigtx(configtxPath) {
+
+    try {
+        logger.info('Saving the Fabric configtx.yaml at path: ' + configtxPath);
+        logger.info('Backing up original configtx.yaml at path: ' + configtxPath);
+        fs.copyFileSync(configtxPath, configtxPath + Math.floor(Date.now() / 1000));
+        fs.writeFile(configtxPath, yaml.safeDump(configtx), function(err) {
+                if (err) throw err;
+            });
+        logger.info('Configtx saved: ' + util.inspect(configtx));
+    } catch (error) {
+        logger.error('Failed to saveConfigtx: ' + error);
     }
 
 }
@@ -88,3 +105,4 @@ exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
 exports.listNetwork = listNetwork;
 exports.loadConfigtx = loadConfigtx;
+exports.saveConfigtx = saveConfigtx;
