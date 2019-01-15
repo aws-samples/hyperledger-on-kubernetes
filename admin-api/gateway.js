@@ -120,3 +120,4 @@ exports.adminGateway = adminGateway;
 exports.listNetwork = listNetwork;
 exports.loadConfigtx = loadConfigtx;
 exports.saveConfigtx = saveConfigtx;
+exports.addOrg = addOrg;
