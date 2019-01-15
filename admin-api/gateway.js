@@ -114,9 +114,9 @@ async function addOrg(configtxPath, org) {
         neworg['Name'] = org;
         neworg['ID'] = org + 'MSP';
         neworg['MSPDir'] = mspdir.replace(orgname, org);
-        neworg['Policies']['Readers']['Rule'] = mspdir.replace(neworg['Policies']['Readers']['Rule'], org);
-        neworg['Policies']['Writers']['Rule'] = mspdir.replace(neworg['Policies']['Writers']['Rule'], org);
-        neworg['Policies']['Admins']['Rule'] = mspdir.replace(neworg['Policies']['Admins']['Rule'], org);
+        neworg['Policies']['Readers']['Rule'] = neworg['Policies']['Readers']['Rule'].replace(orgname, org);
+        neworg['Policies']['Writers']['Rule'] = neworg['Policies']['Writers']['Rule'].replace(orgname, org);
+        neworg['Policies']['Admins']['Rule'] = neworg['Policies']['Admins']['Rule'].replace(orgname, org);
         console.log("Neworg: " + util.inspect(neworg));
     } catch (error) {
         logger.error('Failed to addOrg: ' + error);
