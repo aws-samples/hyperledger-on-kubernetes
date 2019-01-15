@@ -155,7 +155,7 @@ app.get('/init', awaitHandler(async (req, res) => {
 app.get('/listnetwork', awaitHandler(async (req, res) => {
 	logger.info('================ GET on listnetwork');
 	logger.info('##### End point : /listnetwork');
-    await gateway.listnetwork();
+    await gateway.listNetwork();
 	logger.info('##### GET on listnetwork - completed');
 }));
 
