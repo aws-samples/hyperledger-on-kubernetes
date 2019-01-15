@@ -101,6 +101,20 @@ async function saveConfigtx(configtxPath) {
 
 }
 
+async function addOrg(configtxPath, org) {
+
+    try {
+        logger.info('Saving the Fabric configtx.yaml at path: ' + configtxPath);
+        await loadConfigtx(configtxPath);
+
+        logger.info('Configtx orgs: ' + util.inspect(configtx['Organizations']));
+        logger.info('Configtx first org: ' + util.inspect(configtx['Organizations'][0]));
+    } catch (error) {
+        logger.error('Failed to saveConfigtx: ' + error);
+    }
+
+}
+
 exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
 exports.listNetwork = listNetwork;

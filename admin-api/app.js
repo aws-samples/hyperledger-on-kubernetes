@@ -177,6 +177,23 @@ app.get('/saveconfigtx', awaitHandler(async (req, res) => {
 	logger.info('##### GET on saveconfigtx - completed');
 }));
 
+// Register and enroll user. A user must be registered and enrolled before any queries
+// or transactions can be invoked
+app.post('/addorg', awaitHandler(async (req, res) => {
+	logger.info('================ POST on AddOrg');
+	neworg = req.body.org;
+	logger.info('##### End point : /addorg');
+	logger.info('##### POST on addorg - org : ' + neworg);
+	let response = gateway.addOrg(hfc.getConfigSetting('configtx-path'), neworg);
+	logger.info('##### POST on addorg - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on addorg failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
 /************************************************************************************
  * Error handler
  ************************************************************************************/

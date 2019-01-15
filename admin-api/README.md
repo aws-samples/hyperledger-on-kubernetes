@@ -33,6 +33,12 @@ Source the file, and check that you can execute the Fabric binaries:
 source ~/.bash_profile 
 peer
 ```
+
+Change the ownership of the configtx.yaml file, as we will edit it using this app:
+
+```bash
+sudo chown ec2-user /opt/share/rca-data/configtx.yaml
+```
 ## Step 1 - Install Node
 On the Fabric client node.
 
