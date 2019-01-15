@@ -12,16 +12,6 @@ const gateway = new Gateway();
 
 async function enrollAdmin() {
     try {
-        // Create a new CA client for interacting with the CA.
-        const caURL = ccp.certificateAuthorities['ca-org1'].url;
-        const ca = new FabricCAServices(caURL);
-
-        // Create a new file system based wallet for managing identities.
-        console.log(`Wallet path: ${walletPath}`);
-        console.log('CA URL: ' + caURL);
-        let enrollID = ccp.certificateAuthorities['ca-org1'].registrar[0].enrollId;
-        console.log('CA enrollID: ' + enrollID);
-
         // Check to see if we've already enrolled the admin user.
         const adminExists = await wallet.exists('admin');
         if (adminExists) {
@@ -31,9 +21,15 @@ async function enrollAdmin() {
             return;
         }
 
+        // Create a new CA client for interacting with the CA.
+        const caURL = ccp.certificateAuthorities['ca-org1'].url;
+        console.log('CA URL: ' + caURL);
+        const ca = new FabricCAServices(caURL);
+
         // Enroll the admin user, and import the new identity into the wallet.
         const enrollment = await ca.enroll({ enrollmentID: ccp.certificateAuthorities['ca-org1'].registrar[0].enrollId, enrollmentSecret: ccp.certificateAuthorities['ca-org1'].registrar[0].enrollSecret });
         const identity = X509WalletMixin.createIdentity('org1MSP', enrollment.certificate, enrollment.key.toBytes());
+        console.log(`Wallet path: ${walletPath}`);
         await wallet.import('admin', identity);
         console.log('Successfully enrolled admin user "admin" and imported it into the wallet');
         console.log('Wallet identities: ' + util.inspect(wallet.list()));

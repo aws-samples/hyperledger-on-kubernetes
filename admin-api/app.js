@@ -41,7 +41,7 @@ var connection = require('./connection.js');
 var gateway = require('./gateway.js');
 var query = require('./query.js');
 var invoke = require('./invoke.js');
-var blockListener = require('./blocklistener.js');
+//var blockListener = require('./blocklistener.js');
 
 hfc.addConfigFile('config.json');
 var host = 'localhost';
@@ -96,8 +96,8 @@ function getErrorMessage(field) {
 	return response;
 }
 
-await gateway.enrollAdmin();
-await gateway.adminGateway();
+gateway.enrollAdmin();
+gateway.adminGateway();
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// START WEBSOCKET SERVER ///////////////////////
