@@ -96,9 +96,6 @@ function getErrorMessage(field) {
 	return response;
 }
 
-gateway.enrollAdmin();
-gateway.adminGateway();
-
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// START WEBSOCKET SERVER ///////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -143,6 +140,15 @@ app.post('/users', awaitHandler(async (req, res) => {
 		logger.error('##### POST on Users - Failed to register the username %s for organization %s with::%s', username, orgName, response);
 		res.json({success: false, message: response});
 	}
+}));
+
+// Enroll an admin user
+app.get('/init', awaitHandler(async (req, res) => {
+	logger.info('================ GET on Init');
+	logger.info('##### End point : /init');
+    await gateway.enrollAdmin();
+    await gateway.adminGateway();
+	logger.info('##### GET on Init - completed');
 }));
 
 /************************************************************************************
