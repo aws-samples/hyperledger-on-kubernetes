@@ -65,9 +65,9 @@ async function listNetwork() {
     logger.info('Client: ' + util.inspect(client));
     logger.info('ClientConfig: ' + util.inspect(client.getClientConfig()));
     let msp = client.getMspid();
-    logger.info('msp: ' + + util.inspect(msp));
+    logger.info('msp: ' + util.inspect(msp));
     let peers = client.getPeersForOrg(msp);
-    logger.info('peers: ' + + util.inspect(peers));
+    logger.info('peers: ' + util.inspect(peers));
 
 }
 
