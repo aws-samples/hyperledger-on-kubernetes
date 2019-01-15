@@ -4,6 +4,7 @@
     "channelName":"mychannel",
     "chaincodeName":"abaccc",
     "eventWaitTime":"30000",
+    "hfc-logging": "{'debug':'console', 'info':'console'}",
     "peers":[
         "peer1-org1.org1"
     ],
