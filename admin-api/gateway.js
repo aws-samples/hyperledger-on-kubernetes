@@ -1,7 +1,7 @@
 'use strict';
 
 var log4js = require('log4js');
-var logger = log4js.getLogger('Gateway');
+var logger = log4js.getLogger('gateway');
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const util = require('util')
