@@ -15,16 +15,16 @@
 */
 
 'use strict';
-var log4js = require('log4js');
-log4js.configure({
-	appenders: {
-	  out: { type: 'stdout' },
-	},
-	categories: {
-	  default: { appenders: ['out'], level: 'debug' },
-	}
-});
-var logger = log4js.getLogger('FABRICAPI');
+//var log4js = require('log4js');
+//log4js.configure({
+//	appenders: {
+//	  out: { type: 'stdout' },
+//	},
+//	categories: {
+//	  default: { appenders: ['out'], level: 'debug' },
+//	}
+//});
+//var logger = log4js.getLogger('FABRICAPI');
 const WebSocketServer = require('ws');
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -33,6 +33,8 @@ var util = require('util');
 var app = express();
 var cors = require('cors');
 var hfc = require('fabric-client');
+const logger = hfc.getLogger('app.js');
+
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, X509WalletMixin } = require('fabric-network');
 const uuidv4 = require('uuid/v4');

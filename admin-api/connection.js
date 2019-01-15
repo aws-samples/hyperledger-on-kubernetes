@@ -21,6 +21,7 @@ var util = require('util');
 var hfc = require('fabric-client');
 hfc.setLogger(logger);
 
+
 async function getClientForOrg (userorg, username) {
 	logger.info('============ START getClientForOrg for org %s and user %s', userorg, username);
     let config = 'connection-profile/connection-profile.yaml';
