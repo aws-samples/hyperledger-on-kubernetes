@@ -3,6 +3,9 @@ x-type: "hlfv1"
 description: "Fabric Network"
 version: "1.0"
 
+client:
+  organization: org1
+
 channels:
   mychannel:
     orderers:
