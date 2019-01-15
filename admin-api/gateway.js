@@ -2,7 +2,7 @@
 
 const FabricCAServices = require('fabric-ca-client');
 const Client = require('fabric-client');
-const logger = Client.getLogger('gateway');
+const logger = Client.getLogger('gw');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const util = require('util')
 const fs = require('fs');
