@@ -7,7 +7,8 @@ const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network')
 const util = require('util')
 const fs = require('fs');
 const path = require('path');
-const yaml = require('js-yaml');
+//const yaml = require('js-yaml');
+const yaml = require('yaml');
 const walletPath = path.join(process.cwd(), 'wallet');
 const wallet = new FileSystemWallet(walletPath);
 const gateway = new Gateway();
@@ -43,7 +44,8 @@ async function enrollAdmin() {
 }
 async function adminGateway() {
 
-        let ccp = yaml.safeLoad(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
+//        let ccp = yaml.safeLoad(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
+        let ccp = yaml.parse(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
 
         // Set connection options; identity and wallet
         let connectionOptions = {
@@ -77,7 +79,8 @@ async function loadConfigtx(configtxPath) {
 
     try {
         logger.info('Loading the Fabric configtx.yaml at path: ' + configtxPath);
-        configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
+//        configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
+        configtx = yaml.parse(fs.readFileSync(configtxPath, 'utf8'));
         logger.info('Configtx loaded: ' + util.inspect(configtx));
     } catch (error) {
         logger.error('Failed to loadConfigtx: ' + error);
@@ -91,9 +94,12 @@ async function saveConfigtx(configtxPath) {
         logger.info('Saving the Fabric configtx.yaml at path: ' + configtxPath);
         logger.info('Backing up original configtx.yaml at path: ' + configtxPath);
         fs.copyFileSync(configtxPath, configtxPath + Math.floor(Date.now() / 1000));
-        fs.writeFile(configtxPath, yaml.safeDump(configtx, {"noRefs":"true"}), function(err) {
+        fs.writeFile(configtxPath, yaml.stringify(configtx), function(err) {
                 if (err) throw err;
             });
+//        fs.writeFile(configtxPath, yaml.safeDump(configtx, {"noRefs":"true"}), function(err) {
+//                if (err) throw err;
+//            });
         logger.info('Configtx saved: ' + util.inspect(configtx));
     } catch (error) {
         logger.error('Failed to saveConfigtx: ' + error);
