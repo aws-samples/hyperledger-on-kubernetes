@@ -123,23 +123,21 @@ app.get('/health', awaitHandler(async (req, res) => {
 // or transactions can be invoked
 app.post('/users', awaitHandler(async (req, res) => {
 	logger.info('================ POST on Users');
-	username = req.body.username;
-	orgName = req.body.orgName;
+	let args = req.body;
 	logger.info('##### End point : /users');
-	logger.info('##### POST on Users- username : ' + username);
-	logger.info('##### POST on Users - userorg  : ' + orgName);
-	let response = await connection.getRegisteredUser(username, orgName, true);
-	logger.info('##### POST on Users - returned from registering the username %s for organization %s', username, orgName);
+	logger.info('##### POST on Users- args : ' + JSON.stringify(args));
+	let response = await connection.getRegisteredUser(args, true);
+	logger.info('##### POST on Users - returned from registering the username %s for organization %s', args);
     logger.info('##### POST on Users - getRegisteredUser response secret %s', response.secret);
     logger.info('##### POST on Users - getRegisteredUser response secret %s', response.message);
     if (response && typeof response !== 'string') {
-        logger.info('##### POST on Users - Successfully registered the username %s for organization %s', username, orgName);
+        logger.info('##### POST on Users - Successfully registered the username %s for organization %s', args);
 		logger.info('##### POST on Users - getRegisteredUser response %s', response);
 		// Now that we have a username & org, we can start the block listener
 		//await blockListener.startBlockListener(channelName, username, orgName, wss);
 		res.json(response);
 	} else {
-		logger.error('##### POST on Users - Failed to register the username %s for organization %s with::%s', username, orgName, response);
+		logger.error('##### POST on Users - Failed to register the username %s for organization %s with::%s', args, response);
 		res.json({success: false, message: response});
 	}
 }));
@@ -188,10 +186,10 @@ app.get('/getorgs', awaitHandler(async (req, res) => {
 // Add a new org to configtx.yaml
 app.post('/addorg', awaitHandler(async (req, res) => {
 	logger.info('================ POST on AddOrg');
-	let neworg = req.body.org;
+	let args = req.body;
 	logger.info('##### End point : /addorg');
-	logger.info('##### POST on addorg - org : ' + neworg);
-	let response = gateway.addOrg(hfc.getConfigSetting('configtx-path'), neworg);
+	logger.info('##### POST on addorg - args : ' + JSON.stringify(args));
+	let response = gateway.addOrg(hfc.getConfigSetting('configtx-path'), args);
 	logger.info('##### POST on addorg - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -204,12 +202,10 @@ app.post('/addorg', awaitHandler(async (req, res) => {
 // Add a new profile to configtx.yaml
 app.post('/addprofile', awaitHandler(async (req, res) => {
 	logger.info('================ POST on AddProfile');
-	let orgs = req.body.orgs;
-	let profilename = req.body.profilename;
+	let args = req.body;
 	logger.info('##### End point : /addprofile');
-	logger.info('##### POST on addprofile - org : ' + orgs);
-	logger.info('##### POST on addprofile - profilename : ' + profilename);
-	let response = gateway.addConfigtxProfile(hfc.getConfigSetting('configtx-path'), profilename, orgs);
+	logger.info('##### POST on addprofile - args : ' + JSON.stringify(args));
+	let response = gateway.addConfigtxProfile(hfc.getConfigSetting('configtx-path'), args);
 	logger.info('##### POST on addprofile - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -222,12 +218,10 @@ app.post('/addprofile', awaitHandler(async (req, res) => {
 // Generate a new channel transaction config using a profile in configtx.yaml
 app.post('/genchannelconfig', awaitHandler(async (req, res) => {
 	logger.info('================ POST on genchannelconfig');
-	let channelname = req.body.channelname;
-	let profilename = req.body.profilename;
+	let args = req.body;
 	logger.info('##### End point : /genchannelconfig');
-	logger.info('##### POST on genchannelconfig - channelname : ' + channelname);
-	logger.info('##### POST on genchannelconfig - profilename : ' + profilename);
-	let response = gateway.createTransactionConfig(hfc.getConfigSetting('configtx-path'), profilename, channelname);
+	logger.info('##### POST on genchannelconfig - args : ' + JSON.stringify(args));
+	let response = gateway.createTransactionConfig(hfc.getConfigSetting('configtx-path'), args);
 	logger.info('##### POST on genchannelconfig - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);

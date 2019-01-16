@@ -129,8 +129,9 @@ async function getOrgs(configtxPath) {
 // This will create a new org in configtx.yaml, by copying an existing org
 //
 // TODO: the anchor peer needs to be passed to this function, and updated into configtx.yaml
-async function addOrg(configtxPath, org) {
+async function addOrg(configtxPath, args) {
 
+    let org = args['org'];
     try {
         let orgsInConfig = await getOrgs(configtxPath);
         //Check that the new org to be added does not already exist in configtx.yaml
@@ -161,8 +162,10 @@ async function addOrg(configtxPath, org) {
 
 
 // This will create a new profile in configtx.yaml, which can be used for creating new channels
-async function addConfigtxProfile(configtxPath, profileName, orgs) {
+async function addConfigtxProfile(configtxPath, args) {
 
+    let profileName = args['profilename'];
+    let orgs = args['orgs'];
     try {
         logger.info('addConfigtxProfile called with profile: ' + util.inspect(profileName) + ' orgs: ' + util.inspect(orgs));
         let orgsInConfig = await getOrgs(configtxPath);
@@ -189,8 +192,10 @@ async function addConfigtxProfile(configtxPath, profileName, orgs) {
 }
 
 // This will generate a new transaction config, used to create a new channel
-async function createTransactionConfig(configtxPath, profileName, channelName) {
+async function createTransactionConfig(configtxPath, args) {
 
+    let profileName = args['profilename'];
+    let channelName = args['channelname'];
     let cmd = "cd " + configtxPath + "; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName;
     try {
         logger.info('Generating channel configuration: ' + cmd);

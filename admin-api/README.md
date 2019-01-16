@@ -94,14 +94,18 @@ echo $response
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/getorgs)  
 
 // This should fail as org4 does not exist in the configtx.yaml
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"org4profile","orgs":["org1","org4"]}')
+PROFILENAME=org4profile;
+ORGS='["org1","org4"]';
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":"'"${ORGS}"'"}')
 echo $response
 
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addorg -H 'content-type: application/json' -d '{"org":"org4"}')
+ORG=org4;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addorg -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
 echo $response
 
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"org4profile","orgs":["org1","org4"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":"'"${ORGS}"'"}')
 echo $response
 
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/genchannelconfig -H 'content-type: application/json' -d '{"profilename":"org4profile","channelname":"org4channel"}')
+CHANNELNAME=org4channel;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/genchannelconfig -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
 echo $response
