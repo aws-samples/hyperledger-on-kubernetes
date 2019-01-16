@@ -157,7 +157,7 @@ async function addConfigtxProfile(configtxPath, profileName, orgs) {
     try {
         let orgsInConfig = getOrgs(configtxPath);
         //Check that the orgs to be added to the profile already exist in configtx.yaml
-        for (org in orgs) {
+        for (let org in orgs) {
             if (orgsInConfig.indexOf(org) < 0) {
                 logger.error('Org: ' + org + ' does not exist in configtx.yaml. It cannot be added to a profile');
                 return;
