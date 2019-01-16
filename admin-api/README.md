@@ -80,7 +80,7 @@ kubectl apply -f k8s/fabric-deployment-ica-notls-org1.yaml
 kubectl apply -f k8s/fabric-nlb-ca-org1.yaml
 ```
 
-## Register a user
+## Testing
 
 export ENDPOINT=localhost
 export PORT=3000
@@ -94,8 +94,8 @@ echo $response
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/getorgs -H 'content-type: application/x-www-form-urlencoded')  
 
 ORG=org4
-echo
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addorg -H 'content-type: application/x-www-form-urlencoded' -d "org=${ORG}")
+echo $response
 
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"org4profile","orgs":["org1","org4"]}')
 echo $response

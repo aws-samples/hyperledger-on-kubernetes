@@ -108,7 +108,6 @@ async function getOrgs(configtxPath) {
         logger.info('Reading the Fabric configtx.yaml at path: ' + configtxPath);
         await loadConfigtx(configtxPath);
         for (let org in configtx['Organizations']) {
-            console.log("Orgs: " + util.inspect(org));
             console.log("Orgs in this network are: " + configtx['Organizations'][org]['Name'] + ' with MSP ' + configtx['Organizations'][org]['ID']);
             orgs.push(configtx['Organizations'][org]['Name']);
         }
@@ -145,6 +144,8 @@ async function addOrg(configtxPath, org) {
         console.log("Neworg: " + util.inspect(neworg));
         configtx['Organizations'].push(neworg);
         logger.info('Configtx updated with org: ' + util.inspect(configtx));
+        saveConfigtx(configtxPath);
+        return {"status":200,"message":"Org added to configtx.yaml: " + org}
     } catch (error) {
         logger.error('Failed to addOrg: ' + error);
     }
@@ -172,6 +173,8 @@ async function addConfigtxProfile(configtxPath, profileName, orgs) {
         newprofile['Application']['Organizations'] = orgs;
         configtx['Profiles'][profileName] = newprofile;
         logger.info('Configtx updated with profile: ' + util.inspect(configtx));
+        saveConfigtx(configtxPath);
+        return {"status":200,"message":"Profile added to configtx.yaml: " + profileName}
     } catch (error) {
         logger.error('Failed to addConfigtxProfile: ' + error);
     }
