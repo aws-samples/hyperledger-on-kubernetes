@@ -91,7 +91,7 @@ async function saveConfigtx(configtxPath) {
         logger.info('Saving the Fabric configtx.yaml at path: ' + configtxPath);
         logger.info('Backing up original configtx.yaml at path: ' + configtxPath);
         fs.copyFileSync(configtxPath, configtxPath + Math.floor(Date.now() / 1000));
-        fs.writeFile(configtxPath, yaml.safeDump(configtx), function(err) {
+        fs.writeFile(configtxPath, yaml.safeDump(configtx, {"noRefs"="true"}), function(err) {
                 if (err) throw err;
             });
         logger.info('Configtx saved: ' + util.inspect(configtx));

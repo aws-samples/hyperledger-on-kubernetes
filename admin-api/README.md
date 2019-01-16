@@ -93,6 +93,10 @@ echo $response
 
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/getorgs -H 'content-type: application/x-www-form-urlencoded')  
 
+// This should fail as org4 does not exist in the configtx.yaml
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"org4profile","orgs":["org1","org4"]}')
+echo $response
+
 ORG=org4
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addorg -H 'content-type: application/x-www-form-urlencoded' -d "org=${ORG}")
 echo $response
