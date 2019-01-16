@@ -96,3 +96,6 @@ response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/getorgs -H 'content-type: a
 ORG=org4
 echo
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addorg -H 'content-type: application/x-www-form-urlencoded' -d "org=${ORG}")
+
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"org4profile","orgs":["org1","org4"]}')
+echo $response

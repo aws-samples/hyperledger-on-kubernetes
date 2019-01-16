@@ -101,13 +101,16 @@ async function saveConfigtx(configtxPath) {
 
 }
 
+// This will create a new org in configtx.yaml, by copying an existing org
+//
+// TODO: the anchor peer needs to be passed to this function, and updated into configtx.yaml
 async function addOrg(configtxPath, org) {
 
     try {
         logger.info('Reading the Fabric configtx.yaml at path: ' + configtxPath);
         await loadConfigtx(configtxPath);
-        //Copy an existing org
-        let neworg = JSON.parse(JSON.stringify(configtx['Organizations'][0]));
+        //Copy an existing org. We use org1 because org0 is the orderer and has no anchor peers
+        let neworg = JSON.parse(JSON.stringify(configtx['Organizations'][1]));
         let orgname = neworg['Name'];
         let mspdir = neworg['MSPDir'];
         console.log("Neworg: " + util.inspect(neworg));
@@ -125,6 +128,25 @@ async function addOrg(configtxPath, org) {
     }
 
 }
+
+
+// This will create a new profile in configtx.yaml, which can be used for creating new channels
+async function addConfigtxProfile(configtxPath, profileName, orgs) {
+
+    try {
+        logger.info('addConfigtxProfile for new profile: ' + profileName + ' with orgs: ' + orgs);
+        await loadConfigtx(configtxPath);
+        //Copy an existing profile. We use the 2nd profile because the first belongs to the orderer
+        let newprofile = JSON.parse(JSON.stringify(configtx['Profiles'][1]));
+        newprofile['Application']['Organizations'] = orgs;
+        configtx['Profiles'][profileName] = newprofile;
+        logger.info('Configtx updated with profile: ' + util.inspect(configtx));
+    } catch (error) {
+        logger.error('Failed to addConfigtxProfile: ' + error);
+    }
+
+}
+
 
 async function getOrgs(configtxPath) {
 
@@ -148,3 +170,4 @@ exports.loadConfigtx = loadConfigtx;
 exports.saveConfigtx = saveConfigtx;
 exports.addOrg = addOrg;
 exports.getOrgs = getOrgs;
+exports.addConfigtxProfile = addConfigtxProfile;

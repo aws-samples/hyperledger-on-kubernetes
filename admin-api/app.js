@@ -202,6 +202,25 @@ app.post('/addorg', awaitHandler(async (req, res) => {
 	}
 }));
 
+// Register and enroll user. A user must be registered and enrolled before any queries
+// or transactions can be invoked
+app.post('/addprofile', awaitHandler(async (req, res) => {
+	logger.info('================ POST on AddProfile');
+	let orgs = req.body.orgs;
+	let profilename = req.body.profilename;
+	logger.info('##### End point : /addprofile');
+	logger.info('##### POST on addprofile - org : ' + orgs);
+	logger.info('##### POST on addprofile - profilename : ' + profilename);
+	let response = gateway.addConfigtxProfile(hfc.getConfigSetting('configtx-path'), profilename, orgs);
+	logger.info('##### POST on addprofile - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on addprofile failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
 /************************************************************************************
  * Error handler
  ************************************************************************************/
