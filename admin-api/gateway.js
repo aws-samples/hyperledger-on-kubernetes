@@ -152,7 +152,7 @@ async function addConfigtxProfile(configtxPath, profileName, orgs) {
         logger.info('addConfigtxProfile for new profile: ' + profileName + ' with orgs: ' + orgs);
         await loadConfigtx(configtxPath);
         //Copy an existing profile. We use the 2nd profile because the first belongs to the orderer
-        let newprofile = JSON.parse(JSON.stringify(configtx['Profiles'][1]));
+        let newprofile = JSON.parse(JSON.stringify(configtx['Profiles']['OrgsChannel']));
         logger.info('addConfigtxProfile - newprofile is: ' + util.inspect(newprofile));
         newprofile['Application']['Organizations'] = orgs;
         configtx['Profiles'][profileName] = newprofile;
