@@ -155,9 +155,12 @@ async function addOrg(configtxPath, org) {
 async function addConfigtxProfile(configtxPath, profileName, orgs) {
 
     try {
+        logger.info('addConfigtxProfile called with profile: ' + util.inspect(profileName) + ' orgs: ' + util.inspect(orgs));
         let orgsInConfig = await getOrgs(configtxPath);
+        logger.info('addConfigtxProfile orgs already in config: ' + util.inspect(orgsInConfig));
         //Check that the orgs to be added to the profile already exist in configtx.yaml
         for (let org in orgs) {
+            logger.info('addConfigtxProfile checking whether org exists: ' + util.inspect(org));
             if (orgsInConfig.indexOf(org) < 0) {
                 logger.error('Org: ' + org + ' does not exist in configtx.yaml. It cannot be added to a profile');
                 return;
