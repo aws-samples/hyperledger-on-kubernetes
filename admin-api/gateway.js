@@ -196,7 +196,7 @@ async function createTransactionConfig(configtxPath, args) {
 
     let profileName = args['profilename'];
     let channelName = args['channelname'];
-    configtxPathDir = path.dirname(configtxPath);
+    let configtxPathDir = path.dirname(configtxPath);
     let cmd = "cd " + configtxPathDir + "; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName;
     try {
         logger.info('Generating channel configuration: ' + cmd);
