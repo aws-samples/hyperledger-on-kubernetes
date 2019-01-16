@@ -191,7 +191,7 @@ async function addConfigtxProfile(configtxPath, profileName, orgs) {
 // This will generate a new transaction config, used to create a new channel
 async function createTransactionConfig(configtxPath, profileName, channelName) {
 
-    let cmd = "cd configtxPath; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName;
+    let cmd = "cd " + configtxPath + "; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName;
     try {
         logger.info('Generating channel configuration: ' + cmd);
         exec(cmd, (err, stdout, stderr) => {

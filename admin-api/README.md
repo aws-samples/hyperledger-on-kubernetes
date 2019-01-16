@@ -85,26 +85,23 @@ kubectl apply -f k8s/fabric-nlb-ca-org1.yaml
 export ENDPOINT=localhost
 export PORT=3000
 echo connecting to server: $ENDPOINT:$PORT
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/init -H 'content-type: application/x-www-form-urlencoded')
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/init)
 echo $response
 
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/listNetwork -H 'content-type: application/x-www-form-urlencoded')
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/listNetwork)
 echo $response
 
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/getorgs -H 'content-type: application/x-www-form-urlencoded')  
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/getorgs)  
 
 // This should fail as org4 does not exist in the configtx.yaml
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"org4profile","orgs":["org1","org4"]}')
 echo $response
 
-ORG=org4
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addorg -H 'content-type: application/x-www-form-urlencoded' -d "org=${ORG}")
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addorg -H 'content-type: application/json' -d '{"org":"org4"}')
 echo $response
 
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"org4profile","orgs":["org1","org4"]}')
 echo $response
 
-PROFILENAME=org4profile
-CHANNELNAME=org4channel
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/genchannelconfig -H 'content-type: application/x-www-form-urlencoded' -d "profilename=${PROFILENAME},channelname=${CHANNELNAME}")
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/genchannelconfig -H 'content-type: application/json' -d '{"profilename":"org4profile","channelname":"org4channel"}')
 echo $response
