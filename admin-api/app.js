@@ -185,8 +185,7 @@ app.get('/getorgs', awaitHandler(async (req, res) => {
 	logger.info('##### GET on getorgs - completed');
 }));
 
-// Register and enroll user. A user must be registered and enrolled before any queries
-// or transactions can be invoked
+// Add a new org to configtx.yaml
 app.post('/addorg', awaitHandler(async (req, res) => {
 	logger.info('================ POST on AddOrg');
 	let neworg = req.body.org;
@@ -202,8 +201,7 @@ app.post('/addorg', awaitHandler(async (req, res) => {
 	}
 }));
 
-// Register and enroll user. A user must be registered and enrolled before any queries
-// or transactions can be invoked
+// Add a new profile to configtx.yaml
 app.post('/addprofile', awaitHandler(async (req, res) => {
 	logger.info('================ POST on AddProfile');
 	let orgs = req.body.orgs;
@@ -217,6 +215,24 @@ app.post('/addprofile', awaitHandler(async (req, res) => {
 		res.json(response);
 	} else {
 		logger.error('##### POST on addprofile failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+// Generate a new channel transaction config using a profile in configtx.yaml
+app.post('/genchannelconfig', awaitHandler(async (req, res) => {
+	logger.info('================ POST on genchannelconfig');
+	let channelname = req.body.channelname;
+	let profilename = req.body.profilename;
+	logger.info('##### End point : /genchannelconfig');
+	logger.info('##### POST on genchannelconfig - org : ' + orgs);
+	logger.info('##### POST on genchannelconfig - profilename : ' + profilename);
+	let response = gateway.createTransactionConfig(hfc.getConfigSetting('configtx-path'), profilename, channelname);
+	logger.info('##### POST on genchannelconfig - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on genchannelconfig failed: %s', response);
 		res.json({success: false, message: response});
 	}
 }));

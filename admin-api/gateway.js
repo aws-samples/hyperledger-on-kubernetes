@@ -12,6 +12,8 @@ const yaml = require('yaml');
 const walletPath = path.join(process.cwd(), 'wallet');
 const wallet = new FileSystemWallet(walletPath);
 const gateway = new Gateway();
+const { exec } = require('child_process');
+
 let configtx = '';
 
 async function enrollAdmin() {
@@ -186,6 +188,26 @@ async function addConfigtxProfile(configtxPath, profileName, orgs) {
     }
 }
 
+// This will generate a new transaction config, used to create a new channel
+async function createTransactionConfig(configtxPath, profileName, channelName) {
+
+    let cmd = "cd configtxPath; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName;
+    try {
+        logger.info('Generating channel configuration: ' + cmd);
+        exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            logger.error('Failed to generate channel configuration transaction');
+            return;
+        }
+
+        // the *entire* stdout and stderr (buffered)
+        console.log(`stdout: ${stdout}`);
+        console.log(`stderr: ${stderr}`);
+        });
+    } catch (error) {
+        logger.error('Failed to createTransactionConfig: ' + error);
+    }
+}
 
 exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
@@ -195,3 +217,4 @@ exports.saveConfigtx = saveConfigtx;
 exports.addOrg = addOrg;
 exports.getOrgs = getOrgs;
 exports.addConfigtxProfile = addConfigtxProfile;
+exports.createTransactionConfig = createTransactionConfig;
