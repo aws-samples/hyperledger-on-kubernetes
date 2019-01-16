@@ -130,24 +130,6 @@ async function addOrg(configtxPath, org) {
 }
 
 
-// This will create a new profile in configtx.yaml, which can be used for creating new channels
-async function addConfigtxProfile(configtxPath, profileName, orgs) {
-
-    try {
-        logger.info('addConfigtxProfile for new profile: ' + profileName + ' with orgs: ' + orgs);
-        await loadConfigtx(configtxPath);
-        //Copy an existing profile. We use the 2nd profile because the first belongs to the orderer
-        let newprofile = JSON.parse(JSON.stringify(configtx['Profiles'][1]));
-        newprofile['Application']['Organizations'] = orgs;
-        configtx['Profiles'][profileName] = newprofile;
-        logger.info('Configtx updated with profile: ' + util.inspect(configtx));
-    } catch (error) {
-        logger.error('Failed to addConfigtxProfile: ' + error);
-    }
-
-}
-
-
 async function getOrgs(configtxPath) {
 
     try {
@@ -162,6 +144,25 @@ async function getOrgs(configtxPath) {
     }
 
 }
+
+// This will create a new profile in configtx.yaml, which can be used for creating new channels
+async function addConfigtxProfile(configtxPath, profileName, orgs) {
+
+    try {
+        logger.info('addConfigtxProfile for new profile: ' + profileName + ' with orgs: ' + orgs);
+        await loadConfigtx(configtxPath);
+        //Copy an existing profile. We use the 2nd profile because the first belongs to the orderer
+        let newprofile = JSON.parse(JSON.stringify(configtx['Profiles'][1]));
+        logger.info('addConfigtxProfile - newprofile is: ' + util.inspect(newprofile));
+        newprofile['Application']['Organizations'] = orgs;
+        configtx['Profiles'][profileName] = newprofile;
+        logger.info('Configtx updated with profile: ' + util.inspect(configtx));
+    } catch (error) {
+        logger.error('Failed to addConfigtxProfile: ' + error);
+    }
+
+}
+
 
 exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
