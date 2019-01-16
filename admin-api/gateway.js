@@ -98,8 +98,26 @@ async function saveConfigtx(configtxPath) {
     } catch (error) {
         logger.error('Failed to saveConfigtx: ' + error);
     }
-
 }
+
+
+async function getOrgs(configtxPath) {
+
+    let orgs = [];
+    try {
+        logger.info('Reading the Fabric configtx.yaml at path: ' + configtxPath);
+        await loadConfigtx(configtxPath);
+        for (let org in configtx['Organizations']) {
+            console.log("Orgs: " + util.inspect(org));
+            console.log("Orgs in this network are: " + configtx['Organizations'][org]['Name'] + ' with MSP ' + configtx['Organizations'][org]['ID']);
+            orgs.push(configtx['Organizations'][org]['Name']);
+        }
+        return orgs;
+    } catch (error) {
+        logger.error('Failed to getOrgs: ' + error);
+    }
+}
+
 
 // This will create a new org in configtx.yaml, by copying an existing org
 //
@@ -107,8 +125,12 @@ async function saveConfigtx(configtxPath) {
 async function addOrg(configtxPath, org) {
 
     try {
-        logger.info('Reading the Fabric configtx.yaml at path: ' + configtxPath);
-        await loadConfigtx(configtxPath);
+        let orgsInConfig = getOrgs(configtxPath);
+        //Check that the new org to be added does not already exist in configtx.yaml
+        if (orgsInConfig.indexOf(org) > -1) {
+            logger.error('Org: ' + org + ' already exists in configtx.yaml. These orgs are already present: ' + orgsInConfig);
+            return;
+        }
         //Copy an existing org. We use org1 because org0 is the orderer and has no anchor peers
         let neworg = JSON.parse(JSON.stringify(configtx['Organizations'][1]));
         let orgname = neworg['Name'];
@@ -126,31 +148,21 @@ async function addOrg(configtxPath, org) {
     } catch (error) {
         logger.error('Failed to addOrg: ' + error);
     }
-
 }
 
-
-async function getOrgs(configtxPath) {
-
-    try {
-        logger.info('Reading the Fabric configtx.yaml at path: ' + configtxPath);
-        await loadConfigtx(configtxPath);
-        for (let org in configtx['Organizations']) {
-            console.log("Orgs: " + util.inspect(org));
-            console.log("Orgs in this network are: " + configtx['Organizations'][org]['Name'] + ' with MSP ' + configtx['Organizations'][org]['ID']);
-        }
-    } catch (error) {
-        logger.error('Failed to getOrgs: ' + error);
-    }
-
-}
 
 // This will create a new profile in configtx.yaml, which can be used for creating new channels
 async function addConfigtxProfile(configtxPath, profileName, orgs) {
 
     try {
-        logger.info('addConfigtxProfile for new profile: ' + profileName + ' with orgs: ' + orgs);
-        await loadConfigtx(configtxPath);
+        let orgsInConfig = getOrgs(configtxPath);
+        //Check that the orgs to be added to the profile already exist in configtx.yaml
+        for (org in orgs) {
+            if (orgsInConfig.indexOf(org) < 0) {
+                logger.error('Org: ' + org + ' does not exist in configtx.yaml. It cannot be added to a profile');
+                return;
+            }
+        }
         //Copy an existing profile. We use the 2nd profile because the first belongs to the orderer
         let newprofile = JSON.parse(JSON.stringify(configtx['Profiles']['OrgsChannel']));
         logger.info('addConfigtxProfile - newprofile is: ' + util.inspect(newprofile));
@@ -160,7 +172,6 @@ async function addConfigtxProfile(configtxPath, profileName, orgs) {
     } catch (error) {
         logger.error('Failed to addConfigtxProfile: ' + error);
     }
-
 }
 
 
