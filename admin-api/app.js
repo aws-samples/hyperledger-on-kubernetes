@@ -225,7 +225,7 @@ app.post('/genchannelconfig', awaitHandler(async (req, res) => {
 	let channelname = req.body.channelname;
 	let profilename = req.body.profilename;
 	logger.info('##### End point : /genchannelconfig');
-	logger.info('##### POST on genchannelconfig - org : ' + orgs);
+	logger.info('##### POST on genchannelconfig - channelname : ' + channelname);
 	logger.info('##### POST on genchannelconfig - profilename : ' + profilename);
 	let response = gateway.createTransactionConfig(hfc.getConfigSetting('configtx-path'), profilename, channelname);
 	logger.info('##### POST on genchannelconfig - response %s', util.inspect(response));

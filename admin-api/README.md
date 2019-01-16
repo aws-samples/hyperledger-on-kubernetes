@@ -103,3 +103,8 @@ echo $response
 
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"org4profile","orgs":["org1","org4"]}')
 echo $response
+
+PROFILENAME=org4profile
+CHANNELNAME=org4channel
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/genchannelconfig -H 'content-type: application/x-www-form-urlencoded' -d "profilename=${PROFILENAME},channelname=${CHANNELNAME}")
+echo $response
