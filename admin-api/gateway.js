@@ -196,12 +196,15 @@ async function createTransactionConfig(configtxPath, args) {
 
     let profileName = args['profilename'];
     let channelName = args['channelname'];
-    let cmd = "cd " + configtxPath + "; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName;
+    configtxPathDir = path.dirname(configtxPath);
+    let cmd = "cd " + configtxPathDir + "; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName;
     try {
         logger.info('Generating channel configuration: ' + cmd);
         exec(cmd, (err, stdout, stderr) => {
         if (err) {
             logger.error('Failed to generate channel configuration transaction');
+            logger.error(err);
+            console.log(`stderr: ${stderr}`);
             return;
         }
 
