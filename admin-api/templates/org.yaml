@@ -1,0 +1,23 @@
+  - &%org%
+
+    Name: %org%
+
+    # ID to load the MSP definition as
+    ID: %org%MSP
+
+    # MSPDir is the filesystem path which contains the MSP configuration
+    MSPDir: /data/orgs/%org%/msp
+
+    AdminPrincipal: Role.ADMIN
+
+    Policies:
+        Readers:
+            Type: Signature
+            Rule: "OR(\'%org%MSP.member\')"
+        Writers:
+            Type: Signature
+            Rule: "OR(\'%org%MSP.member\')"
+        Admins:
+            Type: Signature
+            Rule: "OR(\'%org%MSP.admin\')"
+

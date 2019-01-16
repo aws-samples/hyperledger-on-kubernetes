@@ -1,0 +1,12 @@
+    %profile%:
+        Capabilities:
+            <<: *ChannelCapabilities
+        Consortium: SampleConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+            - *%org%
+
+            Capabilities:
+                <<: *ApplicationCapabilities
+

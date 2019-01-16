@@ -76,7 +76,9 @@ async function listNetwork() {
 
 }
 
-
+// I have tried to edit this file using the js-yaml, yaml libraries. Neither of them support anchors in YAML, so
+// the resulting YAML is written incorrectly and cannot be processed by configtxgen. I've therefore taken to
+// manually reading and writing the file, without using YAML
 async function loadConfigtx(configtxPath) {
 
     try {
@@ -168,23 +170,37 @@ async function addConfigtxProfile(configtxPath, args) {
     let orgs = args['orgs'];
     try {
         logger.info('addConfigtxProfile called with profile: ' + util.inspect(profileName) + ' orgs: ' + util.inspect(orgs));
-        let orgsInConfig = await getOrgs(configtxPath);
-        logger.info('addConfigtxProfile orgs already in config: ' + util.inspect(orgsInConfig));
-        //Check that the orgs to be added to the profile already exist in configtx.yaml
-        for (let org of orgs) {
-            logger.info('addConfigtxProfile checking whether org exists: ' + util.inspect(org));
-            if (orgsInConfig.indexOf(org) < 0) {
-                logger.error('Org: ' + org + ' does not exist in configtx.yaml. It cannot be added to a profile');
-                return;
+        logger.info('Backing up original configtx.yaml at path: ' + configtxPath);
+        let filename = configtxPath + Math.floor(Date.now() / 1000);
+        fs.copyFileSync(configtxPath, filename);
+        fs.readFileSync(filename).toString().split('\n').forEach(function (line) {
+            fs.appendFileSync(configtxPath, line.toString() + "\n");
+            if (line.toString().indexOf("Profiles:") > -1) {
+                fs.readFile('./templates/profile.yaml', 'utf8', function(err, data) {
+                    if (err) throw err;
+                    var result = data.replace(/%profile%/g, profileName);
+                    fs.appendFileSync(configtxPath, data.toString() + "\n");
+                });
             }
-        }
-        //Copy an existing profile. We use the 2nd profile because the first belongs to the orderer
-        let newprofile = JSON.parse(JSON.stringify(configtx['Profiles']['OrgsChannel']));
-        logger.info('addConfigtxProfile - newprofile is: ' + util.inspect(newprofile));
-        newprofile['Application']['Organizations'] = orgs;
-        configtx['Profiles'][profileName] = newprofile;
-        logger.info('Configtx updated with profile: ' + util.inspect(configtx));
-        saveConfigtx(configtxPath);
+        });
+
+//        let orgsInConfig = await getOrgs(configtxPath);
+//        logger.info('addConfigtxProfile orgs already in config: ' + util.inspect(orgsInConfig));
+//        //Check that the orgs to be added to the profile already exist in configtx.yaml
+//        for (let org of orgs) {
+//            logger.info('addConfigtxProfile checking whether org exists: ' + util.inspect(org));
+//            if (orgsInConfig.indexOf(org) < 0) {
+//                logger.error('Org: ' + org + ' does not exist in configtx.yaml. It cannot be added to a profile');
+//                return;
+//            }
+//        }
+//        //Copy an existing profile. We use the 2nd profile because the first belongs to the orderer
+//        let newprofile = JSON.parse(JSON.stringify(configtx['Profiles']['OrgsChannel']));
+//        logger.info('addConfigtxProfile - newprofile is: ' + util.inspect(newprofile));
+//        newprofile['Application']['Organizations'] = orgs;
+//        configtx['Profiles'][profileName] = newprofile;
+//        logger.info('Configtx updated with profile: ' + util.inspect(configtx));
+//        saveConfigtx(configtxPath);
         return {"status":200,"message":"Profile added to configtx.yaml: " + profileName}
     } catch (error) {
         logger.error('Failed to addConfigtxProfile: ' + error);
