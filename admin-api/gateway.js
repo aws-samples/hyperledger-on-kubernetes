@@ -85,6 +85,7 @@ async function loadConfigtx(configtxPath) {
         logger.info('Configtx loaded at path: ' + configtxPath);
     } catch (error) {
         logger.error('Failed to loadConfigtx: ' + error);
+        throw error;
     }
 
 }
@@ -96,9 +97,9 @@ async function backupConfigtx(configtxPath) {
         let filename = configtxPath + Math.floor(Date.now() / 1000);
         logger.info('Backing up original configtx.yaml at path: ' + configtxPath + '. Backup file titled: ' + filename);
         fs.copyFileSync(configtxPath, filename);
-        logger.info('Configtx saved at path: ' + configtxPath);
     } catch (error) {
         logger.error('Failed to backup Configtx: ' + error);
+        throw error;
     }
 }
 

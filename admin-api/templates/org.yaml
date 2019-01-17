@@ -13,11 +13,11 @@
     Policies:
         Readers:
             Type: Signature
-            Rule: "OR(\'%org%MSP.member\')"
+            Rule: "OR('%org%MSP.member')"
         Writers:
             Type: Signature
-            Rule: "OR(\'%org%MSP.member\')"
+            Rule: "OR('%org%MSP.member')"
         Admins:
             Type: Signature
-            Rule: "OR(\'%org%MSP.admin\')"
+            Rule: "OR('%org%MSP.admin')"
 
