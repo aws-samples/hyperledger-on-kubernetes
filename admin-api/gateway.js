@@ -254,7 +254,6 @@ exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
 exports.listNetwork = listNetwork;
 exports.loadConfigtx = loadConfigtx;
-exports.saveConfigtx = saveConfigtx;
 exports.addOrg = addOrg;
 exports.getOrgs = getOrgs;
 exports.addConfigtxProfile = addConfigtxProfile;
