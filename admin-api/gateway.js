@@ -110,7 +110,7 @@ async function getOrgs(configtxPath) {
     try {
         await loadConfigtx(configtxPath);
         for (let org in configtx['Organizations']) {
-            console.log("Orgs in this network are: " + configtx['Organizations'][org]['Name'] + ' with MSP ' + configtx['Organizations'][org]['ID']);
+            logger.info("Orgs in this network are: " + configtx['Organizations'][org]['Name'] + ' with MSP ' + configtx['Organizations'][org]['ID']);
             orgs.push(configtx['Organizations'][org]['Name']);
         }
         return orgs;
@@ -126,8 +126,9 @@ async function getProfiles(configtxPath) {
     let profiles = [];
     try {
         await loadConfigtx(configtxPath);
+        logger.info("Profiles: " + Object.keys(configtx['Profiles']))
         for (let profile in configtx['Profiles']) {
-            console.log("Profiles in this network are: " + configtx['Profiles'][profile]);
+            logger.info("Profiles in this network are: " + configtx['Profiles'][profile]);
             profiles.push(configtx['Profiles'][profile]);
         }
         return profiles;
@@ -172,14 +173,14 @@ async function addOrg(configtxPath, args) {
 //        let neworg = JSON.parse(JSON.stringify(configtx['Organizations'][1]));
 //        let orgname = neworg['Name'];
 //        let mspdir = neworg['MSPDir'];
-//        console.log("Neworg: " + util.inspect(neworg));
+//        logger.info("Neworg: " + util.inspect(neworg));
 //        neworg['Name'] = org;
 //        neworg['ID'] = org + 'MSP';
 //        neworg['MSPDir'] = mspdir.replace(orgname, org);
 //        neworg['Policies']['Readers']['Rule'] = neworg['Policies']['Readers']['Rule'].replace(orgname, org);
 //        neworg['Policies']['Writers']['Rule'] = neworg['Policies']['Writers']['Rule'].replace(orgname, org);
 //        neworg['Policies']['Admins']['Rule'] = neworg['Policies']['Admins']['Rule'].replace(orgname, org);
-//        console.log("Neworg: " + util.inspect(neworg));
+//        logger.info("Neworg: " + util.inspect(neworg));
 //        configtx['Organizations'].push(neworg);
 //        logger.info('Configtx updated with org: ' + util.inspect(configtx));
 //        saveConfigtx(configtxPath);
@@ -274,13 +275,13 @@ async function createTransactionConfig(configtxPath, args) {
         if (err) {
             logger.error('Failed to generate channel configuration transaction');
             logger.error(err);
-            console.log(`stderr: ${stderr}`);
+            logger.info(`stderr: ${stderr}`);
             return;
         }
 
         // the *entire* stdout and stderr (buffered)
-        console.log(`stdout: ${stdout}`);
-        console.log(`stderr: ${stderr}`);
+        logger.info(`stdout: ${stdout}`);
+        logger.info(`stderr: ${stderr}`);
         });
     } catch (error) {
         logger.error('Failed to createTransactionConfig: ' + error);
