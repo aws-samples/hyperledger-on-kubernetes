@@ -126,7 +126,6 @@ async function getProfiles(configtxPath) {
     let profiles = [];
     try {
         await loadConfigtx(configtxPath);
-        logger.info("Profiles in this network are: " + Object.keys(configtx['Profiles']))
         for (let profile in configtx['Profiles']) {
             logger.info("Profiles in this network are: " + profile);
             profiles.push(configtx['Profiles'][profile]);
@@ -205,6 +204,14 @@ async function addConfigtxProfile(configtxPath, args) {
         if (profilesInConfig.indexOf(profileName) > -1) {
             logger.error('Profile: ' + profileName + ' already exists in configtx.yaml. These profiles are already present: ' + profilesInConfig);
             return;
+        }
+        let orgsInConfig = await getOrgs(configtxPath);
+        //Check that the orgs to be used in the profile already exist in configtx.yaml
+        for (let org of orgs) {
+            if (orgsInConfig.indexOf(org) < 0) {
+                logger.error('Org: ' + org + ' does not exist in configtx.yaml - you cannot create a profile that uses this org. These orgs are already present: ' + orgsInConfig);
+                return;
+            }
         }
         await backupConfigtx(configtxPath);
         let fd;

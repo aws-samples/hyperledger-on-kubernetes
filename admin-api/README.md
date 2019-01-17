@@ -82,6 +82,8 @@ kubectl apply -f k8s/fabric-nlb-ca-org1.yaml
 
 ## Testing
 
+cp /opt/share/rca-data/configtx-orig.yaml /opt/share/rca-data/configtx.yaml
+
 export ENDPOINT=localhost
 export PORT=3000
 echo connecting to server: $ENDPOINT:$PORT
