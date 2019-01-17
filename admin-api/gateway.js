@@ -275,7 +275,7 @@ async function createTransactionConfig(configtxPath, args) {
 async function createChannel(configtxPath, args) {
 
     let channelName = args['channelname'];
-    let ordererUrl = ccp.orderers[0].url;
+    let ordererUrl = ccp.orderers['orderer3-org0.org0'].url;
     logger.info('Creating channel: ' + channelName + ' using transaction config file: ' + channelName + ".tx");
     try {
         // first read in the file, this gives us a binary config envelope
