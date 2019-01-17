@@ -135,3 +135,8 @@ CHANNELNAME=org2channel;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/genchannelconfig -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
 echo $response
 
+
+CHANNELNAME=org2channel;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/createchannel -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'"}')
+echo $response
+

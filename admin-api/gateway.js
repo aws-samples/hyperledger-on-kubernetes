@@ -16,6 +16,7 @@ const { exec } = require('child_process');
 
 let configtxContents = '';
 let configtxFilename = 'configtx.yaml'
+let ccp = yaml.safeLoad(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
 
 async function enrollAdmin() {
     try {
@@ -46,8 +47,6 @@ async function enrollAdmin() {
     }
 }
 async function adminGateway() {
-
-        let ccp = yaml.safeLoad(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
 
         // Set connection options; identity and wallet
         let connectionOptions = {
