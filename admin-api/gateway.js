@@ -80,8 +80,8 @@ async function loadConfigtx(configtxPath) {
 
     try {
         logger.info('Loading the Fabric configtx.yaml at path: ' + configtxPath);
-//        configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
-        configtx = yaml.parse(fs.readFileSync(configtxPath, 'utf8'));
+        configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
+//        configtx = yaml.parse(fs.readFileSync(configtxPath, 'utf8'));
         logger.info('Configtx loaded: ' + util.inspect(configtx));
     } catch (error) {
         logger.error('Failed to loadConfigtx: ' + error);
@@ -89,21 +89,16 @@ async function loadConfigtx(configtxPath) {
 
 }
 
-async function saveConfigtx(configtxPath) {
+async function backupConfigtx(configtxPath) {
 
     try {
-        logger.info('Saving the Fabric configtx.yaml at path: ' + configtxPath);
-        logger.info('Backing up original configtx.yaml at path: ' + configtxPath);
-        fs.copyFileSync(configtxPath, configtxPath + Math.floor(Date.now() / 1000));
-        fs.writeFile(configtxPath, yaml.stringify(configtx), function(err) {
-                if (err) throw err;
-            });
-//        fs.writeFile(configtxPath, yaml.safeDump(configtx, {"noRefs":"true"}), function(err) {
-//                if (err) throw err;
-//            });
+        // Backup the original configtx.yaml
+        let filename = configtxPath + Math.floor(Date.now() / 1000);
+        logger.info('Backing up original configtx.yaml at path: ' + configtxPath + '. Backup file titled: ' + filename);
+        fs.copyFileSync(configtxPath, filename);
         logger.info('Configtx saved: ' + util.inspect(configtx));
     } catch (error) {
-        logger.error('Failed to saveConfigtx: ' + error);
+        logger.error('Failed to backup Configtx: ' + error);
     }
 }
 
@@ -138,11 +133,7 @@ async function addOrg(configtxPath, args) {
             logger.error('Org: ' + org + ' already exists in configtx.yaml. These orgs are already present: ' + orgsInConfig);
             return;
         }
-        // Backup the original configtx.yaml
-        let filename = configtxPath + Math.floor(Date.now() / 1000);
-        logger.info('addOrg called to add org: ' + org);
-        logger.info('Backing up original configtx.yaml at path: ' + configtxPath + '. Backup file titled: ' + filename);
-        fs.copyFileSync(configtxPath, filename);
+        await backupConfigtx(configtxPath);
 
         // Use the template to add a new org to configtx.yaml
         let contents = "";
@@ -190,11 +181,7 @@ async function addConfigtxProfile(configtxPath, args) {
     let profileName = args['profilename'];
     let orgs = args['orgs'];
     try {
-        // Backup the original configtx.yaml
-        let filename = configtxPath + Math.floor(Date.now() / 1000);
-        logger.info('addConfigtxProfile called with profile: ' + util.inspect(profileName) + ' orgs: ' + util.inspect(orgs));
-        logger.info('Backing up original configtx.yaml at path: ' + configtxPath + '. Backup file titled: ' + filename);
-        fs.copyFileSync(configtxPath, filename);
+        await backupConfigtx(configtxPath);
         let fd;
 
         // Use the template to add a new profile to configtx.yaml
