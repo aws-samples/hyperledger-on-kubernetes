@@ -149,6 +149,7 @@ async function addOrg(configtxPath, args) {
         fs.readFileSync(filename).toString().split('\n').forEach(function (line) {
             contents += line + "\n";
             if (line.toString().indexOf("Organizations:") > -1) {
+                logger.info('Found the Organizations section in configtx.yaml - writing new org here');
                 fs.readFile('./templates/org.yaml', 'utf8', function(err, data) {
                     if (err) throw err;
                     var result = data.replace(/%org%/g, org);
