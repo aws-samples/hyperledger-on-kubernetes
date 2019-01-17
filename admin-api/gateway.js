@@ -292,7 +292,7 @@ async function createChannel(configtxPath, args) {
         // have the SDK generate a transaction id
         let tx_id = client.newTransactionID();
 
-        request = {
+        let request = {
           config: config_update, //the binary config
           signatures : signatures, // the collected signatures
           name : channelName, // the channel name
@@ -301,7 +301,9 @@ async function createChannel(configtxPath, args) {
         };
 
         // this call will return a Promise
-        client.createChannel(request)
+        let response = await client.createChannel(request);
+        logger.info('Channel created - response: ' + response);
+
     } catch (error) {
         logger.error('Failed to createChannel: ' + error);
         throw error;
