@@ -146,7 +146,7 @@ async function addOrg(configtxPath, args) {
                 let data = fs.readFileSync ('./templates/org.yaml', 'utf8');
                 let result = data.replace(/%org%/g, org);
                 contents += result + "\n";
-                logger.info('Add this new org section to configtx.yaml: ' + result);
+                logger.info('Added new org section to configtx.yaml');
             }
         });
         fs.writeFileSync(configtxPath, contents);
@@ -189,9 +189,17 @@ async function addConfigtxProfile(configtxPath, args) {
         try {
                 fs.readFile('./templates/profile.yaml', 'utf8', function(err, data) {
                     if (err) throw err;
-                    var result = data.replace(/%profile%/g, profileName);
+                    let result = data.replace(/%profile%/g, profileName);
+                    let ix = result.toString().indexOf("%org%");
+                    if (ix > -1) {
+                        for (let org of orgs) {
+                            result = result.slice(0, ix) + org + "\n            -" + result.slice(ix);
+                        }
+                    }
                     fd = fs.openSync(configtxPath, 'a');
                     fs.appendFileSync(fd, result, 'utf8');
+                    logger.info('Appending a new profile to configtx.yaml: ' + result);
+
                 });
         } catch (err) {
             logger.error('Failed to addConfigtxProfile: ' + error);
