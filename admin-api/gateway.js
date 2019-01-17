@@ -76,9 +76,6 @@ async function listNetwork() {
 
 }
 
-// I have tried to edit this file using the js-yaml, yaml libraries. Neither of them support anchors in YAML, so
-// the resulting YAML is written incorrectly and cannot be processed by configtxgen. I've therefore taken to
-// manually reading and writing the file, without using YAML
 async function loadConfigtx(configtxPath) {
 
     try {
@@ -141,21 +138,41 @@ async function addOrg(configtxPath, args) {
             logger.error('Org: ' + org + ' already exists in configtx.yaml. These orgs are already present: ' + orgsInConfig);
             return;
         }
-        //Copy an existing org. We use org1 because org0 is the orderer and has no anchor peers
-        let neworg = JSON.parse(JSON.stringify(configtx['Organizations'][1]));
-        let orgname = neworg['Name'];
-        let mspdir = neworg['MSPDir'];
-        console.log("Neworg: " + util.inspect(neworg));
-        neworg['Name'] = org;
-        neworg['ID'] = org + 'MSP';
-        neworg['MSPDir'] = mspdir.replace(orgname, org);
-        neworg['Policies']['Readers']['Rule'] = neworg['Policies']['Readers']['Rule'].replace(orgname, org);
-        neworg['Policies']['Writers']['Rule'] = neworg['Policies']['Writers']['Rule'].replace(orgname, org);
-        neworg['Policies']['Admins']['Rule'] = neworg['Policies']['Admins']['Rule'].replace(orgname, org);
-        console.log("Neworg: " + util.inspect(neworg));
-        configtx['Organizations'].push(neworg);
-        logger.info('Configtx updated with org: ' + util.inspect(configtx));
-        saveConfigtx(configtxPath);
+        // Backup the original configtx.yaml
+        let filename = configtxPath + Math.floor(Date.now() / 1000);
+        logger.info('addOrg called to add org: ' + org);
+        logger.info('Backing up original configtx.yaml at path: ' + configtxPath + '. Backup file titled: ' + filename);
+        fs.copyFileSync(configtxPath, filename);
+
+        // Use the template to add a new org to configtx.yaml
+        let contents = "";
+        fs.readFileSync(filename).toString().split('\n').forEach(function (line) {
+            contents += line + "\n";
+            if (line.toString().indexOf("Organizations:") > -1) {
+                fs.readFile('./templates/org.yaml', 'utf8', function(err, data) {
+                    if (err) throw err;
+                    var result = data.replace(/%org%/g, org);
+                    contents += result + "\n";
+                });
+            }
+        });
+        fs.writeFileSync(configtxPath, contents);
+        logger.info('Added a new org to configtx.yaml at path: ' + configtxPath);
+
+//        let neworg = JSON.parse(JSON.stringify(configtx['Organizations'][1]));
+//        let orgname = neworg['Name'];
+//        let mspdir = neworg['MSPDir'];
+//        console.log("Neworg: " + util.inspect(neworg));
+//        neworg['Name'] = org;
+//        neworg['ID'] = org + 'MSP';
+//        neworg['MSPDir'] = mspdir.replace(orgname, org);
+//        neworg['Policies']['Readers']['Rule'] = neworg['Policies']['Readers']['Rule'].replace(orgname, org);
+//        neworg['Policies']['Writers']['Rule'] = neworg['Policies']['Writers']['Rule'].replace(orgname, org);
+//        neworg['Policies']['Admins']['Rule'] = neworg['Policies']['Admins']['Rule'].replace(orgname, org);
+//        console.log("Neworg: " + util.inspect(neworg));
+//        configtx['Organizations'].push(neworg);
+//        logger.info('Configtx updated with org: ' + util.inspect(configtx));
+//        saveConfigtx(configtxPath);
         return {"status":200,"message":"Org added to configtx.yaml: " + org}
     } catch (error) {
         logger.error('Failed to addOrg: ' + error);
@@ -164,25 +181,37 @@ async function addOrg(configtxPath, args) {
 
 
 // This will create a new profile in configtx.yaml, which can be used for creating new channels
+// I have tried to edit this file using the js-yaml, yaml libraries. Neither of them support anchors in YAML, so
+// the resulting YAML is written incorrectly and cannot be processed by configtxgen. I've therefore taken to
+// manually reading and writing the file, without using YAML
 async function addConfigtxProfile(configtxPath, args) {
 
     let profileName = args['profilename'];
     let orgs = args['orgs'];
     try {
-        logger.info('addConfigtxProfile called with profile: ' + util.inspect(profileName) + ' orgs: ' + util.inspect(orgs));
-        logger.info('Backing up original configtx.yaml at path: ' + configtxPath);
+        // Backup the original configtx.yaml
         let filename = configtxPath + Math.floor(Date.now() / 1000);
+        logger.info('addConfigtxProfile called with profile: ' + util.inspect(profileName) + ' orgs: ' + util.inspect(orgs));
+        logger.info('Backing up original configtx.yaml at path: ' + configtxPath + '. Backup file titled: ' + filename);
         fs.copyFileSync(configtxPath, filename);
-        fs.readFileSync(filename).toString().split('\n').forEach(function (line) {
-            fs.appendFileSync(configtxPath, line.toString() + "\n");
-            if (line.toString().indexOf("Profiles:") > -1) {
+        let fd;
+
+        // Use the template to add a new profile to configtx.yaml
+        try {
                 fs.readFile('./templates/profile.yaml', 'utf8', function(err, data) {
                     if (err) throw err;
                     var result = data.replace(/%profile%/g, profileName);
-                    fs.appendFileSync(configtxPath, data.toString() + "\n");
+                    fd = fs.openSync(configtxPath, 'a');
+                    fs.appendFileSync(fd, result, 'utf8');
                 });
-            }
-        });
+        } catch (err) {
+            logger.error('Failed to addConfigtxProfile: ' + error);
+        } finally {
+            if (fd !== undefined)
+                fs.closeSync(fd);
+        }
+
+        logger.info('Appended a new profile to configtx.yaml at path: ' + configtxPath);
 
 //        let orgsInConfig = await getOrgs(configtxPath);
 //        logger.info('addConfigtxProfile orgs already in config: ' + util.inspect(orgsInConfig));
