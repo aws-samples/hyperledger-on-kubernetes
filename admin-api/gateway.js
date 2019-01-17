@@ -17,6 +17,7 @@ const { exec } = require('child_process');
 let configtxContents = '';
 let configtxFilename = 'configtx.yaml'
 let ccp = yaml.safeLoad(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
+let client;
 
 async function enrollAdmin() {
     try {
@@ -59,13 +60,12 @@ async function adminGateway() {
         logger.info('Connecting to Fabric gateway.');
 
         await gateway.connect(ccp, connectionOptions);
-
+        client = gateway.getClient();
 }
 
 async function listNetwork() {
 
     logger.info('Printing out the Fabric network');
-    let client = gateway.getClient();
     logger.info('Client: ' + util.inspect(client));
     logger.info('ClientConfig: ' + util.inspect(client.getClientConfig()));
     let msp = client.getMspid();
