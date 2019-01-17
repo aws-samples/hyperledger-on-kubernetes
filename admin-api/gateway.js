@@ -303,7 +303,7 @@ async function createChannel(configtxPath, args) {
 
         // this call will return a Promise
         let response = await client.createChannel(request);
-        logger.info('Channel created - response: ' + response);
+        logger.info('Channel created - response: ' + util.inspect(response));
 
     } catch (error) {
         logger.error('Failed to createChannel: ' + error);
