@@ -133,7 +133,7 @@ async function getProfiles(configtxPath) {
         return profiles;
     } catch (error) {
         logger.error('Failed to getProfiles: ' + error);
-        throws error;
+        throw error;
     }
 }
 

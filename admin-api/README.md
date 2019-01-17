@@ -92,6 +92,10 @@ response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/listNetwork)
 echo $response
 
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/getorgs)  
+echo $response
+
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/getprofiles)  
+echo $response
 
 // This should fail as org4 does not exist in the configtx.yaml
 PROFILENAME=org4profile;
