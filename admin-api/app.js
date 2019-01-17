@@ -167,12 +167,20 @@ app.get('/loadconfigtx', awaitHandler(async (req, res) => {
 	logger.info('##### GET on loadconfigtx - completed');
 }));
 
-// Loads the configtx defined for this Fabric network, and prints out the key info such as orgs
+// Loads the configtx defined for this Fabric network, and prints out the orgs
 app.get('/getorgs', awaitHandler(async (req, res) => {
 	logger.info('================ GET on getorgs');
 	logger.info('##### End point : /getorgs');
     await gateway.getOrgs(hfc.getConfigSetting('configtx-path'));
 	logger.info('##### GET on getorgs - completed');
+}));
+
+// Loads the configtx defined for this Fabric network, and prints out the profiles
+app.get('/getprofiles', awaitHandler(async (req, res) => {
+	logger.info('================ GET on getprofiles');
+	logger.info('##### End point : /getprofiles');
+    await gateway.getProfiles(hfc.getConfigSetting('configtx-path'));
+	logger.info('##### GET on getprofiles - completed');
 }));
 
 // Add a new org to configtx.yaml

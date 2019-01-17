@@ -108,7 +108,6 @@ async function getOrgs(configtxPath) {
 
     let orgs = [];
     try {
-        logger.info('Reading the Fabric configtx.yaml at path: ' + configtxPath);
         await loadConfigtx(configtxPath);
         for (let org in configtx['Organizations']) {
             console.log("Orgs in this network are: " + configtx['Organizations'][org]['Name'] + ' with MSP ' + configtx['Organizations'][org]['ID']);
@@ -117,6 +116,24 @@ async function getOrgs(configtxPath) {
         return orgs;
     } catch (error) {
         logger.error('Failed to getOrgs: ' + error);
+        throw error;
+    }
+}
+
+
+async function getProfiles(configtxPath) {
+
+    let profiles = [];
+    try {
+        await loadConfigtx(configtxPath);
+        for (let profile in configtx['Profiles']) {
+            console.log("Profiles in this network are: " + configtx['Profiles'][profile]);
+            profiles.push(configtx['Profiles'][profile]);
+        }
+        return profiles;
+    } catch (error) {
+        logger.error('Failed to getProfiles: ' + error);
+        throws error;
     }
 }
 
@@ -182,6 +199,12 @@ async function addConfigtxProfile(configtxPath, args) {
     let profileName = args['profilename'];
     let orgs = args['orgs'];
     try {
+        let profilesInConfig = await getProfiles(configtxPath);
+        //Check that the new profile to be added does not already exist in configtx.yaml
+        if (profilesInConfig.indexOf(profileName) > -1) {
+            logger.error('Profile: ' + profileName + ' already exists in configtx.yaml. These profiles are already present: ' + profilesInConfig);
+            return;
+        }
         await backupConfigtx(configtxPath);
         let fd;
 
@@ -270,5 +293,6 @@ exports.listNetwork = listNetwork;
 exports.loadConfigtx = loadConfigtx;
 exports.addOrg = addOrg;
 exports.getOrgs = getOrgs;
+exports.getProfiles = getProfiles;
 exports.addConfigtxProfile = addConfigtxProfile;
 exports.createTransactionConfig = createTransactionConfig;
