@@ -287,7 +287,8 @@ async function createChannel(configtxPath, args) {
         signatures.push(signature);
         // create an orderer object to represent the orderer of the network
         logger.info('Connecting to orderer: ' + ordererUrl);
-        var orderer = client.newOrderer(ordererUrl, {"pem":"/opt/share/rca-data/org0-ca-chain.pem"});
+        var orderer = client.newOrderer(ordererUrl);
+//        var orderer = client.newOrderer(ordererUrl, {"pem":"/opt/share/rca-data/org0-ca-chain.pem"});
 
         // have the SDK generate a transaction id
         let tx_id = client.newTransactionID();

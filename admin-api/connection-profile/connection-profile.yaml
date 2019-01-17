@@ -27,15 +27,15 @@ organizations:
 
 orderers:
   orderer3-org0.org0:
-    url: grpcs://a27d67024149a11e9b99c0a474a321b2-077bc484b0b7447e.elb.ap-northeast-1.amazonaws.com:7050
+    url: grpc://a27d67024149a11e9b99c0a474a321b2-077bc484b0b7447e.elb.ap-northeast-1.amazonaws.com:7050
     grpcOptions:
       ssl-target-name-override: null
       verify: false
 
 peers:
   peer1-org1.org1:
-    url: grpcs://a356c5bbd149a11e9b056065bcb9591f-8126999b12ac9d8f.elb.ap-northeast-1.amazonaws.com:7051
-    eventUrl: grpcs://a356c5bbd149a11e9b056065bcb9591f-8126999b12ac9d8f.elb.ap-northeast-1.amazonaws.com:7052
+    url: grpc://a356c5bbd149a11e9b056065bcb9591f-8126999b12ac9d8f.elb.ap-northeast-1.amazonaws.com:7051
+    eventUrl: grpc://a356c5bbd149a11e9b056065bcb9591f-8126999b12ac9d8f.elb.ap-northeast-1.amazonaws.com:7052
     grpcOptions:
       ssl-target-name-override: null
       verify: false
