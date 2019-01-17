@@ -14,7 +14,8 @@ const wallet = new FileSystemWallet(walletPath);
 const gateway = new Gateway();
 const { exec } = require('child_process');
 
-let configtx = '';
+let configtxContents = '';
+let configtxFilename = 'configtx.yaml'
 
 async function enrollAdmin() {
     try {
@@ -46,8 +47,7 @@ async function enrollAdmin() {
 }
 async function adminGateway() {
 
-//        let ccp = yaml.safeLoad(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
-        let ccp = yaml.parse(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
+        let ccp = yaml.safeLoad(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
 
         // Set connection options; identity and wallet
         let connectionOptions = {
@@ -79,9 +79,8 @@ async function listNetwork() {
 async function loadConfigtx(configtxPath) {
 
     try {
-        logger.info('Loading the Fabric configtx.yaml at path: ' + configtxPath);
-        configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
-//        configtx = yaml.parse(fs.readFileSync(configtxPath, 'utf8'));
+        logger.info('Loading the Fabric configtx.yaml at path: ' + path.join(configtxPath, configtxFilename));
+        configtxContents = yaml.safeLoad(fs.readFileSync(path.join(configtxPath, configtxFilename), 'utf8'));
         logger.info('Configtx loaded at path: ' + configtxPath);
     } catch (error) {
         logger.error('Failed to loadConfigtx: ' + error);
@@ -94,9 +93,9 @@ async function backupConfigtx(configtxPath) {
 
     try {
         // Backup the original configtx.yaml
-        let filename = configtxPath + Math.floor(Date.now() / 1000);
+        let filename = path.join(configtxPath, configtxFilename + Math.floor(Date.now() / 1000));
         logger.info('Backing up original configtx.yaml at path: ' + configtxPath + '. Backup file titled: ' + filename);
-        fs.copyFileSync(configtxPath, filename);
+        fs.copyFileSync(path.join(configtxPath, configtxFilename), filename);
     } catch (error) {
         logger.error('Failed to backup Configtx: ' + error);
         throw error;
@@ -110,8 +109,8 @@ async function getOrgs(configtxPath) {
     try {
         await loadConfigtx(configtxPath);
         for (let org in configtx['Organizations']) {
-            logger.info("Orgs in this network are: " + configtx['Organizations'][org]['Name'] + ' with MSP ' + configtx['Organizations'][org]['ID']);
-            orgs.push(configtx['Organizations'][org]['Name']);
+            logger.info("Orgs in this network are: " + configtxContents['Organizations'][org]['Name'] + ' with MSP ' + configtxContents['Organizations'][org]['ID']);
+            orgs.push(configtxContents['Organizations'][org]['Name']);
         }
         return orgs;
     } catch (error) {
@@ -126,9 +125,9 @@ async function getProfiles(configtxPath) {
     let profiles = [];
     try {
         await loadConfigtx(configtxPath);
-        for (let profile in configtx['Profiles']) {
+        for (let profile in configtxContents['Profiles']) {
             logger.info("Profiles in this network are: " + profile);
-            profiles.push(configtx['Profiles'][profile]);
+            profiles.push(configtxContents['Profiles'][profile]);
         }
         return profiles;
     } catch (error) {
@@ -155,7 +154,7 @@ async function addOrg(configtxPath, args) {
 
         // Use the template to add a new org to configtx.yaml
         let contents = "";
-        fs.readFileSync(configtxPath).toString().split('\n').forEach(function (line) {
+        fs.readFileSync(path.join(configtxPath, configtxFilename)).toString().split('\n').forEach(function (line) {
             contents += line + "\n";
             let ix = line.toString().indexOf("Organizations:");
             if (ix > -1 && ix < 2) {
@@ -166,23 +165,8 @@ async function addOrg(configtxPath, args) {
                 logger.info('Added new org section to configtx.yaml');
             }
         });
-        fs.writeFileSync(configtxPath, contents);
+        fs.writeFileSync(configtxPath + configtxFilename, contents);
         logger.info('Added a new org to configtx.yaml at path: ' + configtxPath);
-
-//        let neworg = JSON.parse(JSON.stringify(configtx['Organizations'][1]));
-//        let orgname = neworg['Name'];
-//        let mspdir = neworg['MSPDir'];
-//        logger.info("Neworg: " + util.inspect(neworg));
-//        neworg['Name'] = org;
-//        neworg['ID'] = org + 'MSP';
-//        neworg['MSPDir'] = mspdir.replace(orgname, org);
-//        neworg['Policies']['Readers']['Rule'] = neworg['Policies']['Readers']['Rule'].replace(orgname, org);
-//        neworg['Policies']['Writers']['Rule'] = neworg['Policies']['Writers']['Rule'].replace(orgname, org);
-//        neworg['Policies']['Admins']['Rule'] = neworg['Policies']['Admins']['Rule'].replace(orgname, org);
-//        logger.info("Neworg: " + util.inspect(neworg));
-//        configtx['Organizations'].push(neworg);
-//        logger.info('Configtx updated with org: ' + util.inspect(configtx));
-//        saveConfigtx(configtxPath);
         return {"status":200,"message":"Org added to configtx.yaml: " + org}
     } catch (error) {
         logger.error('Failed to addOrg: ' + error);
@@ -232,7 +216,7 @@ async function addConfigtxProfile(configtxPath, args) {
                             result = result.slice(0, ix) + result.slice(ix + 9);
                         }
                     }
-                    fd = fs.openSync(configtxPath, 'a');
+                    fd = fs.openSync(path.join(configtxPath, configtxFilename), 'a');
                     fs.appendFileSync(fd, result, 'utf8');
                     logger.info('Appending a new profile to configtx.yaml: ' + result);
 
@@ -245,24 +229,6 @@ async function addConfigtxProfile(configtxPath, args) {
         }
 
         logger.info('Appended a new profile to configtx.yaml at path: ' + configtxPath);
-
-//        let orgsInConfig = await getOrgs(configtxPath);
-//        logger.info('addConfigtxProfile orgs already in config: ' + util.inspect(orgsInConfig));
-//        //Check that the orgs to be added to the profile already exist in configtx.yaml
-//        for (let org of orgs) {
-//            logger.info('addConfigtxProfile checking whether org exists: ' + util.inspect(org));
-//            if (orgsInConfig.indexOf(org) < 0) {
-//                logger.error('Org: ' + org + ' does not exist in configtx.yaml. It cannot be added to a profile');
-//                return;
-//            }
-//        }
-//        //Copy an existing profile. We use the 2nd profile because the first belongs to the orderer
-//        let newprofile = JSON.parse(JSON.stringify(configtx['Profiles']['OrgsChannel']));
-//        logger.info('addConfigtxProfile - newprofile is: ' + util.inspect(newprofile));
-//        newprofile['Application']['Organizations'] = orgs;
-//        configtx['Profiles'][profileName] = newprofile;
-//        logger.info('Configtx updated with profile: ' + util.inspect(configtx));
-//        saveConfigtx(configtxPath);
         return {"status":200,"message":"Profile added to configtx.yaml: " + profileName}
     } catch (error) {
         logger.error('Failed to addConfigtxProfile: ' + error);
@@ -279,7 +245,12 @@ async function createTransactionConfig(configtxPath, args) {
         logger.error('Both profileName and channelName must be provided to generate a transaction config');
         logger.error('Failed to createTransactionConfig');
     }
-    let configtxPathDir = path.dirname(configtxPath);
+    let profilesInConfig = await getProfiles(configtxPath);
+    //Check that the new profile to be added does not already exist in configtx.yaml
+    if (profilesInConfig.indexOf(profileName) < 0) {
+        logger.error('Profile: ' + profileName + ' does not exist in configtx.yaml - cannot generate a transaction config. These profiles are already present: ' + profilesInConfig);
+        return;
+    }
     let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"cd /data; export FABRIC_CFG_PATH=/data; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName + "\"";
 
     try {
@@ -302,6 +273,41 @@ async function createTransactionConfig(configtxPath, args) {
     }
 }
 
+async function createChannel(configtxPath, args) {
+
+    let channelName = args['channelname'];
+    let ordererUrl = ccp.orderers[0].url;
+    logger.info('Creating channel: ' + channelName + ' using transaction config file: ' + channelName + ".tx");
+    try {
+        // first read in the file, this gives us a binary config envelope
+        let envelope_bytes = fs.readFileSync(path.join(configtxPath, channelName + ".tx"));
+        // have the nodeSDK extract out the config update
+        var config_update = client.extractChannelConfig(envelope_bytes);
+        var signature = client.signChannelConfig(config_update);
+        signatures.push(signature);
+        // create an orderer object to represent the orderer of the network
+        logger.info('Connecting to orderer: ' + ordererUrl);
+        var orderer = client.newOrderer(ordererUrl);
+
+        // have the SDK generate a transaction id
+        let tx_id = client.newTransactionID();
+
+        request = {
+          config: config_update, //the binary config
+          signatures : signatures, // the collected signatures
+          name : channelName, // the channel name
+          orderer : orderer, //the orderer from above
+          txId  : tx_id //the generated transaction id
+        };
+
+        // this call will return a Promise
+        client.createChannel(request)
+    } catch (error) {
+        logger.error('Failed to createChannel: ' + error);
+        throw error;
+    }
+}
+
 exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
 exports.listNetwork = listNetwork;
@@ -311,3 +317,4 @@ exports.getOrgs = getOrgs;
 exports.getProfiles = getProfiles;
 exports.addConfigtxProfile = addConfigtxProfile;
 exports.createTransactionConfig = createTransactionConfig;
+exports.createChannel = createChannel;

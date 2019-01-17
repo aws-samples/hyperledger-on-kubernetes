@@ -233,6 +233,22 @@ app.post('/genchannelconfig', awaitHandler(async (req, res) => {
 	}
 }));
 
+// Generate a new channel transaction config using a profile in configtx.yaml
+app.post('/createchannel', awaitHandler(async (req, res) => {
+	logger.info('================ POST on createchannel');
+	let args = req.body;
+	logger.info('##### End point : /createchannel');
+	logger.info('##### POST on createchannel - args : ' + JSON.stringify(args));
+	let response = gateway.createChannel(hfc.getConfigSetting('configtx-path'), args);
+	logger.info('##### POST on createchannel - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on createchannel failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
 /************************************************************************************
  * Error handler
  ************************************************************************************/
