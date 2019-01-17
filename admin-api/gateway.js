@@ -193,7 +193,12 @@ async function addConfigtxProfile(configtxPath, args) {
                     let ix = result.toString().indexOf("%org%");
                     if (ix > -1) {
                         for (let org of orgs) {
-                            result = result.slice(0, ix) + org + "\n            - *" + result.slice(ix + 5);
+                            result = result.slice(0, ix) + org + "\n            - *" + result.slice(ix);
+                        }
+                        //Insert the new orgs before the placeholder %org%, then remove the placeholder
+                        ix = result.toString().indexOf("- *%org%");
+                        if (ix > -1) {
+                            result = result.slice(0, ix) + result.slice(ix + 9);
                         }
                     }
                     fd = fs.openSync(configtxPath, 'a');
