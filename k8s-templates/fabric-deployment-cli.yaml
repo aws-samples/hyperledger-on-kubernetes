@@ -41,6 +41,7 @@ spec:
          env:
           - name: GOPATH
             value: /opt/gopath
+         command: ["sh"]
          volumeMounts:
           - mountPath: /scripts
             name: rca-scripts

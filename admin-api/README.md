@@ -39,6 +39,14 @@ Change the ownership of the configtx.yaml file, as we will edit it using this ap
 ```bash
 sudo chown ec2-user /opt/share/rca-data/configtx.yaml
 ```
+
+Run the Fabric CLI pod:
+
+```bash
+cd ~
+cd hyperledger-on-kubernetes
+kubectl apply -f k8s/fabric-deployment-cli-org0.yaml     
+```
 ## Step 1 - Install Node
 On the Fabric client node.
 
@@ -74,7 +82,7 @@ The app accesses the Fabric network based on the information provided in the con
 Connection profile points to a CA (an ICA in our case), which is exposed via an NLB. To start these, run these commands:
 
 ```bash
-cd
+cd ~
 cd hyperledger-on-kubernetes
 kubectl apply -f k8s/fabric-deployment-ica-notls-org1.yaml 
 kubectl apply -f k8s/fabric-nlb-ca-org1.yaml
