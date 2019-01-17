@@ -274,12 +274,14 @@ async function createTransactionConfig(configtxPath, args) {
 
     let profileName = args['profilename'];
     let channelName = args['channelname'];
+    logger.info('Generating a transaction config for profile/channel: ' + args);
     if (!(profileName && channelName)) {
         logger.error('Both profileName and channelName must be provided to generate a transaction config');
         logger.error('Failed to createTransactionConfig');
     }
     let configtxPathDir = path.dirname(configtxPath);
-    let cmd = "cd " + configtxPathDir + "; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName;
+    let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"cd /data; export FABRIC_CFG_PATH=/data; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName + "\"";
+
     try {
         logger.info('Generating channel configuration: ' + cmd);
         exec(cmd, (err, stdout, stderr) => {
@@ -294,6 +296,7 @@ async function createTransactionConfig(configtxPath, args) {
         logger.info(`stdout: ${stdout}`);
         logger.info(`stderr: ${stderr}`);
         });
+        logger.info('Generated a transaction config for profile/channel: ' + args + ". Check ls -lt /opt/share/rca-data for the latest .tx file");
     } catch (error) {
         logger.error('Failed to createTransactionConfig: ' + error);
     }
