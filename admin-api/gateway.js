@@ -128,7 +128,7 @@ async function getProfiles(configtxPath) {
         await loadConfigtx(configtxPath);
         logger.info("Profiles in this network are: " + Object.keys(configtx['Profiles']))
         for (let profile in configtx['Profiles']) {
-            logger.info("Profiles in this network are: " + Object.keys(configtx['Profiles'][profile]) + " with orgs: " + Object.keys(configtx['Profiles']['Application']['Organizations']));
+            logger.info("Profiles in this network are: " + Object.keys(configtx['Profiles'][profile]) + " with orgs: " + Object.keys(configtx['Profiles'][profile]['Application']['Organizations']));
             profiles.push(configtx['Profiles'][profile]);
         }
         return profiles;
