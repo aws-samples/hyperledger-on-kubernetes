@@ -42,6 +42,7 @@ spec:
           - name: GOPATH
             value: /opt/gopath
          command: ["sh"]
+         args:  ["-c", "while true; do sleep 90; done;"]
          volumeMounts:
           - mountPath: /scripts
             name: rca-scripts
