@@ -82,7 +82,7 @@ async function loadConfigtx(configtxPath) {
         logger.info('Loading the Fabric configtx.yaml at path: ' + configtxPath);
         configtx = yaml.safeLoad(fs.readFileSync(configtxPath, 'utf8'));
 //        configtx = yaml.parse(fs.readFileSync(configtxPath, 'utf8'));
-        logger.info('Configtx loaded: ' + util.inspect(configtx));
+        logger.info('Configtx loaded at path: ' + configtxPath);
     } catch (error) {
         logger.error('Failed to loadConfigtx: ' + error);
     }
@@ -96,7 +96,7 @@ async function backupConfigtx(configtxPath) {
         let filename = configtxPath + Math.floor(Date.now() / 1000);
         logger.info('Backing up original configtx.yaml at path: ' + configtxPath + '. Backup file titled: ' + filename);
         fs.copyFileSync(configtxPath, filename);
-        logger.info('Configtx saved: ' + util.inspect(configtx));
+        logger.info('Configtx saved at path: ' + configtxPath);
     } catch (error) {
         logger.error('Failed to backup Configtx: ' + error);
     }
@@ -137,7 +137,7 @@ async function addOrg(configtxPath, args) {
 
         // Use the template to add a new org to configtx.yaml
         let contents = "";
-        fs.readFileSync(filename).toString().split('\n').forEach(function (line) {
+        fs.readFileSync(configtxPath).toString().split('\n').forEach(function (line) {
             contents += line + "\n";
             let ix = line.toString().indexOf("Organizations:");
             if (ix > -1 && ix < 2) {
