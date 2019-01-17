@@ -274,6 +274,10 @@ async function createTransactionConfig(configtxPath, args) {
 
     let profileName = args['profilename'];
     let channelName = args['channelname'];
+    if (!(profileName && channelName)) {
+        logger.error('Both profileName and channelName must be provided to generate a transaction config');
+        logger.error('Failed to createTransactionConfig');
+    }
     let configtxPathDir = path.dirname(configtxPath);
     let cmd = "cd " + configtxPathDir + "; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName;
     try {

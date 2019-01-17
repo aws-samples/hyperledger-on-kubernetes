@@ -130,6 +130,14 @@ function genRegisterOrderer {
     done
 }
 
+function genCLI {
+    log "Generating CLI K8s YAML files"
+    for ORG in $ORDERER_ORGS; do
+        getDomain $ORG
+        sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-cli.yaml > ${K8SYAML}/fabric-deployment-cli-$ORG.yaml
+    done
+}
+
 function genRegisterPeers {
     log "Generating Register Peer K8s YAML files"
     for ORG in $PEER_ORGS; do

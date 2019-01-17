@@ -108,9 +108,22 @@ ORG=org4;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addorg -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
 echo $response
 
+PROFILENAME=org4profile;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org4"]}')
 echo $response
 
+// This should fail as the certificates do not exist for the new org
+PROFILENAME=org4profile;
 CHANNELNAME=org4channel;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/genchannelconfig -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
 echo $response
+
+PROFILENAME=org2profile;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org2"]}')
+echo $response
+
+PROFILENAME=org2profile;
+CHANNELNAME=org2channel;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/genchannelconfig -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
+echo $response
+

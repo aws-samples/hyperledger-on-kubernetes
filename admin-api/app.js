@@ -171,7 +171,8 @@ app.get('/loadconfigtx', awaitHandler(async (req, res) => {
 app.get('/getorgs', awaitHandler(async (req, res) => {
 	logger.info('================ GET on getorgs');
 	logger.info('##### End point : /getorgs');
-    await gateway.getOrgs(hfc.getConfigSetting('configtx-path'));
+    let response = await gateway.getOrgs(hfc.getConfigSetting('configtx-path'));
+    res.json({success: true, message: response});
 	logger.info('##### GET on getorgs - completed');
 }));
 
@@ -179,7 +180,8 @@ app.get('/getorgs', awaitHandler(async (req, res) => {
 app.get('/getprofiles', awaitHandler(async (req, res) => {
 	logger.info('================ GET on getprofiles');
 	logger.info('##### End point : /getprofiles');
-    await gateway.getProfiles(hfc.getConfigSetting('configtx-path'));
+    response = await gateway.getProfiles(hfc.getConfigSetting('configtx-path'));
+    res.json({success: true, message: response});
 	logger.info('##### GET on getprofiles - completed');
 }));
 
