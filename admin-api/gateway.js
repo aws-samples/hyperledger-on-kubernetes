@@ -151,7 +151,7 @@ async function addOrg(configtxPath, args) {
             let ix = line.toString().indexOf("Organizations:");
             if (ix > -1 && ix < 2) {
                 logger.info('Found the Organizations section in configtx.yaml - writing new org here');
-                data = fs.readFileSync ('./templates/org.yaml', 'utf8');
+                let data = fs.readFileSync ('./templates/org.yaml', 'utf8');
                 let result = data.replace(/%org%/g, org);
                 contents += result + "\n";
                 logger.info('Add this new org section to configtx.yaml: ' + result);
