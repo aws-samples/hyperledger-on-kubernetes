@@ -327,9 +327,9 @@ async function createChannel(configtxPath, args) {
 
         let request = {
           config: config_update, //the binary config
-          signatures : signatures, // the collected signatures
+          signatures : [signature], // the collected signatures
           name : channelName, // the channel name
-          orderer : orderer, //the orderer from above
+          //orderer : orderer, //the orderer from above
           txId  : tx_id //the generated transaction id
         };
 

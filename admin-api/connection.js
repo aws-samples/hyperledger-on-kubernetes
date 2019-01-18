@@ -62,9 +62,6 @@ var getRegisteredUser = async function(args, isJson) {
 		} else {
 			// user was not enrolled, so we will need an admin user object to register
 			logger.info('##### getRegisteredUser - User %s was not enrolled, so we will need an admin user object to register', username);
-			logger.info('##### getRegisteredUser - Got Client %s', util.inspect(Client));
-			var admins = Client.getConfigSetting('admins');
-			logger.info('##### getRegisteredUser - Got admin property %s', util.inspect(admins));
 			let caClient = client.getCertificateAuthority();
 			logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(caClient));
 			let adminUserObj = await client.setUserContext({username: caClient._registrar[0].enrollId, password: caClient._registrar[0].enrollSecret});
