@@ -15,11 +15,9 @@
 */
 
 'use strict';
-var log4js = require('log4js');
-var logger = log4js.getLogger('Connection');
+const Client = require('fabric-client');
+const logger = Client.getLogger('Connection');
 var util = require('util');
-var hfc = require('fabric-client');
-hfc.setLogger(logger);
 
 
 async function getClientForOrg (userorg, username) {
@@ -31,7 +29,7 @@ async function getClientForOrg (userorg, username) {
     logger.info('##### getClient - Loading connection profiles from file: %s and %s', config, clientConfig);
 
     // Load the connection profiles. First load the network settings, then load the client specific settings
-    let client = hfc.loadFromConfig(config);
+    let client = Client.loadFromConfig(config);
     client.loadFromConfig(clientConfig);
 
 	// Create the state store and the crypto store 
@@ -64,8 +62,8 @@ var getRegisteredUser = async function(args, isJson) {
 		} else {
 			// user was not enrolled, so we will need an admin user object to register
 			logger.info('##### getRegisteredUser - User %s was not enrolled, so we will need an admin user object to register', username);
-			logger.info('##### getRegisteredUser - Got hfc %s', util.inspect(hfc));
-			var admins = hfc.getConfigSetting('admins');
+			logger.info('##### getRegisteredUser - Got Client %s', util.inspect(Client));
+			var admins = Client.getConfigSetting('admins');
 			logger.info('##### getRegisteredUser - Got admin property %s', util.inspect(admins));
 			let adminUserObj = await client.setUserContext({username: admins[0].username, password: admins[0].secret});
 			logger.info('##### getRegisteredUser - Got adminUserObj property %s', util.inspect(admins));
