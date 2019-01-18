@@ -285,18 +285,24 @@ async function createChannel(configtxPath, args) {
         // have the nodeSDK extract out the config update
         var config_update = client.extractChannelConfig(envelope_bytes);
 
-        //get the client used to sign the package
-        let userorg = "org1";
-        let username = userorg + 'user';
-        let userdetails = {"username":username,"org":userorg};
-    	let response = await connection.getRegisteredUser(userdetails, true);
-        logger.info('getRegisteredUser response: ' + util.inspect(response));
-        client = await connection.getClientForOrg(userorg, username);
-        if(!client) {
-			throw new Error(util.format('User was not found :', username));
-		} else {
-			logger.debug('User %s was found to be registered and enrolled', username);
-        }
+//        //get the client used to sign the package
+//        let userorg = "org1";
+//        let username = userorg + 'user';
+//        let userdetails = {"username":username,"org":userorg};
+//    	let response = await connection.getRegisteredUser(userdetails, true);
+//        logger.info('getRegisteredUser response: ' + util.inspect(response));
+//        client = await connection.getClientForOrg(userorg, username);
+//        if(!client) {
+//			throw new Error(util.format('User was not found :', username));
+//		} else {
+//			logger.debug('User %s was found to be registered and enrolled', username);
+//        }
+
+
+        let caClient = client.getCertificateAuthority();
+        logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(caClient));
+        let adminUserObj = await client.setUserContext({username: caClient._registrar[0].enrollId, password: caClient._registrar[0].enrollSecret});
+
         var signature = client.signChannelConfig(config_update);
         signatures.push(signature);
 
