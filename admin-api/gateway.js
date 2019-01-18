@@ -280,10 +280,14 @@ async function createChannel(configtxPath, args) {
     let signatures = [];
     logger.info('Creating channel: ' + channelName + ' using transaction config file: ' + channelName + ".tx");
     try {
+        let caClient = client.getCertificateAuthority();
+        logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(caClient));
+        let adminUserObj = await client.setUserContext({username: caClient._registrar[0].enrollId, password: caClient._registrar[0].enrollSecret});
+
         // first read in the file, this gives us a binary config envelope
         let envelope_bytes = fs.readFileSync(path.join(configtxPath, channelName + ".tx"));
         // have the nodeSDK extract out the config update
-        var config_update = client.extractChannelConfig(envelope_bytes);
+        var config_update = await client.extractChannelConfig(envelope_bytes);
 
 //        //get the client used to sign the package
 //        let userorg = "org1";
@@ -299,9 +303,6 @@ async function createChannel(configtxPath, args) {
 //        }
 
 
-        let caClient = client.getCertificateAuthority();
-        logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(caClient));
-        let adminUserObj = await client.setUserContext({username: caClient._registrar[0].enrollId, password: caClient._registrar[0].enrollSecret});
 
         var signature = client.signChannelConfig(config_update);
         signatures.push(signature);
