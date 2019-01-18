@@ -70,4 +70,4 @@ certificateAuthorities:
     registrar:
       - enrollId: admin-org2
         enrollSecret: admin-org2pw
-    caName: ica-notls-org2.org2
+    caName: ica-org2.org2
