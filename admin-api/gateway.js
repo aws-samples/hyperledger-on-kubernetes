@@ -292,7 +292,7 @@ async function createChannel(configtxPath, args) {
         logger.info('gateway getCryptoSuite: ' + util.inspect(client.getCryptoSuite()));
         logger.info('gateway getMspid: ' + util.inspect(client.getMspid()));
 
-        let username = "admin";
+        let username = "michael";
         let user = await client.getUserContext(username, false);
         logger.info('gateway user: ' + util.inspect(user));
         if(!user) {
