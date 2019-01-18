@@ -286,7 +286,7 @@ async function createChannel(configtxPath, args) {
         let userdetails = {"username":"michael","org":"org1"};
     	let response = await connection.getRegisteredUser(userdetails, true);
         logger.info('getRegisteredUser response: ' + util.inspect(response));
-        client = await connection.getClientForOrg(username, userorg);
+        client = await connection.getClientForOrg(userorg, username);
         logger.info('gateway client: ' + util.inspect(client));
         if(!client) {
 			throw new Error(util.format('User was not found :', username));
