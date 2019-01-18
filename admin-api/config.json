@@ -7,12 +7,17 @@
     "hfc-logging": "{'debug':'console', 'info':'console'}",
     "configtx-path": "/opt/share/rca-data/",
     "peers":[
-        "peer1-org1.org1"
+        "peer1-org1.org1",
+        "peer1-org2.org2"
     ],
     "admins":[
        {
           "username":"admin-org1",
           "secret":"admin-org1pw"
+       },
+       {
+          "username":"admin-org2",
+          "secret":"admin-org2pw"
        }
     ]
  }
