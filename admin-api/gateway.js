@@ -280,13 +280,26 @@ async function createChannel(configtxPath, args) {
     let signatures = [];
     logger.info('Creating channel: ' + channelName + ' using transaction config file: ' + channelName + ".tx");
     try {
-        let userorg = "org1";
-        let username = userorg + 'user';
-        let userdetails = {"username":username,"org":userorg};
-    	let response = await connection.getRegisteredUser(userdetails, true);
-        let caClient = client.getCertificateAuthority();
-        logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(caClient));
-        let adminUserObj = await client.setUserContext({username: caClient._registrar[0].enrollId, password: caClient._registrar[0].enrollSecret});
+//        let userorg = "org1";
+//        let username = userorg + 'user';
+//        let userdetails = {"username":username,"org":userorg};
+//    	let response = await connection.getRegisteredUser(userdetails, true);
+//        let caClient = client.getCertificateAuthority();
+//        logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(caClient));
+//        let adminUserObj = await client.setUserContext({username: caClient._registrar[0].enrollId, password: caClient._registrar[0].enrollSecret});
+//
+        // Set connection options; identity and wallet
+        let connectionOptions = {
+          identity: 'admin',
+          wallet: wallet,
+          discovery: { enabled:true, asLocalhost:false }
+        };
+
+        // Connect to gateway using application specified parameters
+        logger.info('Connecting to Fabric gateway.');
+
+        await gateway.connect(ccp, connectionOptions);
+        client = gateway.getClient();
 
         // first read in the file, this gives us a binary config envelope
         let envelope_bytes = fs.readFileSync(path.join(configtxPath, channelName + ".tx"));
