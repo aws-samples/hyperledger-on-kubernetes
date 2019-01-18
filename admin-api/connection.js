@@ -65,10 +65,10 @@ var getRegisteredUser = async function(args, isJson) {
 			logger.info('##### getRegisteredUser - Got Client %s', util.inspect(Client));
 			var admins = Client.getConfigSetting('admins');
 			logger.info('##### getRegisteredUser - Got admin property %s', util.inspect(admins));
-			let adminUserObj = await client.setUserContext({username: admins[0].username, password: admins[0].secret});
-			logger.info('##### getRegisteredUser - Got adminUserObj property %s', util.inspect(admins));
 			let caClient = client.getCertificateAuthority();
-			logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(admins));
+			logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(caClient));
+			let adminUserObj = await client.setUserContext({username: admins[0].username, password: admins[0].secret});
+			logger.info('##### getRegisteredUser - Got adminUserObj property %s', util.inspect(adminUserObj));
 			let secret = await caClient.register({
 				enrollmentID: username
 			}, adminUserObj);
