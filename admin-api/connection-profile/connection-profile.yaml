@@ -3,15 +3,17 @@ x-type: "hlfv1"
 description: "Fabric Network"
 version: "1.0"
 
-client:
-  organization: org1
-
 channels:
   mychannel:
     orderers:
       - orderer3-org0.org0
     peers:
       peer1-org1.org1:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1-org2.org2:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -24,6 +26,12 @@ organizations:
       - peer1-org1.org1
     certificateAuthorities:
       - ca-org1
+  org2:
+    mspid: org2MSP
+    peers:
+      - peer1-org2.org2
+    certificateAuthorities:
+      - ca-org2
 
 orderers:
   orderer3-org0.org0:
@@ -39,6 +47,12 @@ peers:
     grpcOptions:
       ssl-target-name-override: null
       verify: false
+  peer1-org2.org2:
+    url: grpc://a35aff371149a11e9b99c0a474a321b2-80b3d2e96c9914ef.elb.ap-northeast-1.amazonaws.com:7051
+    eventUrl: grpc://a35aff371149a11e9b99c0a474a321b2-80b3d2e96c9914ef.elb.ap-northeast-1.amazonaws.com:7052
+    grpcOptions:
+      ssl-target-name-override: null
+      verify: false
 
 certificateAuthorities:
   ca-org1:
@@ -49,3 +63,11 @@ certificateAuthorities:
       - enrollId: admin-org1
         enrollSecret: admin-org1pw
     caName: ica-notls-org1.org1
+  ca-org2:
+    url: http://ab04a7f9717ac11e9b99c0a474a321b2-2e24b91adb9f9388.elb.ap-northeast-1.amazonaws.com:7054
+    httpOptions:
+      verify: false
+    registrar:
+      - enrollId: admin-org2
+        enrollSecret: admin-org2pw
+    caName: ica-notls-org2.org2
