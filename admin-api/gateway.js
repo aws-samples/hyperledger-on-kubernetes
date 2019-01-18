@@ -291,6 +291,14 @@ async function createChannel(configtxPath, args) {
         logger.info('gateway getClientConfig: ' + util.inspect(client.getClientConfig()));
         logger.info('gateway getCryptoSuite: ' + util.inspect(client.getCryptoSuite()));
         logger.info('gateway getMspid: ' + util.inspect(client.getMspid()));
+
+        let username = "admin";
+        let user = await client.getUserContext(username, true);
+        if(!user) {
+			throw new Error(util.format('User was not found :', username));
+		} else {
+			logger.debug('User %s was found to be registered and enrolled', username);
+        }
         // create an orderer object to represent the orderer of the network
         logger.info('Connecting to orderer: ' + ordererUrl);
         var orderer = client.newOrderer(ordererUrl);
