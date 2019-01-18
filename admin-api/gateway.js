@@ -280,6 +280,10 @@ async function createChannel(configtxPath, args) {
     let signatures = [];
     logger.info('Creating channel: ' + channelName + ' using transaction config file: ' + channelName + ".tx");
     try {
+        let userorg = "org1";
+        let username = userorg + 'user';
+        let userdetails = {"username":username,"org":userorg};
+    	let response = await connection.getRegisteredUser(userdetails, true);
         let caClient = client.getCertificateAuthority();
         logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(caClient));
         let adminUserObj = await client.setUserContext({username: caClient._registrar[0].enrollId, password: caClient._registrar[0].enrollSecret});
