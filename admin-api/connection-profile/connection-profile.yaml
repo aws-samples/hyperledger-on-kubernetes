@@ -4,7 +4,7 @@ description: "Fabric Network"
 version: "1.0"
 
 channels:
-  mychannel:
+  org2channel:
     orderers:
       - orderer3-org0.org0
     peers:
