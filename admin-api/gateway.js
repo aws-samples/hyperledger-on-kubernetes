@@ -280,6 +280,19 @@ async function createChannel(configtxPath, args) {
     let signatures = [];
     logger.info('Creating channel: ' + channelName + ' using transaction config file: ' + channelName + ".tx");
     try {
+        //get the client used to sign the package
+        let username = "michael";
+        let userorg = "org1";
+        let userdetails = {"username":"michael","org":"org1"};
+    	let response = await connection.getRegisteredUser(userdetails, true);
+        logger.info('getRegisteredUser response: ' + util.inspect(response));
+        client = await connection.getClientForOrg(username, userorg);
+        logger.info('gateway client: ' + util.inspect(client));
+        if(!client) {
+			throw new Error(util.format('User was not found :', username));
+		} else {
+			logger.debug('User %s was found to be registered and enrolled', username);
+        }
         // first read in the file, this gives us a binary config envelope
         let envelope_bytes = fs.readFileSync(path.join(configtxPath, channelName + ".tx"));
         // have the nodeSDK extract out the config update
@@ -287,19 +300,6 @@ async function createChannel(configtxPath, args) {
         var signature = client.signChannelConfig(config_update);
         signatures.push(signature);
 
-        logger.info('gateway client: ' + util.inspect(gateway.getClient()));
-
-        let username = "michael";
-        let userdetails = {"username":"michael","org":"org1"};
-    	let response = await connection.getRegisteredUser(userdetails, true);
-        logger.info('getRegisteredUser response: ' + util.inspect(response));
-        let user = await client.getUserContext(username, false);
-        logger.info('gateway user: ' + util.inspect(user));
-        if(!user) {
-			throw new Error(util.format('User was not found :', username));
-		} else {
-			logger.debug('User %s was found to be registered and enrolled', username);
-        }
         // create an orderer object to represent the orderer of the network
         logger.info('Connecting to orderer: ' + ordererUrl);
         var orderer = client.newOrderer(ordererUrl);
