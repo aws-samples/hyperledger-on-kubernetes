@@ -92,6 +92,12 @@ kubectl apply -f k8s/fabric-nlb-ca-org1.yaml
 
 cp /opt/share/rca-data/configtx-orig.yaml /opt/share/rca-data/configtx.yaml
 
+export HFC_LOGGING='{"debug":"console","info":"console"}'
+
+nvm use lts/carbon
+
+node app.js &
+
 export ENDPOINT=localhost
 export PORT=3000
 echo connecting to server: $ENDPOINT:$PORT

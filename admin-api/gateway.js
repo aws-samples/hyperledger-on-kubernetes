@@ -285,6 +285,12 @@ async function createChannel(configtxPath, args) {
         var config_update = client.extractChannelConfig(envelope_bytes);
         var signature = client.signChannelConfig(config_update);
         signatures.push(signature);
+
+        logger.info('gateway client: ' + util.inspect(gateway.getClient()));
+        logger.info('gateway getCurrentIdentity: ' + util.inspect(gateway.getCurrentIdentity()));
+        logger.info('gateway getClientConfig: ' + util.inspect(client.getClientConfig()));
+        logger.info('gateway getCryptoSuite: ' + util.inspect(client.getCryptoSuite()));
+        logger.info('gateway getMspid: ' + util.inspect(client.getMspid()));
         // create an orderer object to represent the orderer of the network
         logger.info('Connecting to orderer: ' + ordererUrl);
         var orderer = client.newOrderer(ordererUrl);
