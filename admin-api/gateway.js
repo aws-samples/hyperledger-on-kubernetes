@@ -292,7 +292,6 @@ async function createChannel(configtxPath, args) {
     	let response = await connection.getRegisteredUser(userdetails, true);
         logger.info('getRegisteredUser response: ' + util.inspect(response));
         client = await connection.getClientForOrg(userorg, username);
-        logger.info('gateway client: ' + util.inspect(client));
         if(!client) {
 			throw new Error(util.format('User was not found :', username));
 		} else {
@@ -301,21 +300,20 @@ async function createChannel(configtxPath, args) {
         var signature = client.signChannelConfig(config_update);
         signatures.push(signature);
 
-        //get the client used to sign the package
-        userorg = "org2";
-        username = userorg + 'user';
-        userdetails = {"username":username,"org":userorg};
-    	response = await connection.getRegisteredUser(userdetails, true);
-        logger.info('getRegisteredUser response: ' + util.inspect(response));
-        client = await connection.getClientForOrg(userorg, username);
-        logger.info('gateway client: ' + util.inspect(client));
-        if(!client) {
-			throw new Error(util.format('User was not found :', username));
-		} else {
-			logger.debug('User %s was found to be registered and enrolled', username);
-        }
-        signature = client.signChannelConfig(config_update);
-        signatures.push(signature);
+//        //get the client used to sign the package
+//        userorg = "org2";
+//        username = userorg + 'user';
+//        userdetails = {"username":username,"org":userorg};
+//    	response = await connection.getRegisteredUser(userdetails, true);
+//        logger.info('getRegisteredUser response: ' + util.inspect(response));
+//        client = await connection.getClientForOrg(userorg, username);
+//        if(!client) {
+//			throw new Error(util.format('User was not found :', username));
+//		} else {
+//			logger.debug('User %s was found to be registered and enrolled', username);
+//        }
+//        signature = client.signChannelConfig(config_update);
+//        signatures.push(signature);
 
         // create an orderer object to represent the orderer of the network
         logger.info('Connecting to orderer: ' + ordererUrl);
