@@ -294,6 +294,7 @@ async function createChannel(configtxPath, args) {
 
         let username = "admin";
         let user = await client.getUserContext(username, true);
+        logger.info('gateway user: ' + util.inspect(user));
         if(!user) {
 			throw new Error(util.format('User was not found :', username));
 		} else {
