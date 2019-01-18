@@ -293,7 +293,7 @@ async function createChannel(configtxPath, args) {
         logger.info('gateway getMspid: ' + util.inspect(client.getMspid()));
 
         let username = "admin";
-        let user = await client.getUserContext(username, true);
+        let user = await client.getUserContext(username, false);
         logger.info('gateway user: ' + util.inspect(user));
         if(!user) {
 			throw new Error(util.format('User was not found :', username));
