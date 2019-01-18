@@ -52,7 +52,7 @@ async function getClientForOrg (userorg, username) {
 	return client;
 }
 
-var getRegisteredUser = async function(username, userorg, isJson) {
+var getRegisteredUser = async function(args, isJson) {
     let username = args['username'];
     let userorg = args['userorg'];
 	try {
