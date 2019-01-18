@@ -322,12 +322,12 @@ async function createChannel(configtxPath, args) {
 
         // have the SDK generate a transaction id
         let tx_id = client.newTransactionID();
+        logger.info('Creating channel - tx_id: ' + tx_id);
 
         let request = {
           config: config_update, //the binary config
           signatures : [signature], // the collected signatures
           name : channelName, // the channel name
-          //orderer : orderer, //the orderer from above
           txId  : tx_id //the generated transaction id
         };
 
