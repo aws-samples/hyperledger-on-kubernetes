@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 //const yaml = require('yaml');
+const connection = require('./connection.js');
 const walletPath = path.join(process.cwd(), 'wallet');
 const wallet = new FileSystemWallet(walletPath);
 const gateway = new Gateway();
@@ -287,12 +288,11 @@ async function createChannel(configtxPath, args) {
         signatures.push(signature);
 
         logger.info('gateway client: ' + util.inspect(gateway.getClient()));
-        logger.info('gateway getCurrentIdentity: ' + util.inspect(gateway.getCurrentIdentity()));
-        logger.info('gateway getClientConfig: ' + util.inspect(client.getClientConfig()));
-        logger.info('gateway getCryptoSuite: ' + util.inspect(client.getCryptoSuite()));
-        logger.info('gateway getMspid: ' + util.inspect(client.getMspid()));
 
         let username = "michael";
+        let userdetails = {"username":"michael","org":"org1"};
+    	let response = await connection.getRegisteredUser(userdetails, true);
+        logger.info('getRegisteredUser response: ' + util.inspect(response));
         let user = await client.getUserContext(username, false);
         logger.info('gateway user: ' + util.inspect(user));
         if(!user) {
