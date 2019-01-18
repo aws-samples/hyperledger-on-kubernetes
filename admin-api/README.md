@@ -104,6 +104,11 @@ echo connecting to server: $ENDPOINT:$PORT
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/init)
 echo $response
 
+USERID=michael
+echo
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/users -H 'content-type: application/x-www-form-urlencoded' -d "username=${USERID}&orgName=org1")
+echo $response
+
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/listNetwork)
 echo $response
 
