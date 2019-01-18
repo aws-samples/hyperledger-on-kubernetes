@@ -302,10 +302,10 @@ async function createChannel(configtxPath, args) {
         signatures.push(signature);
 
         //get the client used to sign the package
-        let userorg = "org2";
-        let username = userorg + 'user';
-        let userdetails = {"username":username,"org":userorg};
-    	let response = await connection.getRegisteredUser(userdetails, true);
+        userorg = "org2";
+        username = userorg + 'user';
+        userdetails = {"username":username,"org":userorg};
+    	response = await connection.getRegisteredUser(userdetails, true);
         logger.info('getRegisteredUser response: ' + util.inspect(response));
         client = await connection.getClientForOrg(userorg, username);
         logger.info('gateway client: ' + util.inspect(client));
@@ -314,7 +314,7 @@ async function createChannel(configtxPath, args) {
 		} else {
 			logger.debug('User %s was found to be registered and enrolled', username);
         }
-        var signature = client.signChannelConfig(config_update);
+        signature = client.signChannelConfig(config_update);
         signatures.push(signature);
 
         // create an orderer object to represent the orderer of the network
