@@ -328,6 +328,7 @@ async function createChannel(configtxPath, args) {
           config: config_update, //the binary config
           signatures : [signature], // the collected signatures
           name : channelName, // the channel name
+          orderer : orderer,
           txId  : tx_id //the generated transaction id
         };
 
