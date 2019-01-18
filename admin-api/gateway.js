@@ -280,10 +280,15 @@ async function createChannel(configtxPath, args) {
     let signatures = [];
     logger.info('Creating channel: ' + channelName + ' using transaction config file: ' + channelName + ".tx");
     try {
+        // first read in the file, this gives us a binary config envelope
+        let envelope_bytes = fs.readFileSync(path.join(configtxPath, channelName + ".tx"));
+        // have the nodeSDK extract out the config update
+        var config_update = client.extractChannelConfig(envelope_bytes);
+
         //get the client used to sign the package
-        let username = "michael";
         let userorg = "org1";
-        let userdetails = {"username":"michael","org":"org1"};
+        let username = userorg + 'user';
+        let userdetails = {"username":username,"org":userorg};
     	let response = await connection.getRegisteredUser(userdetails, true);
         logger.info('getRegisteredUser response: ' + util.inspect(response));
         client = await connection.getClientForOrg(userorg, username);
@@ -293,10 +298,22 @@ async function createChannel(configtxPath, args) {
 		} else {
 			logger.debug('User %s was found to be registered and enrolled', username);
         }
-        // first read in the file, this gives us a binary config envelope
-        let envelope_bytes = fs.readFileSync(path.join(configtxPath, channelName + ".tx"));
-        // have the nodeSDK extract out the config update
-        var config_update = client.extractChannelConfig(envelope_bytes);
+        var signature = client.signChannelConfig(config_update);
+        signatures.push(signature);
+
+        //get the client used to sign the package
+        let userorg = "org2";
+        let username = userorg + 'user';
+        let userdetails = {"username":username,"org":userorg};
+    	let response = await connection.getRegisteredUser(userdetails, true);
+        logger.info('getRegisteredUser response: ' + util.inspect(response));
+        client = await connection.getClientForOrg(userorg, username);
+        logger.info('gateway client: ' + util.inspect(client));
+        if(!client) {
+			throw new Error(util.format('User was not found :', username));
+		} else {
+			logger.debug('User %s was found to be registered and enrolled', username);
+        }
         var signature = client.signChannelConfig(config_update);
         signatures.push(signature);
 
