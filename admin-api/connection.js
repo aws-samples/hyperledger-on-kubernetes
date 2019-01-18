@@ -53,6 +53,8 @@ async function getClientForOrg (userorg, username) {
 }
 
 var getRegisteredUser = async function(username, userorg, isJson) {
+    let username = args['username'];
+    let userorg = args['userorg'];
 	try {
 		logger.info('============ START getRegisteredUser - for org %s and user %s', userorg, username);
 		var client = await getClientForOrg(userorg);
