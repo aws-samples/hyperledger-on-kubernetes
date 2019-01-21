@@ -268,7 +268,7 @@ async function addOrgToEnv(org) {
 async function addConfigtxProfile(args) {
 
     let profileName = args['profilename'];
-    let orgs = args['orgs'];
+    let orgs = args['orgs']; // orgs to be included in the profile
     try {
         let profilesInConfig = await getProfilesFromConfigtx();
         //Check that the new profile to be added does not already exist in configtx.yaml
@@ -276,7 +276,7 @@ async function addConfigtxProfile(args) {
             logger.error('Profile: ' + profileName + ' already exists in configtx.yaml. These profiles are already present: ' + profilesInConfig);
             return;
         }
-        let orgsInConfig = await getOrgs();
+        let orgsInConfig = await getOrgsFromConfigtx();
         //Check that the orgs to be used in the profile already exist in configtx.yaml
         for (let org of orgs) {
             if (orgsInConfig.indexOf(org) < 0) {
