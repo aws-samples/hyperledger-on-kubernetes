@@ -115,7 +115,7 @@ async function getOrgsFromEnv() {
 
     try {
         orgString = process.env.PEER_ORGS;
-        let orgArray = .split(" ");
+        let orgArray = orgString.split(" ");
         logger.info("Orgs in env.sh for this network are: " + orgString);
         return orgArray;
     } catch (error) {
