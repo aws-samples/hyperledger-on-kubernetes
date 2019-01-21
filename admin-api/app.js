@@ -151,47 +151,37 @@ app.get('/init', awaitHandler(async (req, res) => {
 	logger.info('##### GET on Init - completed');
 }));
 
-// Print out the details of the Fabric network
-app.get('/listnetwork', awaitHandler(async (req, res) => {
-	logger.info('================ GET on listnetwork');
-	logger.info('##### End point : /listnetwork');
-    await gateway.listNetwork();
-	logger.info('##### GET on listnetwork - completed');
-}));
-
 // Loads the configtx defined for this Fabric network, and prints out the key info such as orgs
-app.get('/loadconfigtx', awaitHandler(async (req, res) => {
+app.get('/configtx', awaitHandler(async (req, res) => {
 	logger.info('================ GET on loadconfigtx');
 	logger.info('##### End point : /loadconfigtx');
-    await gateway.loadConfigtx(hfc.getConfigSetting('configtx-path'));
+    await gateway.loadConfigtx();
 	logger.info('##### GET on loadconfigtx - completed');
 }));
 
 // Loads the configtx defined for this Fabric network, and prints out the orgs
-app.get('/getorgs', awaitHandler(async (req, res) => {
-	logger.info('================ GET on getorgs');
-	logger.info('##### End point : /getorgs');
-    let response = await gateway.getOrgs(hfc.getConfigSetting('configtx-path'));
+app.get('/configtx/orgs', awaitHandler(async (req, res) => {
+	logger.info('================ GET on endpoint /configtx/orgs');
+    let response = await gateway.getOrgsFromConfigtx();
     res.json({success: true, message: response});
-	logger.info('##### GET on getorgs - completed');
+	logger.info('##### GET on /configtx/orgs - completed');
 }));
 
 // Loads the configtx defined for this Fabric network, and prints out the profiles
-app.get('/getprofiles', awaitHandler(async (req, res) => {
-	logger.info('================ GET on getprofiles');
-	logger.info('##### End point : /getprofiles');
-    response = await gateway.getProfiles(hfc.getConfigSetting('configtx-path'));
+app.get('/configtx/profiles', awaitHandler(async (req, res) => {
+	logger.info('================ GET on endpoint /configtx/profiles');
+    response = await gateway.getProfilesFromConfigtx();
     res.json({success: true, message: response});
-	logger.info('##### GET on getprofiles - completed');
+	logger.info('##### GET on /configtx/profiles - completed');
 }));
 
 // Add a new org to configtx.yaml
-app.post('/addorg', awaitHandler(async (req, res) => {
+app.post('/configtx/org', awaitHandler(async (req, res) => {
 	logger.info('================ POST on AddOrg');
 	let args = req.body;
 	logger.info('##### End point : /addorg');
 	logger.info('##### POST on addorg - args : ' + JSON.stringify(args));
-	let response = gateway.addOrg(hfc.getConfigSetting('configtx-path'), args);
+	let response = gateway.addOrg(args);
 	logger.info('##### POST on addorg - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -202,12 +192,12 @@ app.post('/addorg', awaitHandler(async (req, res) => {
 }));
 
 // Add a new profile to configtx.yaml
-app.post('/addprofile', awaitHandler(async (req, res) => {
+app.post('/configtx/profile', awaitHandler(async (req, res) => {
 	logger.info('================ POST on AddProfile');
 	let args = req.body;
 	logger.info('##### End point : /addprofile');
 	logger.info('##### POST on addprofile - args : ' + JSON.stringify(args));
-	let response = gateway.addConfigtxProfile(hfc.getConfigSetting('configtx-path'), args);
+	let response = gateway.addConfigtxProfile(args);
 	logger.info('##### POST on addprofile - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -218,12 +208,12 @@ app.post('/addprofile', awaitHandler(async (req, res) => {
 }));
 
 // Generate a new channel transaction config using a profile in configtx.yaml
-app.post('/genchannelconfig', awaitHandler(async (req, res) => {
+app.post('/configtx/channelconfig', awaitHandler(async (req, res) => {
 	logger.info('================ POST on genchannelconfig');
 	let args = req.body;
 	logger.info('##### End point : /genchannelconfig');
 	logger.info('##### POST on genchannelconfig - args : ' + JSON.stringify(args));
-	let response = gateway.createTransactionConfig(hfc.getConfigSetting('configtx-path'), args);
+	let response = gateway.createTransactionConfig(args);
 	logger.info('##### POST on genchannelconfig - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -234,12 +224,12 @@ app.post('/genchannelconfig', awaitHandler(async (req, res) => {
 }));
 
 // Generate a new channel transaction config using a profile in configtx.yaml
-app.post('/createchannel', awaitHandler(async (req, res) => {
+app.post('/channel', awaitHandler(async (req, res) => {
 	logger.info('================ POST on createchannel');
 	let args = req.body;
 	logger.info('##### End point : /createchannel');
 	logger.info('##### POST on createchannel - args : ' + JSON.stringify(args));
-	let response = gateway.createChannel(hfc.getConfigSetting('configtx-path'), args);
+	let response = gateway.createChannel(args);
 	logger.info('##### POST on createchannel - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -248,6 +238,22 @@ app.post('/createchannel', awaitHandler(async (req, res) => {
 		res.json({success: false, message: response});
 	}
 }));
+
+
+
+// Print out the details of the Fabric network
+app.get('/networks', awaitHandler(async (req, res) => {
+	logger.info('================ GET on listnetwork');
+	logger.info('##### End point : /listnetwork');
+    await gateway.listNetwork();
+	logger.info('##### GET on listnetwork - completed');
+}));
+
+//   /networks/org/<orgid>   - add a new org. Adds org to env.sh, gens new directories, gen K8s templates, create K8s namespace, creates PVC
+//   /networks/org/<orgid>/register
+//  add org to configtx.yaml, using /configtx/org api call
+//  create new channel profile and new channel, using configtx/profile and other api calls above
+
 
 /************************************************************************************
  * Error handler
