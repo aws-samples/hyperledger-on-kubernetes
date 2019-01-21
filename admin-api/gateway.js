@@ -177,7 +177,7 @@ async function addOrg(args) {
 
         // Use the template to add a new org to configtx.yaml
         let contents = "";
-        fs.readFileSync(configtxFilepath.toString().split('\n').forEach(function (line) {
+        fs.readFileSync(configtxFilepath).toString().split('\n').forEach(function (line) {
             contents += line + "\n";
             let ix = line.toString().indexOf("Organizations:");
             if (ix > -1 && ix < 2) {
