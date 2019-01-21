@@ -166,21 +166,21 @@ async function addOrg(args) {
 
     let org = args['org'];
     try {
+        logger.info('Adding a new org to configtx.yaml and env.sh');
         // Validate that the org does not already exist
         let orgsInConfig = await getOrgsFromConfigtx();
-        let orgsInEnv = await getOrgsFromEnv();
         //Check that the new org to be added does not already exist in configtx.yaml
         if (orgsInConfig.indexOf(org) > -1) {
             logger.error('Org: ' + org + ' already exists in configtx.yaml. These orgs are already present: ' + orgsInConfig);
             return;
         }
+        await addOrgToConfigtx(org);
+        let orgsInEnv = await getOrgsFromEnv();
         //Check that the new org to be added does not already exist in env.sh
         if (orgsInEnv.indexOf(org) > -1) {
             logger.error('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
             return;
         }
-        logger.info('Adding a new org to configtx.yaml and env.sh');
-        await addOrgToConfigtx(org);
         await addOrgToEnv(org);
         logger.info('Added a new org to configtx.yaml and env.sh');
         return {"status":200,"message":"Org added to configtx.yaml and env.sh. New org is: " + org}
@@ -243,7 +243,7 @@ async function addOrgToEnv(org) {
         let contents = "";
         orgsInEnv.push(org);
         fs.readFileSync(envFilepath).toString().split('\n').forEach(function (line) {
-            let ix = line.toString().indexOf("PEER_ORGS:");
+            let ix = line.toString().indexOf("PEER_ORGS=");
             if (ix > -1 && ix < 2) {
                 logger.info('Found the PEER_ORGS section in env.sh - adding new org to this env variable');
                 let result = 'PEER_ORGS="' + orgsInEnv.join(" ") + '"'
