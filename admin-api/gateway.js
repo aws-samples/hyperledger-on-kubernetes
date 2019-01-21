@@ -150,7 +150,7 @@ async function getProfilesFromConfigtx() {
         await loadConfigtx();
         for (let profile in configtxContents['Profiles']) {
             logger.info("Profiles in configtx for this network are: " + profile);
-            profiles.push(configtxContents['Profiles'][profile]);
+            profiles.push(profile.toString());
         }
         return profiles;
     } catch (error) {
