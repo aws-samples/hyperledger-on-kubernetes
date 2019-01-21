@@ -202,7 +202,7 @@ async function addOrgToConfigtx(org) {
             logger.error('Org: ' + org + ' already exists in configtx.yaml. These orgs are already present: ' + orgsInConfig);
             return;
         }
-        configtxFilepath = path.join(dataPath, configtxFilename);
+        let configtxFilepath = path.join(dataPath, configtxFilename);
         await backupFile(configtxFilepath);
 
         // Use the template to add a new org to configtx.yaml
@@ -236,7 +236,7 @@ async function addOrgToEnv(org) {
             logger.error('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
             return;
         }
-        envFilepath = path.join(scriptPath, envFilename);
+        let envFilepath = path.join(scriptPath, envFilename);
         await backupFile(envFilepath);
 
         // Use the template to add a new org to env.sh

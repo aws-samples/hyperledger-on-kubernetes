@@ -181,7 +181,7 @@ app.post('/orgs', awaitHandler(async (req, res) => {
 	let args = req.body;
 	logger.info('##### End point : /orgs');
 	logger.info('##### POST on orgs - args : ' + JSON.stringify(args));
-	let response = gateway.addOrg(args);
+	let response = await gateway.addOrg(args);
 	logger.info('##### POST on orgs - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -197,7 +197,7 @@ app.post('/configtx/profiles', awaitHandler(async (req, res) => {
 	let args = req.body;
 	logger.info('##### End point : /addprofile');
 	logger.info('##### POST on addprofile - args : ' + JSON.stringify(args));
-	let response = gateway.addConfigtxProfile(args);
+	let response = await gateway.addConfigtxProfile(args);
 	logger.info('##### POST on addprofile - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -213,7 +213,7 @@ app.post('/configtx/channelconfigs', awaitHandler(async (req, res) => {
 	let args = req.body;
 	logger.info('##### End point : /configtx/channelconfig');
 	logger.info('##### POST on configtx/channelconfig - args : ' + JSON.stringify(args));
-	let response = gateway.createTransactionConfig(args);
+	let response = await gateway.createTransactionConfig(args);
 	logger.info('##### POST on configtx/channelconfig - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -229,7 +229,7 @@ app.post('/channels', awaitHandler(async (req, res) => {
 	let args = req.body;
 	logger.info('##### End point : /channel');
 	logger.info('##### POST on channel - args : ' + JSON.stringify(args));
-	let response = gateway.createChannel(args);
+	let response = await gateway.createChannel(args);
 	logger.info('##### POST on channel - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
