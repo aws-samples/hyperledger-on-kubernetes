@@ -130,7 +130,7 @@ async function getOrgsFromConfigtx() {
     let orgs = [];
     try {
         await loadConfigtx();
-        for (let org in configtx['Organizations']) {
+        for (let org in configtxContents['Organizations']) {
             logger.info("Orgs in configtx for this network are: " + configtxContents['Organizations'][org]['Name'] + ' with MSP ' + configtxContents['Organizations'][org]['ID']);
             orgs.push(configtxContents['Organizations'][org]['Name']);
         }
