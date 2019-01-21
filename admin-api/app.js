@@ -175,24 +175,24 @@ app.get('/configtx/profiles', awaitHandler(async (req, res) => {
 	logger.info('##### GET on /configtx/profiles - completed');
 }));
 
-// Add a new org to configtx.yaml
-app.post('/configtx/org', awaitHandler(async (req, res) => {
-	logger.info('================ POST on AddOrg');
+// Add a new org to configtx.yaml and env.sh
+app.post('/orgs', awaitHandler(async (req, res) => {
+	logger.info('================ POST on orgs');
 	let args = req.body;
-	logger.info('##### End point : /addorg');
-	logger.info('##### POST on addorg - args : ' + JSON.stringify(args));
+	logger.info('##### End point : /orgs');
+	logger.info('##### POST on orgs - args : ' + JSON.stringify(args));
 	let response = gateway.addOrg(args);
-	logger.info('##### POST on addorg - response %s', util.inspect(response));
+	logger.info('##### POST on orgs - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
 	} else {
-		logger.error('##### POST on addorg failed: %s', response);
+		logger.error('##### POST on orgs failed: %s', response);
 		res.json({success: false, message: response});
 	}
 }));
 
 // Add a new profile to configtx.yaml
-app.post('/configtx/profile', awaitHandler(async (req, res) => {
+app.post('/configtx/profiles', awaitHandler(async (req, res) => {
 	logger.info('================ POST on AddProfile');
 	let args = req.body;
 	logger.info('##### End point : /addprofile');

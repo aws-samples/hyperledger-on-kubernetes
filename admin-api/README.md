@@ -109,36 +109,23 @@ echo
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/users -H 'content-type: application/x-www-form-urlencoded' -d '{"username":"'"${USERID}"'","org":"org1"}')
 echo $response
 
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/listNetwork)
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/configtx)
 echo $response
 
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/getorgs)  
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/configtx/orgs)  
 echo $response
 
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/getprofiles)  
-echo $response
-
-// This should fail as org4 does not exist in the configtx.yaml
-PROFILENAME=org4profile;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org4"]}')
-echo $response
-
-ORG=org4;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addorg -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
-echo $response
-
-PROFILENAME=org4profile;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org4"]}')
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/configtx/profiles)  
 echo $response
 
 // This should fail as the certificates do not exist for the new org
-PROFILENAME=org4profile;
-CHANNELNAME=org4channel;
+PROFILENAME=org2profile;
+CHANNELNAME=org2channel;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/genchannelconfig -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
 echo $response
 
 PROFILENAME=org2profile;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/addprofile -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org2"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}//configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org2"]}')
 echo $response
 
 PROFILENAME=org2profile;

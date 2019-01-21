@@ -24,6 +24,7 @@ let envFilename = CONFIG.envfile;
 let ccp = yaml.safeLoad(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
 let client;
 
+// This is a little hack. It loads the file env.sh as a list of properties so that I can easily refer to a property in the code
 require('dotenv').config({ path: path.join(scriptPath, envFilename) })
 console.log(process.env);
 
@@ -83,20 +84,6 @@ async function listNetwork() {
 
 }
 
-// Loads env.sh into a Javascript object for easy querying
-async function loadEnv() {
-
-    try {
-        logger.info('Loading the Fabric env.sh at path: ' + path.join(scriptPath, envFilename));
-        configtxContents = yaml.safeLoad(fs.readFileSync(path.join(scriptPath, envFilename), 'utf8'));
-        logger.info('Env.sh loaded at path: ' + scriptPath);
-    } catch (error) {
-        logger.error('Failed to loadEnv: ' + error);
-        throw error;
-    }
-
-}
-
 // Loads configtx.yaml into a Javascript object for easy querying
 async function loadConfigtx() {
 
@@ -119,6 +106,20 @@ async function backupFile(absoluteFilename) {
         fs.copyFileSync(absoluteFilename, filename);
     } catch (error) {
         logger.error('Failed to backup file: ' + error);
+        throw error;
+    }
+}
+
+// Get the list of organisations that are configured in configtx.yaml
+async function getOrgsFromEnv() {
+
+    try {
+        orgString = process.env.PEER_ORGS;
+        let orgArray = .split(" ");
+        logger.info("Orgs in env.sh for this network are: " + orgString);
+        return orgArray;
+    } catch (error) {
+        logger.error('Failed to getOrgsFromEnv: ' + error);
         throw error;
     }
 }
@@ -158,15 +159,44 @@ async function getProfilesFromConfigtx() {
     }
 }
 
-
-// This will create a new org in configtx.yaml, by copying an existing org
+// This will create a new org to both the configtx.yaml and env.sh config files
 //
 // TODO: the anchor peer needs to be passed to this function, and updated into configtx.yaml
 async function addOrg(args) {
 
     let org = args['org'];
     try {
-        let orgsInConfig = await getOrgs();
+        // Validate that the org does not already exist
+        let orgsInConfig = await getOrgsFromConfigtx();
+        let orgsInEnv = await getOrgsFromEnv();
+        //Check that the new org to be added does not already exist in configtx.yaml
+        if (orgsInConfig.indexOf(org) > -1) {
+            logger.error('Org: ' + org + ' already exists in configtx.yaml. These orgs are already present: ' + orgsInConfig);
+            return;
+        }
+        //Check that the new org to be added does not already exist in env.sh
+        if (orgsInEnv.indexOf(org) > -1) {
+            logger.error('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
+            return;
+        }
+        logger.info('Adding a new org to configtx.yaml and env.sh');
+        await addOrgToConfigtx(org);
+        await addOrgToEnv(org);
+        logger.info('Added a new org to configtx.yaml and env.sh');
+        return {"status":200,"message":"Org added to configtx.yaml and env.sh. New org is: " + org}
+    } catch (error) {
+        logger.error('Failed to addOrg: ' + error);
+    }
+}
+
+
+// This will create a new org in configtx.yaml, by copying an existing org
+//
+// TODO: the anchor peer needs to be passed to this function, and updated into configtx.yaml
+async function addOrgToConfigtx(org) {
+
+    try {
+        let orgsInConfig = await getOrgsFromConfigtx();
         //Check that the new org to be added does not already exist in configtx.yaml
         if (orgsInConfig.indexOf(org) > -1) {
             logger.error('Org: ' + org + ' already exists in configtx.yaml. These orgs are already present: ' + orgsInConfig);
@@ -192,10 +222,44 @@ async function addOrg(args) {
         logger.info('Added a new org to configtx.yaml at path: ' + dataPath);
         return {"status":200,"message":"Org added to configtx.yaml: " + org}
     } catch (error) {
-        logger.error('Failed to addOrg: ' + error);
+        logger.error('Failed to addOrgToConfigtx: ' + error);
     }
 }
 
+// This will create a new org in env.sh
+async function addOrgToEnv(org) {
+
+    try {
+        let orgsInEnv = await getOrgsFromEnv();
+        //Check that the new org to be added does not already exist in env.sh
+        if (orgsInEnv.indexOf(org) > -1) {
+            logger.error('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
+            return;
+        }
+        envFilepath = path.join(scriptPath, envFilename);
+        await backupFile(envFilepath);
+
+        // Use the template to add a new org to env.sh
+        let contents = "";
+        orgsInEnv.push(org);
+        fs.readFileSync(envFilepath).toString().split('\n').forEach(function (line) {
+            let ix = line.toString().indexOf("PEER_ORGS:");
+            if (ix > -1 && ix < 2) {
+                logger.info('Found the PEER_ORGS section in env.sh - adding new org to this env variable');
+                let result = 'PEER_ORGS="' + orgsInEnv.join(" ") + '"'
+                contents += result + "\n";
+                logger.info('Updated PEER_ORGS in env.sh to:' + result);
+            else {
+                contents += line + "\n";
+            }
+        });
+        fs.writeFileSync(envFilepath, contents);
+        logger.info('Added a new org to env.sh at path: ' + dataPath);
+        return {"status":200,"message":"Org added to env.sh: " + org}
+    } catch (error) {
+        logger.error('Failed to addOrgToEnv: ' + error);
+    }
+}
 
 // This will create a new profile in configtx.yaml, which can be used for creating new channels
 // I have tried to edit this file using the js-yaml, yaml libraries. Neither of them support anchors in YAML, so
