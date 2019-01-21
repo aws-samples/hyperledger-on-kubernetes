@@ -17,10 +17,10 @@ const { exec } = require('child_process');
 var CONFIG = require('./config.json');
 
 let configtxContents = '';
-let dataPath = CONFIG.data-path;
-let configtxFilename = CONFIG.configtx-file;
-let scriptPath = CONFIG.script-path;
-let envFilename = CONFIG.env-file;
+let dataPath = CONFIG.datapath;
+let configtxFilename = CONFIG.configtxfile;
+let scriptPath = CONFIG.scriptpath;
+let envFilename = CONFIG.envfile;
 let ccp = yaml.safeLoad(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
 let client;
 
