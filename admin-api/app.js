@@ -270,6 +270,21 @@ app.post('/ca', awaitHandler(async (req, res) => {
 	}
 }));
 
+// Start the new CA
+app.post('/orgs/register', awaitHandler(async (req, res) => {
+	logger.info('================ POST on orgs/register');
+	let args = req.body;
+	logger.info('##### End point : /orgs/register');
+	logger.info('##### POST on orgs/register - args : ' + JSON.stringify(args));
+	let response = await gateway.startRegisterOrg(args);
+	logger.info('##### POST on orgs/register - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on orgs/register failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
 
 /************************************************************************************
  * Error handler

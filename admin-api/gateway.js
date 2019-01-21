@@ -520,6 +520,34 @@ async function startCA(args) {
     }
 }
 
+// This will register the new org
+async function startRegisterOrg(args) {
+
+    let org = args['org'];
+    logger.info('Starting to register org: ' + org);
+    let scriptName = 'scripts-for-api/start-register-org.sh';
+    let cmd = path.resolve(__dirname, scriptName);
+
+    try {
+        logger.info('Running command: ' + cmd);
+        exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            logger.error('Failed to register org');
+            logger.error(err);
+            logger.info(`stderr: ${stderr}`);
+            return;
+        }
+
+        // the *entire* stdout and stderr (buffered)
+        logger.info(`stdout: ${stdout}`);
+        logger.info(`stderr: ${stderr}`);
+        });
+        return {"status":200,"message":"register org started "}
+    } catch (error) {
+        logger.error('Failed to register org: ' + error);
+    }
+}
+
 exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
 exports.listNetwork = listNetwork;
@@ -532,3 +560,4 @@ exports.addConfigtxProfile = addConfigtxProfile;
 exports.createTransactionConfig = createTransactionConfig;
 exports.createChannel = createChannel;
 exports.startCA = startCA;
+exports.startRegisterOrg = startRegisterOrg;

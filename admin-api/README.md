@@ -139,6 +139,11 @@ ORG=org3;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/ca -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
 echo $response
 
+// Register the new org
+ORG=org3;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs/register -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
+echo $response
+
 // create the channel configuration transaction file
 PROFILENAME=org3profile;
 CHANNELNAME=org3channel;
