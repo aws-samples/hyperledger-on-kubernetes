@@ -299,25 +299,23 @@ async function addConfigtxProfile(args) {
 
         // Use the template to add a new profile to configtx.yaml
         try {
-                fs.readFile('./templates/profile.yaml', 'utf8', function(err, data) {
-                    if (err) throw err;
-                    let result = data.replace(/%profile%/g, profileName);
-                    let ix = result.toString().indexOf("%org%");
-                    if (ix > -1) {
-                        for (let org of orgs) {
-                            result = result.slice(0, ix) + org + "\n            - *" + result.slice(ix);
-                        }
-                        //Insert the new orgs before the placeholder %org%, then remove the placeholder
-                        ix = result.toString().indexOf("- *%org%");
-                        if (ix > -1) {
-                            result = result.slice(0, ix) + result.slice(ix + 9);
-                        }
-                    }
-                    fd = fs.openSync(configtxFilepath, 'a');
-                    fs.appendFileSync(fd, result, 'utf8');
-                    logger.info('Appending a new profile to configtx.yaml: ' + result);
+            let data = fs.readFileSync('./templates/profile.yaml', 'utf8');
+            let result = data.replace(/%profile%/g, profileName);
+            let ix = result.toString().indexOf("%org%");
+            if (ix > -1) {
+                for (let org of orgs) {
+                    result = result.slice(0, ix) + org + "\n            - *" + result.slice(ix);
+                }
+                //Insert the new orgs before the placeholder %org%, then remove the placeholder
+                ix = result.toString().indexOf("- *%org%");
+                if (ix > -1) {
+                    result = result.slice(0, ix) + result.slice(ix + 9);
+                }
+            }
+            fd = fs.openSync(configtxFilepath, 'a');
+            fs.appendFileSync(fd, result, 'utf8');
+            logger.info('Appending a new profile to configtx.yaml for profile: ' + profileName);
 
-                });
         } catch (err) {
             logger.error('Failed to addConfigtxProfile: ' + error);
         } finally {
