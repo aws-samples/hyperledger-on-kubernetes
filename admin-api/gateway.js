@@ -251,7 +251,15 @@ async function addOrgToEnv(org) {
                 contents += result + "\n";
                 logger.info('Updated PEER_ORGS in env.sh to:' + result);
             } else {
-                contents += line + "\n";
+                ix = line.toString().indexOf("PEER_DOMAINS=");
+                if (ix > -1 && ix < 2) {
+                    logger.info('Found the PEER_DOMAINS section in env.sh - adding new org to this env variable');
+                    let result = 'PEER_DOMAINS="' + orgsInEnv.join(" ") + '"'
+                    contents += result + "\n";
+                    logger.info('Updated PEER_DOMAINS in env.sh to:' + result);
+                } else {
+                    contents += line + "\n";
+                }
             }
         });
         fs.writeFileSync(envFilepath, contents);
@@ -455,11 +463,41 @@ async function createChannel(args) {
     }
 }
 
+
+// This will generate a new transaction config, used to create a new channel
+async function setupOrg(args) {
+
+    let org = args['org'];
+    logger.info('Preparing environment for org: ' + org);
+    let scriptName = path.resolve(__dirname, 'scripts-for-api/setup-org.sh')
+    let cmd = "./" + scriptName;
+
+    try {
+        logger.info('Running command: ' + cmd);
+        exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            logger.error('Failed to prepare environment');
+            logger.error(err);
+            logger.info(`stderr: ${stderr}`);
+            return;
+        }
+
+        // the *entire* stdout and stderr (buffered)
+        logger.info(`stdout: ${stdout}`);
+        logger.info(`stderr: ${stderr}`);
+        });
+    } catch (error) {
+        logger.error('Failed to prepare environment: ' + error);
+    }
+}
+
+
 exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
 exports.listNetwork = listNetwork;
 exports.loadConfigtx = loadConfigtx;
 exports.addOrg = addOrg;
+exports.setupOrg = setupOrg;
 exports.getOrgsFromConfigtx = getOrgsFromConfigtx;
 exports.getProfilesFromConfigtx = getProfilesFromConfigtx;
 exports.addConfigtxProfile = addConfigtxProfile;

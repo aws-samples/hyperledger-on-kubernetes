@@ -182,6 +182,7 @@ app.post('/orgs', awaitHandler(async (req, res) => {
 	logger.info('##### End point : /orgs');
 	logger.info('##### POST on orgs - args : ' + JSON.stringify(args));
 	let response = await gateway.addOrg(args);
+	let response = await gateway.setupOrg(args);
 	logger.info('##### POST on orgs - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
