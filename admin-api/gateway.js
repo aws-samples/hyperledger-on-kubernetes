@@ -249,7 +249,7 @@ async function addOrgToEnv(org) {
                 let result = 'PEER_ORGS="' + orgsInEnv.join(" ") + '"'
                 contents += result + "\n";
                 logger.info('Updated PEER_ORGS in env.sh to:' + result);
-            else {
+            } else {
                 contents += line + "\n";
             }
         });
