@@ -124,16 +124,23 @@ CHANNELNAME=org3channel;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/channelconfigs -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
 echo $response
 
+// add the new org
+ORG=org3;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
+echo $response
+
+// add the new profile
 PROFILENAME=org3profile;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org3"]}')
 echo $response
 
+// create the channel configuration transaction file
 PROFILENAME=org3profile;
 CHANNELNAME=org3channel;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/channelconfigs -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
 echo $response
 
-
+// create the channel
 CHANNELNAME=org3channel;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'"}')
 echo $response
