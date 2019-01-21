@@ -270,7 +270,7 @@ async function addConfigtxProfile(args) {
     let profileName = args['profilename'];
     let orgs = args['orgs'];
     try {
-        let profilesInConfig = await getProfiles();
+        let profilesInConfig = await getProfilesFromConfigtx();
         //Check that the new profile to be added does not already exist in configtx.yaml
         if (profilesInConfig.indexOf(profileName) > -1) {
             logger.error('Profile: ' + profileName + ' already exists in configtx.yaml. These profiles are already present: ' + profilesInConfig);
@@ -333,7 +333,7 @@ async function createTransactionConfig(args) {
         logger.error('Both profileName and channelName must be provided to generate a transaction config');
         logger.error('Failed to createTransactionConfig');
     }
-    let profilesInConfig = await getProfiles();
+    let profilesInConfig = await getProfilesFromConfigtx();
     //Check that the new profile to be added does not already exist in configtx.yaml
     if (profilesInConfig.indexOf(profileName) < 0) {
         logger.error('Profile: ' + profileName + ' does not exist in configtx.yaml - cannot generate a transaction config. These profiles are already present: ' + profilesInConfig);
