@@ -170,7 +170,7 @@ app.get('/configtx/orgs', awaitHandler(async (req, res) => {
 // Loads the configtx defined for this Fabric network, and prints out the profiles
 app.get('/configtx/profiles', awaitHandler(async (req, res) => {
 	logger.info('================ GET on endpoint /configtx/profiles');
-    response = await gateway.getProfilesFromConfigtx();
+    let response = await gateway.getProfilesFromConfigtx();
     res.json({success: true, message: response});
 	logger.info('##### GET on /configtx/profiles - completed');
 }));
@@ -208,33 +208,33 @@ app.post('/configtx/profiles', awaitHandler(async (req, res) => {
 }));
 
 // Generate a new channel transaction config using a profile in configtx.yaml
-app.post('/configtx/channelconfig', awaitHandler(async (req, res) => {
-	logger.info('================ POST on genchannelconfig');
+app.post('/configtx/channelconfigs', awaitHandler(async (req, res) => {
+	logger.info('================ POST on configtx/channelconfig');
 	let args = req.body;
-	logger.info('##### End point : /genchannelconfig');
-	logger.info('##### POST on genchannelconfig - args : ' + JSON.stringify(args));
+	logger.info('##### End point : /configtx/channelconfig');
+	logger.info('##### POST on configtx/channelconfig - args : ' + JSON.stringify(args));
 	let response = gateway.createTransactionConfig(args);
-	logger.info('##### POST on genchannelconfig - response %s', util.inspect(response));
+	logger.info('##### POST on configtx/channelconfig - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
 	} else {
-		logger.error('##### POST on genchannelconfig failed: %s', response);
+		logger.error('##### POST on configtx/channelconfig failed: %s', response);
 		res.json({success: false, message: response});
 	}
 }));
 
 // Generate a new channel transaction config using a profile in configtx.yaml
-app.post('/channel', awaitHandler(async (req, res) => {
-	logger.info('================ POST on createchannel');
+app.post('/channels', awaitHandler(async (req, res) => {
+	logger.info('================ POST on channel');
 	let args = req.body;
-	logger.info('##### End point : /createchannel');
-	logger.info('##### POST on createchannel - args : ' + JSON.stringify(args));
+	logger.info('##### End point : /channel');
+	logger.info('##### POST on channel - args : ' + JSON.stringify(args));
 	let response = gateway.createChannel(args);
-	logger.info('##### POST on createchannel - response %s', util.inspect(response));
+	logger.info('##### POST on channel - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
 	} else {
-		logger.error('##### POST on createchannel failed: %s', response);
+		logger.error('##### POST on channel failed: %s', response);
 		res.json({success: false, message: response});
 	}
 }));
@@ -243,10 +243,10 @@ app.post('/channel', awaitHandler(async (req, res) => {
 
 // Print out the details of the Fabric network
 app.get('/networks', awaitHandler(async (req, res) => {
-	logger.info('================ GET on listnetwork');
-	logger.info('##### End point : /listnetwork');
+	logger.info('================ GET on networks');
+	logger.info('##### End point : /networks');
     await gateway.listNetwork();
-	logger.info('##### GET on listnetwork - completed');
+	logger.info('##### GET on networks - completed');
 }));
 
 //   /networks/org/<orgid>   - add a new org. Adds org to env.sh, gens new directories, gen K8s templates, create K8s namespace, creates PVC

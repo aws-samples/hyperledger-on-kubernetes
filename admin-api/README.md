@@ -119,22 +119,22 @@ response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/configtx/profiles)
 echo $response
 
 // This should fail as the certificates do not exist for the new org
-PROFILENAME=org2profile;
-CHANNELNAME=org2channel;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/genchannelconfig -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
+PROFILENAME=org3profile;
+CHANNELNAME=org3channel;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/channelconfigs -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
 echo $response
 
-PROFILENAME=org2profile;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}//configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org2"]}')
+PROFILENAME=org3profile;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org3"]}')
 echo $response
 
-PROFILENAME=org2profile;
-CHANNELNAME=org2channel;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/genchannelconfig -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
+PROFILENAME=org3profile;
+CHANNELNAME=org3channel;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/channelconfigs -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
 echo $response
 
 
-CHANNELNAME=org2channel;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/createchannel -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'"}')
+CHANNELNAME=org3channel;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'"}')
 echo $response
 
