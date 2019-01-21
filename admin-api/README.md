@@ -118,7 +118,7 @@ echo $response
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/configtx/profiles)  
 echo $response
 
-// This should fail as the certificates do not exist for the new org
+// This should fail as the new org does not exist
 PROFILENAME=org3profile;
 CHANNELNAME=org3channel;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/channelconfigs -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
@@ -132,6 +132,11 @@ echo $response
 // add the new profile
 PROFILENAME=org3profile;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org3"]}')
+echo $response
+
+// Start the CA for the new org
+ORG=org3;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/ca -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
 echo $response
 
 // create the channel configuration transaction file

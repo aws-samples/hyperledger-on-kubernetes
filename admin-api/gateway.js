@@ -493,7 +493,7 @@ async function setupOrg(args) {
 }
 
 // This will start a root and intermediate CA
-async function startCA() {
+async function startCA(args) {
 
     let org = args['org'];
     logger.info('Starting CAs');
