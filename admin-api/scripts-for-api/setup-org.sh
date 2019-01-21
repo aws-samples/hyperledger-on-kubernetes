@@ -23,9 +23,11 @@ set -e
 function main {
     echo "Preparing environment for new org"
     echo "Home is: ${HOME}"
+    cd $HOME/$REPO/fabric-main
+    source util-prep.sh
+    source utilities.sh
     source $SCRIPTS/env.sh
     cd $HOME/$REPO/fabric-main
-    source utilities.sh
     makeDirsForOrg $DATADIR
     genTemplates $HOME $REPO
     createNamespaces $HOME $REPO
