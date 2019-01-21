@@ -469,8 +469,8 @@ async function setupOrg(args) {
 
     let org = args['org'];
     logger.info('Preparing environment for org: ' + org);
-    let scriptName = path.resolve(__dirname, 'scripts-for-api/setup-org.sh')
-    let cmd = scriptName;
+    let scriptName = './scripts-for-api/setup-org.sh';
+    let cmd = "cd " + __dirname + "; cd ..; scriptName;
 
     try {
         logger.info('Running command: ' + cmd);

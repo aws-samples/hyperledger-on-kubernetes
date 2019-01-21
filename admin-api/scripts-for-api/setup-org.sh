@@ -22,6 +22,7 @@ set -e
 
 function main {
     echo "Preparing environment for new org"
+    echo "Home is: ${HOME}"
     source $SCRIPTS/env.sh
     cd $HOME/$REPO/fabric-main
     source utilities.sh
