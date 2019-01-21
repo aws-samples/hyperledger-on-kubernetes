@@ -182,7 +182,7 @@ app.post('/orgs', awaitHandler(async (req, res) => {
 	logger.info('##### End point : /orgs');
 	logger.info('##### POST on orgs - args : ' + JSON.stringify(args));
 	let response = await gateway.addOrg(args);
-	response += await gateway.setupOrg(args);
+	response = await gateway.setupOrg(args);
 	logger.info('##### POST on orgs - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -241,7 +241,6 @@ app.post('/channels', awaitHandler(async (req, res) => {
 }));
 
 
-
 // Print out the details of the Fabric network
 app.get('/networks', awaitHandler(async (req, res) => {
 	logger.info('================ GET on networks');
@@ -254,6 +253,22 @@ app.get('/networks', awaitHandler(async (req, res) => {
 //   /networks/org/<orgid>/register
 //  add org to configtx.yaml, using /configtx/org api call
 //  create new channel profile and new channel, using configtx/profile and other api calls above
+
+// Start the new CA
+app.post('/ca', awaitHandler(async (req, res) => {
+	logger.info('================ POST on ca');
+	let args = req.body;
+	logger.info('##### End point : /ca');
+	logger.info('##### POST on ca - args : ' + JSON.stringify(args));
+	let response = await gateway.startCA(args);
+	logger.info('##### POST on ca - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on ca failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
 
 
 /************************************************************************************

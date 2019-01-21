@@ -464,7 +464,7 @@ async function createChannel(args) {
 }
 
 
-// This will generate a new transaction config, used to create a new channel
+// This will prepare the environment for a new org: create directories, start K8s persistent volumes, etc.
 async function setupOrg(args) {
 
     let org = args['org'];
@@ -486,11 +486,39 @@ async function setupOrg(args) {
         logger.info(`stdout: ${stdout}`);
         logger.info(`stderr: ${stderr}`);
         });
+        return {"status":200,"message":"Org setup. New org is: " + org}
     } catch (error) {
         logger.error('Failed to prepare environment: ' + error);
     }
 }
 
+// This will start a root and intermediate CA
+async function startCA() {
+
+    let org = args['org'];
+    logger.info('Starting CAs');
+    let scriptName = 'scripts-for-api/start-ca.sh';
+    let cmd = path.resolve(__dirname, scriptName);
+
+    try {
+        logger.info('Running command: ' + cmd);
+        exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            logger.error('Failed to start CA');
+            logger.error(err);
+            logger.info(`stderr: ${stderr}`);
+            return;
+        }
+
+        // the *entire* stdout and stderr (buffered)
+        logger.info(`stdout: ${stdout}`);
+        logger.info(`stderr: ${stderr}`);
+        });
+        return {"status":200,"message":"CA started "}
+    } catch (error) {
+        logger.error('Failed to start CA: ' + error);
+    }
+}
 
 exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
@@ -503,3 +531,4 @@ exports.getProfilesFromConfigtx = getProfilesFromConfigtx;
 exports.addConfigtxProfile = addConfigtxProfile;
 exports.createTransactionConfig = createTransactionConfig;
 exports.createChannel = createChannel;
+exports.startCA = startCA;

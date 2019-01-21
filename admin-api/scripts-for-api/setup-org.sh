@@ -15,14 +15,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Builds the main Fabric network on a Kubernetes cluster.
-# This script can be rerun if it fails. It will simply rerun the K8s commands, which will have
-# no impact if they've been run previously
 set -e
 
 function main {
     echo "Preparing environment for new org"
-    echo "Home is: ${HOME}"
     cd $HOME/$REPO/fabric-main
     source util-prep.sh
     source utilities.sh
