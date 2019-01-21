@@ -172,16 +172,17 @@ async function addOrg(args) {
         //Check that the new org to be added does not already exist in configtx.yaml
         if (orgsInConfig.indexOf(org) > -1) {
             logger.error('Org: ' + org + ' already exists in configtx.yaml. These orgs are already present: ' + orgsInConfig);
-            return;
+        } else {
+            await addOrgToConfigtx(org);
         }
-        await addOrgToConfigtx(org);
+
         let orgsInEnv = await getOrgsFromEnv();
         //Check that the new org to be added does not already exist in env.sh
         if (orgsInEnv.indexOf(org) > -1) {
             logger.error('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
-            return;
+        } else {
+            await addOrgToEnv(org);
         }
-        await addOrgToEnv(org);
         logger.info('Added a new org to configtx.yaml and env.sh');
         return {"status":200,"message":"Org added to configtx.yaml and env.sh. New org is: " + org}
     } catch (error) {
