@@ -293,7 +293,7 @@ async function addConfigtxProfile(args) {
                 return;
             }
         }
-        configtxFilepath = path.join(dataPath, configtxFilename);
+        let configtxFilepath = path.join(dataPath, configtxFilename);
         await backupFile(configtxFilepath);
         let fd;
 
