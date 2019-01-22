@@ -381,7 +381,7 @@ async function createChannel(args) {
     // inside the CLI container
     try {
         logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
-        fs.copyFileSync(localScriptPath, scriptPath);
+        fs.copyFileSync(localScriptPath, path.join(scriptPath, "create-channel.sh"));
     } catch (error) {
         logger.error('Failed to copy the script file: ' + error);
         throw error;
