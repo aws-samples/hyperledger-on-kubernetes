@@ -54,8 +54,8 @@ function createChannel {
    fi
 }
 
-DATADIR=/opt/share/
-SCRIPTS=$DATADIR/rca-scripts
+DATADIR=/data
+SCRIPTS=/scripts
 REPO=hyperledger-on-kubernetes
 main
 
