@@ -20,9 +20,10 @@ set -e
 function main {
 
     echo "In create-channel.sh script"
+    echo "Args are: " $*
     source $SCRIPTS/env.sh
     CHANNEL_NAME=$1
-    echo "In create-channel.sh script - creating new channel: $CHANNEL_NAME"
+    echo "In create-channel.sh script - creating new channel: ${CHANNEL_NAME}"
 
     # Set ORDERER_PORT_ARGS to the args needed to communicate with the 1st orderer
     IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
@@ -44,12 +45,13 @@ function main {
 function createChannel {
    initPeerVars ${PORGS[0]} 1
    switchToAdminIdentity
-   log "Creating channel '$CHANNEL_NAME' with file '$CHANNEL_TX_FILE' on $ORDERER_HOST using connection '$ORDERER_CONN_ARGS'"
+   cd $DATADIR
+   log "Creating channel '$CHANNEL_NAME' with file ${CHANNEL_NAME}.tx on $ORDERER_HOST using connection '$ORDERER_CONN_ARGS'"
    local CHANNELLIST=`peer channel list | grep -c ${CHANNEL_NAME}`
    if [ $CHANNELLIST -gt 0 ]; then
        log "Channel '$CHANNEL_NAME' already exists - creation request ignored"
    else
-       peer channel create --logging-level=DEBUG -c $CHANNEL_NAME -f $CHANNEL_TX_FILE $ORDERER_CONN_ARGS
+       peer channel create --logging-level=DEBUG -c $CHANNEL_NAME -f ${CHANNEL_NAME}.tx $ORDERER_CONN_ARGS
        cp ${CHANNEL_NAME}.block /$DATA
    fi
 }
