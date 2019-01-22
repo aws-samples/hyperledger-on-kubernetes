@@ -19,10 +19,6 @@ set -e
 
 function main {
 
-    echo "In create-channel.sh script"
-    echo "Args are: " $*
-    source $SCRIPTS/env.sh
-    CHANNEL_NAME=$1
     echo "In create-channel.sh script - creating new channel: ${CHANNEL_NAME}"
 
     # Set ORDERER_PORT_ARGS to the args needed to communicate with the 1st orderer
@@ -59,5 +55,8 @@ function createChannel {
 DATADIR=/data
 SCRIPTS=/scripts
 REPO=hyperledger-on-kubernetes
+source $SCRIPTS/env.sh
+echo "Args are: " $*
+CHANNEL_NAME=$1
 main
 

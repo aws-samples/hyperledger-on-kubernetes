@@ -387,7 +387,7 @@ async function createChannel(args) {
         throw error;
     }
 
-    let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"export FABRIC_CFG_PATH=/data; bash /scripts/create-channel.sh " + channelName + "\"";
+    let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/create-channel.sh " + channelName + "\"";
 
     try {
         logger.info('Executing cmd: ' + cmd);
