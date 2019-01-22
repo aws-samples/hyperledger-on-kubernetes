@@ -23,7 +23,7 @@ function main {
     cd $HOME/$REPO/fabric-main
 
     CHANNEL_NAME=$1
-    echo "Creating new channel: $CHANNEL_NAME"
+    echo "In create-channel.sh script - creating new channel: $CHANNEL_NAME"
 
     # Set ORDERER_PORT_ARGS to the args needed to communicate with the 1st orderer
     IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"

@@ -398,94 +398,94 @@ async function createChannel(args) {
 
 
 
-
-    let signatures = [];
-    logger.info('Creating channel: ' + channelName + ' using transaction config file: ' + channelName + ".tx");
-    try {
-//        let userorg = "org1";
-//        let username = userorg + 'user';
-//        let userdetails = {"username":username,"org":userorg};
-//    	let response = await connection.getRegisteredUser(userdetails, true);
-//        let caClient = client.getCertificateAuthority();
-//        logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(caClient));
-//        let adminUserObj = await client.setUserContext({username: caClient._registrar[0].enrollId, password: caClient._registrar[0].enrollSecret});
 //
-        // Set connection options; identity and wallet
-        let connectionOptions = {
-          identity: 'admin',
-          wallet: wallet,
-          discovery: { enabled:true, asLocalhost:false }
-        };
-
-        // Connect to gateway using application specified parameters
-        logger.info('Connecting to Fabric gateway.');
-
-        await gateway.connect(ccp, connectionOptions);
-        client = gateway.getClient();
-
-        // first read in the file, this gives us a binary config envelope
-        let envelope_bytes = fs.readFileSync(path.join(dataPath, channelName + ".tx"));
-        // have the nodeSDK extract out the config update
-        var config_update = await client.extractChannelConfig(envelope_bytes);
-
-//        //get the client used to sign the package
-//        let userorg = "org1";
-//        let username = userorg + 'user';
-//        let userdetails = {"username":username,"org":userorg};
-//    	let response = await connection.getRegisteredUser(userdetails, true);
-//        logger.info('getRegisteredUser response: ' + util.inspect(response));
-//        client = await connection.getClientForOrg(userorg, username);
-//        if(!client) {
-//			throw new Error(util.format('User was not found :', username));
-//		} else {
-//			logger.debug('User %s was found to be registered and enrolled', username);
-//        }
-
-
-
-        var signature = client.signChannelConfig(config_update);
-        signatures.push(signature);
-
-//        //get the client used to sign the package
-//        userorg = "org2";
-//        username = userorg + 'user';
-//        userdetails = {"username":username,"org":userorg};
-//    	response = await connection.getRegisteredUser(userdetails, true);
-//        logger.info('getRegisteredUser response: ' + util.inspect(response));
-//        client = await connection.getClientForOrg(userorg, username);
-//        if(!client) {
-//			throw new Error(util.format('User was not found :', username));
-//		} else {
-//			logger.debug('User %s was found to be registered and enrolled', username);
-//        }
-//        signature = client.signChannelConfig(config_update);
+//    let signatures = [];
+//    logger.info('Creating channel: ' + channelName + ' using transaction config file: ' + channelName + ".tx");
+//    try {
+////        let userorg = "org1";
+////        let username = userorg + 'user';
+////        let userdetails = {"username":username,"org":userorg};
+////    	let response = await connection.getRegisteredUser(userdetails, true);
+////        let caClient = client.getCertificateAuthority();
+////        logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(caClient));
+////        let adminUserObj = await client.setUserContext({username: caClient._registrar[0].enrollId, password: caClient._registrar[0].enrollSecret});
+////
+//        // Set connection options; identity and wallet
+//        let connectionOptions = {
+//          identity: 'admin',
+//          wallet: wallet,
+//          discovery: { enabled:true, asLocalhost:false }
+//        };
+//
+//        // Connect to gateway using application specified parameters
+//        logger.info('Connecting to Fabric gateway.');
+//
+//        await gateway.connect(ccp, connectionOptions);
+//        client = gateway.getClient();
+//
+//        // first read in the file, this gives us a binary config envelope
+//        let envelope_bytes = fs.readFileSync(path.join(dataPath, channelName + ".tx"));
+//        // have the nodeSDK extract out the config update
+//        var config_update = await client.extractChannelConfig(envelope_bytes);
+//
+////        //get the client used to sign the package
+////        let userorg = "org1";
+////        let username = userorg + 'user';
+////        let userdetails = {"username":username,"org":userorg};
+////    	let response = await connection.getRegisteredUser(userdetails, true);
+////        logger.info('getRegisteredUser response: ' + util.inspect(response));
+////        client = await connection.getClientForOrg(userorg, username);
+////        if(!client) {
+////			throw new Error(util.format('User was not found :', username));
+////		} else {
+////			logger.debug('User %s was found to be registered and enrolled', username);
+////        }
+//
+//
+//
+//        var signature = client.signChannelConfig(config_update);
 //        signatures.push(signature);
-
-        // create an orderer object to represent the orderer of the network
-        logger.info('Connecting to orderer: ' + ordererUrl);
-        var orderer = client.newOrderer(ordererUrl);
-//        var orderer = client.newOrderer(ordererUrl, {"pem":"/opt/share/rca-data/org0-ca-chain.pem"});
-
-        // have the SDK generate a transaction id
-        let tx_id = client.newTransactionID();
-        logger.info('Creating channel - tx_id: ' + tx_id);
-
-        let request = {
-          config: config_update, //the binary config
-          signatures : [signature], // the collected signatures
-          name : channelName, // the channel name
-          orderer : orderer,
-          txId  : tx_id //the generated transaction id
-        };
-
-        // this call will return a Promise
-        let response = await client.createChannel(request);
-        logger.info('Channel created - response: ' + util.inspect(response));
-
-    } catch (error) {
-        logger.error('Failed to createChannel: ' + error);
-        throw error;
-    }
+//
+////        //get the client used to sign the package
+////        userorg = "org2";
+////        username = userorg + 'user';
+////        userdetails = {"username":username,"org":userorg};
+////    	response = await connection.getRegisteredUser(userdetails, true);
+////        logger.info('getRegisteredUser response: ' + util.inspect(response));
+////        client = await connection.getClientForOrg(userorg, username);
+////        if(!client) {
+////			throw new Error(util.format('User was not found :', username));
+////		} else {
+////			logger.debug('User %s was found to be registered and enrolled', username);
+////        }
+////        signature = client.signChannelConfig(config_update);
+////        signatures.push(signature);
+//
+//        // create an orderer object to represent the orderer of the network
+//        logger.info('Connecting to orderer: ' + ordererUrl);
+//        var orderer = client.newOrderer(ordererUrl);
+////        var orderer = client.newOrderer(ordererUrl, {"pem":"/opt/share/rca-data/org0-ca-chain.pem"});
+//
+//        // have the SDK generate a transaction id
+//        let tx_id = client.newTransactionID();
+//        logger.info('Creating channel - tx_id: ' + tx_id);
+//
+//        let request = {
+//          config: config_update, //the binary config
+//          signatures : [signature], // the collected signatures
+//          name : channelName, // the channel name
+//          orderer : orderer,
+//          txId  : tx_id //the generated transaction id
+//        };
+//
+//        // this call will return a Promise
+//        let response = await client.createChannel(request);
+//        logger.info('Channel created - response: ' + util.inspect(response));
+//
+//    } catch (error) {
+//        logger.error('Failed to createChannel: ' + error);
+//        throw error;
+//    }
 }
 
 
@@ -503,6 +503,7 @@ async function setupOrg(args) {
         if (err) {
             logger.error('Failed to prepare environment');
             logger.error(err);
+            logger.info(`stdout: ${stdout}`);
             logger.info(`stderr: ${stderr}`);
             return;
         }
