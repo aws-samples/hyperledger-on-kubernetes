@@ -14,6 +14,7 @@ const walletPath = path.join(process.cwd(), 'wallet');
 const wallet = new FileSystemWallet(walletPath);
 const gateway = new Gateway();
 const { exec } = require('child_process');
+const { execFile } = require('child_process');
 var CONFIG = require('./config.json');
 
 let configtxContents = '';
@@ -373,15 +374,16 @@ async function createChannel(args) {
 
     let channelName = args['channelname'];
     logger.info('Creating new channel: ' + channelName);
-    let scriptName = 'scripts-for-api/create-channel.sh ' + channelName;
-    let cmd = path.resolve(__dirname, scriptName);
+    let scriptName = 'scripts-for-api/create-channel.sh';
+    let shellScript = path.resolve(__dirname, scriptName);
 
     try {
-        logger.info('Running command: ' + cmd);
-        exec(cmd, (err, stdout, stderr) => {
+        logger.info('Executing file: ' + shellScript + ' with arguments: ' + channelName);
+        execFile(shellScript, [channelName], (err, stdout, stderr) => {
         if (err) {
-            logger.error('Failed to create channel');
+            logger.error('Error during execFile - failed to create channel: ' + channelName);
             logger.error(err);
+            logger.info(`stdout: ${stdout}`);
             logger.info(`stderr: ${stderr}`);
             return;
         }
