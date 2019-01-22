@@ -363,6 +363,7 @@ async function createTransactionConfig(args) {
         logger.info(`stderr: ${stderr}`);
         });
         logger.info('Generated a transaction config for profile/channel: ' + args + ". Check ls -lt /opt/share/rca-data for the latest .tx file");
+        return {"status":200,"message":"Created channel configuration transaction file - Check ls -lt /opt/share/rca-data for the latest .tx file"}
     } catch (error) {
         logger.error('Failed to createTransactionConfig: ' + error);
     }
@@ -371,7 +372,33 @@ async function createTransactionConfig(args) {
 async function createChannel(args) {
 
     let channelName = args['channelname'];
-    let ordererUrl = ccp.orderers['orderer3-org0.org0'].url;
+    logger.info('Creating new channel: ' + channelName);
+    let scriptName = 'scripts-for-api/create-channel.sh ' + channelName;
+    let cmd = path.resolve(__dirname, scriptName);
+
+    try {
+        logger.info('Running command: ' + cmd);
+        exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            logger.error('Failed to create channel');
+            logger.error(err);
+            logger.info(`stderr: ${stderr}`);
+            return;
+        }
+
+        // the *entire* stdout and stderr (buffered)
+        logger.info(`stdout: ${stdout}`);
+        logger.info(`stderr: ${stderr}`);
+        });
+        return {"status":200,"message":"Created new channel: " + channelName}
+    } catch (error) {
+        logger.error('Failed to create channel: ' + error);
+    }
+
+
+
+
+
     let signatures = [];
     logger.info('Creating channel: ' + channelName + ' using transaction config file: ' + channelName + ".tx");
     try {

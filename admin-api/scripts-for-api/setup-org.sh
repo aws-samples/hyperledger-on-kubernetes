@@ -31,7 +31,6 @@ function main {
     echo "Preparing environment for new org complete"
 }
 
-SDIR=$(dirname "$0")
 DATADIR=/opt/share/
 SCRIPTS=$DATADIR/rca-scripts
 REPO=hyperledger-on-kubernetes

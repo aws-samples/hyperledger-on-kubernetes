@@ -224,7 +224,7 @@ app.post('/configtx/channelconfigs', awaitHandler(async (req, res) => {
 	}
 }));
 
-// Generate a new channel transaction config using a profile in configtx.yaml
+// Create a new channel
 app.post('/channels', awaitHandler(async (req, res) => {
 	logger.info('================ POST on channel');
 	let args = req.body;
