@@ -19,9 +19,8 @@ set -e
 
 function main {
 
+    echo "In create-channel.sh script"
     source $SCRIPTS/env.sh
-    cd $HOME/$REPO/fabric-main
-
     CHANNEL_NAME=$1
     echo "In create-channel.sh script - creating new channel: $CHANNEL_NAME"
 
