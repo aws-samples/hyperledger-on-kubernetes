@@ -370,18 +370,30 @@ async function createTransactionConfig(args) {
     }
 }
 
+
 async function createChannel(args) {
 
     let channelName = args['channelname'];
     logger.info('Creating new channel: ' + channelName);
     let scriptName = 'scripts-for-api/create-channel.sh';
-    let shellScript = path.resolve(__dirname, scriptName);
+    let localScriptPath = path.resolve(__dirname, scriptName);
+    // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
+    // inside the CLI container
+    try {
+        logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
+        fs.copyFileSync(localScriptPath, scriptPath);
+    } catch (error) {
+        logger.error('Failed to copy the script file: ' + error);
+        throw error;
+    }
+
+    let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"export FABRIC_CFG_PATH=/data; /scripts/create-channel.sh " + channelName + "\"";
 
     try {
-        logger.info('Executing file: ' + shellScript + ' with arguments: ' + channelName);
-        execFile(shellScript, [channelName], (err, stdout, stderr) => {
+        logger.info('Executing cmd: ' + cmd);
+        exec(cmd, (err, stdout, stderr) => {
         if (err) {
-            logger.error('Error during execFile - failed to create channel: ' + channelName);
+            logger.error('Error during exec - failed to create channel: ' + channelName);
             logger.error(err);
             logger.info(`stdout: ${stdout}`);
             logger.info(`stderr: ${stderr}`);
