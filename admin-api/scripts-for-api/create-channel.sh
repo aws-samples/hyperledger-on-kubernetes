@@ -27,8 +27,9 @@ function main {
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --tls --cafile $CA_CHAINFILE --clientauth"
     #   export ORDERER_PORT_ARGS="-o $ORDERER_HOST:7050 --cafile $CA_CHAINFILE"
 
-    # Convert PEER_ORGS to an array named PORGS
+    # Use the first peer of the first org for admin activities
     IFS=', ' read -r -a PORGS <<< "$PEER_ORGS"
+    initPeerVars ${PORGS[0]} 1
 
     # Create the channel
     createChannel
@@ -39,7 +40,6 @@ function main {
 
 # Enroll as a peer admin and create the channel
 function createChannel {
-   initPeerVars ${PORGS[0]} 1
    switchToAdminIdentity
    cd $DATADIR
    log "Creating channel '$CHANNEL_NAME' with file ${CHANNEL_NAME}.tx on $ORDERER_HOST using connection '$ORDERER_CONN_ARGS'"

@@ -17,14 +17,16 @@
 
 function main {
 
-       log "Generating the channel config for new org '$NEW_ORG'"
+       log "Fetching the configuration block for channel '$CHANNEL_NAME'"
 
        # Set ORDERER_PORT_ARGS to the args needed to communicate with the 1st orderer
        IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
        initOrdererVars ${OORGS[0]} 1
        export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --tls --cafile $CA_CHAINFILE --clientauth"
 
-       initPeerVars ${PEERORG} 1
+       # Use the first peer of the first org for admin activities
+       IFS=', ' read -r -a PORGS <<< "$PEER_ORGS"
+       initPeerVars ${PORGS[0]} 1
 
        # Fetch config block
        fetchConfigBlock

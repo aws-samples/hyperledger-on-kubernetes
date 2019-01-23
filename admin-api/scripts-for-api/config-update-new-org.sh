@@ -24,7 +24,9 @@ function main {
        initOrdererVars ${OORGS[0]} 1
        export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --tls --cafile $CA_CHAINFILE --clientauth"
 
-       initPeerVars ${PEERORG} 1
+       # Use the first peer of the first org for admin activities
+       IFS=', ' read -r -a PORGS <<< "$PEER_ORGS"
+       initPeerVars ${PORGS[0]} 1
 
        # Create config update envelope with CRL and update the config block of the channel
        log "About to start createConfigUpdate"
