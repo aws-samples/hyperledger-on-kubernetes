@@ -525,8 +525,8 @@ async function addOrgToConsortium(args) {
         let org = args['org'];
         logger.info('Adding org: ' + org + ' to consortium defined in system channel: ' + channelName);
 
-        await fetchLatestConfigBlock(channelName);
-        await createNewOrgConfig(org);
+        await fetchLatestConfigBlock({"channelname": channelName});
+        await createNewOrgConfig({"org": org});
 
         // Generate the new config for the org
         let scriptName = 'config-update-system-channel.sh';
