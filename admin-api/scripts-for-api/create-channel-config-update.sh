@@ -117,7 +117,7 @@ function createConfigUpdateSystemChannel {
     # Create the config diff protobuf
     curl -X POST --data-binary @${CHANNEL_NAME}_${NEW_ORG}_config.json $CTLURL/protolator/encode/common.Config > ${CHANNEL_NAME}_${NEW_ORG}_config.pb
     curl -X POST --data-binary @${CHANNEL_NAME}_${NEW_ORG}_updated_config.json $CTLURL/protolator/encode/common.Config > ${CHANNEL_NAME}_${NEW_ORG}_updated_config.pb
-    curl -X POST -F original=@${CHANNEL_NAME}_${NEW_ORG}_config.pb -F updated=@${NEW_ORG}_updated_config.pb $CTLURL/configtxlator/compute/update-from-configs -F channel=$CHANNEL_NAME > ${CHANNEL_NAME}_${NEW_ORG}_config_update.pb
+    curl -X POST -F original=@${CHANNEL_NAME}_${NEW_ORG}_config.pb -F updated=@${CHANNEL_NAME}_${NEW_ORG}_updated_config.pb $CTLURL/configtxlator/compute/update-from-configs -F channel=$CHANNEL_NAME > ${CHANNEL_NAME}_${NEW_ORG}_config_update.pb
 
     # Convert the config diff protobuf to JSON
     curl -X POST --data-binary @${CHANNEL_NAME}_${NEW_ORG}_config_update.pb $CTLURL/protolator/decode/common.ConfigUpdate > ${CHANNEL_NAME}_${NEW_ORG}_config_update.json

@@ -37,7 +37,7 @@ function generateNewOrgConfig() {
     fatal "configtxgen tool not found. exiting"
   fi
 
-  log "Printing the new Org configuration for '$NEW_ORG' at '/$DATA'. See the file " /${DATADIR}/$NEW_ORG.json
+  log "Printing the new Org configuration for '$NEW_ORG' at '/$DATA'. See the file " /${DATADIR}/${NEW_ORG}.json
   export FABRIC_CFG_PATH=/$DATA
   cd $FABRIC_CFG_PATH
   configtxgen -printOrg $NEW_ORG > /${DATADIR}/$NEW_ORG.json
