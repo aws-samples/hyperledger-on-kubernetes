@@ -41,7 +41,7 @@ function main {
     createConfigUpdateSystemChannel
     if [ $? -eq 1 ]; then
        log "Org '$NEW_ORG' already exists in the channel config in channel $CHANNEL_NAME. Config will not be updated or signed"
-       exit 0
+       exit 1
     else
        log "Congratulations! The channel update config for the new org '$NEW_ORG' was successfully created. Now it must be signed by all org admins"
        exit 0
@@ -57,7 +57,7 @@ function isOrgInChannelConfig {
     local JSONFILE=$1
 
     # check if the org exists in the channel config
-    let groupJQPath;
+    let groupJQPath = '';
     if [ "$SYSTEM_CHANNEL" = true ]; then
         groupJQPath = ".channel_group.groups.Consortiums.groups.SampleConsortium.groups | contains({$NEW_ORG})";
     else
@@ -101,7 +101,6 @@ function createConfigUpdateSystemChannel {
 
     isOrgInChannelConfig ${CHANNEL_NAME}_${NEW_ORG}_config.json
     if [ $? -eq 0 ]; then
-        log "Org '$NEW_ORG' already exists in the channel config for channel $CHANNEL_NAME. Config will not be updated. Exiting createConfigUpdate"
         return 1
     fi
 
