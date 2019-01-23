@@ -17,18 +17,18 @@
 
 function main {
 
-    log "Updating the channel config block for the channel '$CHANNEL_NAME' for the new org '$NEW_ORG'"
-
     # Set ORDERER_PORT_ARGS to the args needed to communicate with the 3rd orderer
     IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
     initOrdererVars ${OORGS[0]} 3
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --cafile $CA_CHAINFILE"
 
     if [ "$SYSTEM_CHANNEL" = true ]; then
+        log "Updating the channel config block for the system channel '$CHANNEL_NAME' for the new org '$NEW_ORG'"
         # Set MSP to orderer
         export CORE_PEER_MSPCONFIGPATH=/data/orgs/org0/admin/msp
         export CORE_PEER_LOCALMSPID=org0MSP
     else
+        log "Updating the channel config block for the application channel '$CHANNEL_NAME' for the new org '$NEW_ORG'"
         # Use the first peer of the first org for admin activities
         IFS=', ' read -r -a PORGS <<< "$PEER_ORGS"
         initPeerVars ${PORGS[0]} 1

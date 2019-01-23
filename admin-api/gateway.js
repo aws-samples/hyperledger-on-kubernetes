@@ -627,7 +627,7 @@ async function createChannelConfigUpdate(args) {
             throw error;
         }
 
-        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + org + "\"";
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + org + " " + systemChannel + "\"";
 
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
@@ -660,7 +660,7 @@ async function applyChannelConfigUpdate(args) {
             throw error;
         }
 
-        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + org + "\"";
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + org + " " + systemChannel + "\"";
 
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
