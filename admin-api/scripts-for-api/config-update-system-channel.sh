@@ -17,7 +17,7 @@
 
 function main {
 
-       log "Generating the channel config for the system channel '$CHANNEL_NAME' for the new org '$NEW_ORG'"
+       log "Generating the channel update config for the system channel '$CHANNEL_NAME' for the new org '$NEW_ORG'"
 
        # Set ORDERER_PORT_ARGS to the args needed to communicate with the 1st orderer
        IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
@@ -35,8 +35,7 @@ function main {
            log "Org '$NEW_ORG' already exists in the channel config in channel $CHANNEL_NAME. Config will not be updated or signed"
            exit 0
        else
-           log "Congratulations! The config file for the new org '$NEW_ORG' was successfully added by peer '$PEERORG' admin. Now it must be signed by all org admins"
-           log "After this pod completes, run the pod which contains the script addorg-fabric-sign.sh"
+           log "Congratulations! The channel update config for the new org '$NEW_ORG' was successfully added by peer '$PEERORG' admin. Now it must be signed by all org admins"
            exit 0
        fi
 }
@@ -65,6 +64,7 @@ function isOrgInChannelConfig {
 # Adds a new org to the consortium configured in the system channel
 function createConfigUpdateSystemChannel {
    log "Creating config update payload for the new organization '$NEW_ORG'"
+   echo "Creating the config update payload for the new organization '$NEW_ORG'"
    # Start the configtxlator
    configtxlator start &
    configtxlator_pid=$!
@@ -80,11 +80,11 @@ function createConfigUpdateSystemChannel {
 
    CTLURL=http://127.0.0.1:7059
    # Convert the config block protobuf to JSON
-   curl -X POST --data-binary @$CONFIG_BLOCK_FILE $CTLURL/protolator/decode/common.Block > $${CHANNEL_NAME}-{NEW_ORG}_config_block.json
+   curl -X POST --data-binary @$CONFIG_BLOCK_FILE $CTLURL/protolator/decode/common.Block > ${CHANNEL_NAME}-${NEW_ORG}_config_block.json
    # Extract the config from the config block
-   jq .data.data[0].payload.data.config $${CHANNEL_NAME}-{NEW_ORG}_config_block.json > $${CHANNEL_NAME}-{NEW_ORG}_config.json
-   sudo cp $${CHANNEL_NAME}-{NEW_ORG}_config_block.json $jsonbkdir
-   sudo cp $${CHANNEL_NAME}-{NEW_ORG}_config.json $jsonbkdir
+   jq .data.data[0].payload.data.config ${CHANNEL_NAME}-${NEW_ORG}_config_block.json > ${CHANNEL_NAME}-${NEW_ORG}_config.json
+   sudo cp ${CHANNEL_NAME}-${NEW_ORG}_config_block.json $jsonbkdir
+   sudo cp ${CHANNEL_NAME}-${NEW_ORG}_config.json $jsonbkdir
 
    isOrgInChannelConfig ${CHANNEL_NAME}-${NEW_ORG}_config.json
    if [ $? -eq 0 ]; then
