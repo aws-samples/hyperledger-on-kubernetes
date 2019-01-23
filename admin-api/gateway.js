@@ -584,13 +584,13 @@ async function fetchLatestConfigBlock(args) {
             throw error;
         }
 
-        let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + "\"";
+        let cmd = "kubectl exec $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + "\"";
 
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
         execSync(cmd);
         if (err) {
-            logger.error('Error during exec - failed to create channel: ' + channelName);
+            logger.error('Error during exec - failed to get latest config block from channel: ' + channelName);
             logger.error(err);
             logger.info(`stdout: ${stdout}`);
             logger.info(`stderr: ${stderr}`);
@@ -600,9 +600,9 @@ async function fetchLatestConfigBlock(args) {
         // the *entire* stdout and stderr (buffered)
         logger.info(`stdout: ${stdout}`);
         logger.info(`stderr: ${stderr}`);
-        return {"status":200,"message":"Created new channel: " + channelName}
+        return {"status":200,"message":"Got latest config block from channel: " + channelName}
     } catch (error) {
-        logger.error('Failed to create channel: ' + error);
+        logger.error('Failed to get latest config block from channel: ' + error);
         throw error;
     }
 }
