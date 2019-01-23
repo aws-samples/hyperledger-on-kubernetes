@@ -25,6 +25,10 @@ let envFilename = CONFIG.envfile;
 let ccp = yaml.safeLoad(fs.readFileSync('connection-profile/connection-profile.yaml', 'utf8'));
 let client;
 
+// this is the default name given to the orderer system channel when booting the Fabric network
+// unless you have overridden this
+let systemChannelName = 'testchainid';
+
 // This is a little hack. It loads the file env.sh as a list of properties so that I can easily refer to a property in the code
 require('dotenv').config({ path: path.join(scriptPath, envFilename) })
 console.log(process.env);
@@ -161,6 +165,8 @@ async function getProfilesFromConfigtx() {
 }
 
 // This will create a new org to both the configtx.yaml and env.sh config files
+// The new org also needs to be added to the consortium, which is defined in the orderer system channel, which
+// is created from the orderer genesis block when the Fabric network is booted
 //
 // TODO: the anchor peer needs to be passed to this function, and updated into configtx.yaml
 async function addOrg(args) {
@@ -185,6 +191,10 @@ async function addOrg(args) {
             await addOrgToEnv(org);
         }
         logger.info('Added a new org to configtx.yaml and env.sh');
+
+        logger.info('Adding new org to consortium');
+        await addOrgToConsortium(org, systemChannelName);
+
         return {"status":200,"message":"Org added to configtx.yaml and env.sh. New org is: " + org}
     } catch (error) {
         logger.error('Failed to addOrg: ' + error);
@@ -502,6 +512,134 @@ async function createChannel(args) {
 //    }
 }
 
+// Creates a channel config update file that can be signed and used to update the channel config
+async function addOrgToConsortium(args) {
+
+    let channelName = args['channelname'];
+    let org = args['org'];
+    logger.info('Adding org: ' + org + ' to consortium defined in system channel: ' + channelName);
+
+    await fetchLatestConfigBlock(channelName);
+    await createNewOrgConfig(org);
+
+    // Generate the new config for the org
+    let scriptName = 'config-update-system-channel.sh';
+    let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
+    // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
+    // inside the CLI container
+    try {
+        logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
+        fs.copyFileSync(localScriptPath, path.join(scriptPath, "new-org-comfig.sh"));
+    } catch (error) {
+        logger.error('Failed to copy the script file: ' + error);
+        throw error;
+    }
+
+    let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + " " + org + "\"";
+
+    try {
+        logger.info('Executing cmd: ' + cmd);
+        exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            logger.error('Error during exec - failed to create channel: ' + channelName);
+            logger.error(err);
+            logger.info(`stdout: ${stdout}`);
+            logger.info(`stderr: ${stderr}`);
+            return;
+        }
+
+        // the *entire* stdout and stderr (buffered)
+        logger.info(`stdout: ${stdout}`);
+        logger.info(`stderr: ${stderr}`);
+        });
+        return {"status":200,"message":"Created new channel: " + channelName}
+    } catch (error) {
+        logger.error('Failed to create channel: ' + error);
+    }
+}
+
+// Creates a config for the new org using configtxgen
+async function createNewOrgConfig(args) {
+
+    let org = args['org'];
+    logger.info('Creating a new config for org: ' + org);
+
+    // Generate the new config for the org
+    let scriptName = 'new-org-comfig.sh';
+    let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
+    // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
+    // inside the CLI container
+    try {
+        logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
+        fs.copyFileSync(localScriptPath, path.join(scriptPath, "new-org-comfig.sh"));
+    } catch (error) {
+        logger.error('Failed to copy the script file: ' + error);
+        throw error;
+    }
+
+    let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + " " + org + "\"";
+
+    try {
+        logger.info('Executing cmd: ' + cmd);
+        exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            logger.error('Error during exec - failed to create config for org: ' + org);
+            logger.error(err);
+            logger.info(`stdout: ${stdout}`);
+            logger.info(`stderr: ${stderr}`);
+            return;
+        }
+
+        // the *entire* stdout and stderr (buffered)
+        logger.info(`stdout: ${stdout}`);
+        logger.info(`stderr: ${stderr}`);
+        });
+        return {"status":200,"message":"Created new config for org: " + org}
+    } catch (error) {
+        logger.error('Failed to create new config for org: ' + error);
+    }
+}
+
+// Gets the latest config block from a channel
+async function fetchLatestConfigBlock(args) {
+
+    let channelName = args['channelname'];
+    logger.info('Getting latest config block from channel: ' + channelName);
+
+    let scriptName = 'fetch-config-block.sh';
+    let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
+    // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
+    // inside the CLI container
+    try {
+        logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
+        fs.copyFileSync(localScriptPath, path.join(scriptPath, scriptName));
+    } catch (error) {
+        logger.error('Failed to copy the script file: ' + error);
+        throw error;
+    }
+
+    let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + "\"";
+
+    try {
+        logger.info('Executing cmd: ' + cmd);
+        exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            logger.error('Error during exec - failed to create channel: ' + channelName);
+            logger.error(err);
+            logger.info(`stdout: ${stdout}`);
+            logger.info(`stderr: ${stderr}`);
+            return;
+        }
+
+        // the *entire* stdout and stderr (buffered)
+        logger.info(`stdout: ${stdout}`);
+        logger.info(`stderr: ${stderr}`);
+        });
+        return {"status":200,"message":"Created new channel: " + channelName}
+    } catch (error) {
+        logger.error('Failed to create channel: ' + error);
+    }
+}
 
 // This will prepare the environment for a new org: create directories, start K8s persistent volumes, etc.
 async function setupOrg(args) {
@@ -601,3 +739,4 @@ exports.createTransactionConfig = createTransactionConfig;
 exports.createChannel = createChannel;
 exports.startCA = startCA;
 exports.startRegisterOrg = startRegisterOrg;
+exports.addOrgToConsortium = addOrgToConsortium;
