@@ -531,7 +531,8 @@ async function addOrgToConsortium(args) {
 
         await fetchLatestConfigBlock({"channelname": channelName});
         await createNewOrgConfig({"org": org});
-        await createUpdateConfig({"org": org, "channelname": channelName});
+        await createChannelConfigUpdate({"org": org, "channelname": channelName});
+        await applyChannelConfigUpdate({"org": org, "channelname": channelName});
 
         return {"status":200,"message":"Added org to consortium defined in system channel: " + channelName}
     } catch (error) {
@@ -605,15 +606,15 @@ async function createNewOrgConfig(args) {
 
 // Creates an update config by performing a 'diff' between the existing channel config and the config generated in
 // createNewOrgConfig. This update config can then be applied to the channel to update the channel config.
-async function createUpdateConfig(args) {
+async function createChannelConfigUpdate(args) {
 
     try {
         let org = args['org'];
         let channelName = args['channelname'];
-        logger.info('Creating an update config for org: ' + org + ", channel: " + channelName);
+        logger.info('Creating a channel update config for org: ' + org + ", channel: " + channelName);
 
         // Generate the update config for the org
-        let scriptName = 'config-update-system-channel.sh';
+        let scriptName = 'create-channel-config-update.sh';
         let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
         // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
         // inside the CLI container
@@ -630,9 +631,42 @@ async function createUpdateConfig(args) {
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
         execSync(cmd, {stdio: 'inherit'});
-        return {"status":200,"message":"Created new update config for org: " + org}
+        return {"status":200,"message":"Created new channel update config for org: " + org}
     } catch (error) {
-        logger.error('Failed to create new update config for org: ' + error);
+        logger.error('Failed to create new channel update config for org: ' + error);
+        throw error;
+    }
+}
+
+// Applies the channel config update envelope to the channel.
+async function applyChannelConfigUpdate(args) {
+
+    try {
+        let org = args['org'];
+        let channelName = args['channelname'];
+        logger.info('Apply a channel update config for org: ' + org + ", channel: " + channelName);
+
+        // Generate the update config for the org
+        let scriptName = 'update-channel-config.sh';
+        let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
+        // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
+        // inside the CLI container
+        try {
+            logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
+            fs.copyFileSync(localScriptPath, path.join(scriptPath, scriptName));
+        } catch (error) {
+            logger.error('Failed to copy the script file: ' + error);
+            throw error;
+        }
+
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + org + "\"";
+
+        logger.info('Executing cmd: ' + cmd);
+        // Needs to be sync as we need the output of this command for any subsequent steps
+        execSync(cmd, {stdio: 'inherit'});
+        return {"status":200,"message":"Applied new channel update config for org: " + org}
+    } catch (error) {
+        logger.error('Failed to apply new channel update config for org: ' + error);
         throw error;
     }
 }
