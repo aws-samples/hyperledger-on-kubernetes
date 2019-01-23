@@ -31,7 +31,7 @@ let client;
 let systemChannelName = 'testchainid';
 
 // command line to execute a script/command inside the CLI container
-let cliCommand = cliCommand + "";
+let cliCommand = "kubectl exec -i $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c ";
 
 // This is a little hack. It loads the file env.sh as a list of properties so that I can easily refer to a property in the code
 require('dotenv').config({ path: path.join(scriptPath, envFilename) })
