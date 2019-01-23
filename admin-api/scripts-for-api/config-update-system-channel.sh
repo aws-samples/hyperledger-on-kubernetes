@@ -17,7 +17,7 @@
 
 function main {
 
-       log "Generating the channel config for the system channel for the new org '$NEW_ORG'"
+       log "Generating the channel config for the system channel '$CHANNEL_NAME' for the new org '$NEW_ORG'"
 
        # Set ORDERER_PORT_ARGS to the args needed to communicate with the 1st orderer
        IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
@@ -30,9 +30,9 @@ function main {
 
        # Create config update envelope with CRL and update the config block of the channel
        log "About to start createConfigUpdate"
-       createConfigUpdateNewOrg
+       createConfigUpdateSystemChannel
        if [ $? -eq 1 ]; then
-           log "Org '$NEW_ORG' already exists in the channel config. Config will not be updated or signed"
+           log "Org '$NEW_ORG' already exists in the channel config in channel $CHANNEL_NAME. Config will not be updated or signed"
            exit 0
        else
            log "Congratulations! The config file for the new org '$NEW_ORG' was successfully added by peer '$PEERORG' admin. Now it must be signed by all org admins"
@@ -51,12 +51,12 @@ function isOrgInChannelConfig {
     local JSONFILE=$1
 
     # check if the org exists in the channel config
-    log "About to execute jq '.channel_group.groups.Application.groups | contains({$NEW_ORG})'"
-    if cat ${JSONFILE} | jq -e ".channel_group.groups.Application.groups | contains({$NEW_ORG})" > /dev/null; then
-        log "Org '$NEW_ORG' exists in the channel config"
+    log "About to execute jq 'channel_group.groups.Consortiums.groups.SampleConsortium.groups | contains({$NEW_ORG}MSP)'"
+    if cat ${JSONFILE} | jq -e ".channel_group.groups.Consortiums.groups.SampleConsortium.groups | contains({$NEW_ORG}MSP)" > /dev/null; then
+        log "Org MSP '$NEW_ORG'MSP exists in the channel config"
         return 0
     else
-        log "Org '$NEW_ORG' does not exist in the channel config"
+        log "Org MSP '$NEW_ORG'MSP does not exist in the channel config"
         return 1
     fi
 }
@@ -88,7 +88,7 @@ function createConfigUpdateSystemChannel {
 
    isOrgInChannelConfig ${CHANNEL_NAME}-${NEW_ORG}_config.json
    if [ $? -eq 0 ]; then
-        log "Org '$NEW_ORG' already exists in the channel config. Config will not be updated. Exiting createConfigUpdate"
+        log "Org '$NEW_ORG' already exists in the channel config for channel $CHANNEL_NAME. Config will not be updated. Exiting createConfigUpdate"
         return 1
    fi
 
