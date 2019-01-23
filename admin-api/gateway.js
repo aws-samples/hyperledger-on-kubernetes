@@ -535,7 +535,7 @@ async function addOrgToConsortium(args) {
         // inside the CLI container
         try {
             logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
-            fs.copyFileSync(localScriptPath, path.join(scriptPath, "new-org-comfig.sh"));
+            fs.copyFileSync(localScriptPath, path.join(scriptPath, scriptName));
         } catch (error) {
             logger.error('Failed to copy the script file: ' + error);
             throw error;
@@ -572,13 +572,13 @@ async function createNewOrgConfig(args) {
         logger.info('Creating a new config for org: ' + org);
 
         // Generate the new config for the org
-        let scriptName = 'new-org-comfig.sh';
+        let scriptName = 'new-org-config.sh';
         let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
         // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
         // inside the CLI container
         try {
             logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
-            fs.copyFileSync(localScriptPath, path.join(scriptPath, "new-org-comfig.sh"));
+            fs.copyFileSync(localScriptPath, path.join(scriptPath, scriptName));
         } catch (error) {
             logger.error('Failed to copy the script file: ' + error);
             throw error;
