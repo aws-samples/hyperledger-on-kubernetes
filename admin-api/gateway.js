@@ -30,6 +30,9 @@ let client;
 // unless you have overridden this
 let systemChannelName = 'testchainid';
 
+// command line to execute a script/command inside the CLI container
+let cliCommand = cliCommand + "";
+
 // This is a little hack. It loads the file env.sh as a list of properties so that I can easily refer to a property in the code
 require('dotenv').config({ path: path.join(scriptPath, envFilename) })
 console.log(process.env);
@@ -362,7 +365,7 @@ async function createTransactionConfig(args) {
         logger.error('Profile: ' + profileName + ' does not exist in configtx.yaml - cannot generate a transaction config. These profiles are already present: ' + profilesInConfig);
         return;
     }
-    let cmd = "kubectl exec -i $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"cd /data; export FABRIC_CFG_PATH=/data; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName + "\"";
+    let cmd = cliCommand + "\"cd /data; export FABRIC_CFG_PATH=/data; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName + "\"";
 
     try {
         logger.info('Generating channel configuration: ' + cmd);
@@ -402,7 +405,7 @@ async function createChannel(args) {
         throw error;
     }
 
-    let cmd = "kubectl exec -i $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/create-channel.sh " + channelName + "\"";
+    let cmd = cliCommand + "\"bash /scripts/create-channel.sh " + channelName + "\"";
 
     try {
         logger.info('Executing cmd: ' + cmd);
@@ -556,11 +559,11 @@ async function fetchLatestConfigBlock(args) {
             throw error;
         }
 
-        let cmd = "kubectl exec -i $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + "\"";
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + "\"";
 
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
-        execSync(cmd);
+        execSync(cmd, {stdio: 'inherit'});
         return {"status":200,"message":"Got latest config block from channel: " + channelName}
     } catch (error) {
         logger.error('Failed to get latest config block from channel: ' + error);
@@ -588,11 +591,11 @@ async function createNewOrgConfig(args) {
             throw error;
         }
 
-        let cmd = "kubectl exec -i $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + org + "\"";
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + org + "\"";
 
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
-        execSync(cmd);
+        execSync(cmd, {stdio: 'inherit'});
         return {"status":200,"message":"Created new config for org: " + org}
     } catch (error) {
         logger.error('Failed to create new config for org: ' + error);
@@ -622,12 +625,11 @@ async function createUpdateConfig(args) {
             throw error;
         }
 
-        let cmd = "kubectl exec -i $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + " " + org + "\"";
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + org + "\"";
 
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
-        execSync(cmd);
-
+        execSync(cmd, {stdio: 'inherit'});
         return {"status":200,"message":"Created new update config for org: " + org}
     } catch (error) {
         logger.error('Failed to create new update config for org: ' + error);
