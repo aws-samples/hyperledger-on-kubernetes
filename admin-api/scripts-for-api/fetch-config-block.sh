@@ -26,6 +26,7 @@ function main {
 
     # Set MSP to orderer
     export CORE_PEER_MSPCONFIGPATH=/data/orgs/org0/admin/msp
+    export CORE_PEER_LOCALMSPID=org0MSP
 
     # Fetch config block
     fetchConfigBlock
