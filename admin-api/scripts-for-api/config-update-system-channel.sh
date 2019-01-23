@@ -93,7 +93,7 @@ function createConfigUpdateSystemChannel {
    fi
 
    # Append the new org configuration information
-   jq -s '.[0] * {"channel_group":{"groups":{"Consortiums":{"groups": {"SampleConsortium": {"groups": {"'${NEW_ORG}'":.[1]}}}}}}}' ${CHANNEL_NAME}-${NEW_ORG}_config.json ${NEW_ORG}.json > ${CHANNEL_NAME}-${NEW_ORG}_updated_config.json
+   jq -s '.[0] * {"channel_group":{"groups":{"Consortiums":{"groups": {"SampleConsortium": {"groups": {"'${NEW_ORG}'":.[1]}}}}}}}' ${CHANNEL_NAME}-${NEW_ORG}_config.json ${DATADIR}/${NEW_ORG}.json > ${CHANNEL_NAME}-${NEW_ORG}_updated_config.json
    # copy the block config to the /data directory in case we need to update it with another config change later
    cp /tmp/${CHANNEL_NAME}-${NEW_ORG}_updated_config.json $jsonbkdir
 
