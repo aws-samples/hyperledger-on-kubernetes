@@ -50,12 +50,12 @@ function isOrgInChannelConfig {
     local JSONFILE=$1
 
     # check if the org exists in the channel config
-    log "About to execute jq 'channel_group.groups.Consortiums.groups.SampleConsortium.groups | contains({$NEW_ORG}MSP)'"
-    if cat ${JSONFILE} | jq -e ".channel_group.groups.Consortiums.groups.SampleConsortium.groups | contains({$NEW_ORG}MSP)" > /dev/null; then
-        log "Org MSP '$NEW_ORG'MSP exists in the channel config"
+    log "About to execute jq 'channel_group.groups.Consortiums.groups.SampleConsortium.groups | contains({$NEW_ORG})'"
+    if cat ${JSONFILE} | jq -e ".channel_group.groups.Consortiums.groups.SampleConsortium.groups | contains({$NEW_ORG})" > /dev/null; then
+        log "Org '$NEW_ORG' exists in the channel config"
         return 0
     else
-        log "Org MSP '$NEW_ORG'MSP does not exist in the channel config"
+        log "Org '$NEW_ORG' does not exist in the channel config"
         return 1
     fi
 }
@@ -93,7 +93,7 @@ function createConfigUpdateSystemChannel {
    fi
 
    # Append the new org configuration information
-   jq -s '.[0] * {"channel_group":{"groups":{"Consortiums":{"groups": {"SampleConsortium": {"groups": {"'${NEW_ORG}MSP'":.[1]}}}}}}}' ${CHANNEL_NAME}-${NEW_ORG}_config.json ${CHANNEL_NAME}-${NEW_ORG}.json > ${CHANNEL_NAME}-${NEW_ORG}_updated_config.json
+   jq -s '.[0] * {"channel_group":{"groups":{"Consortiums":{"groups": {"SampleConsortium": {"groups": {"'${NEW_ORG}'":.[1]}}}}}}}' ${CHANNEL_NAME}-${NEW_ORG}_config.json ${NEW_ORG}.json > ${CHANNEL_NAME}-${NEW_ORG}_updated_config.json
    # copy the block config to the /data directory in case we need to update it with another config change later
    cp /tmp/${CHANNEL_NAME}-${NEW_ORG}_updated_config.json $jsonbkdir
 
