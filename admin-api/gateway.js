@@ -521,7 +521,7 @@ async function createChannel(args) {
 //    }
 }
 
-// Creates a channel config update file that can be signed and used to update the channel config
+// Adds a new org to the consortium defined in the system channel
 async function addOrgToConsortium(args) {
 
     try {
@@ -529,10 +529,10 @@ async function addOrgToConsortium(args) {
         let org = args['org'];
         logger.info('Adding org: ' + org + ' to consortium defined in system channel: ' + channelName);
 
-        await fetchLatestConfigBlock({"channelname": channelName});
+        await fetchLatestConfigBlock({"channelname": channelName, "systemchannel": true});
         await createNewOrgConfig({"org": org});
-        await createChannelConfigUpdate({"org": org, "channelname": channelName});
-        await applyChannelConfigUpdate({"org": org, "channelname": channelName});
+        await createChannelConfigUpdate({"org": org, "channelname": channelName, "systemchannel": true});
+        await applyChannelConfigUpdate({"org": org, "channelname": channelName, "systemchannel": true});
 
         return {"status":200,"message":"Added org to consortium defined in system channel: " + channelName}
     } catch (error) {
@@ -546,6 +546,7 @@ async function fetchLatestConfigBlock(args) {
 
     try {
         let channelName = args['channelname'];
+        let systemChannel = args['systemchannel'];
         logger.info('Getting latest config block from channel: ' + channelName);
 
         let scriptName = 'fetch-config-block.sh';
@@ -560,7 +561,7 @@ async function fetchLatestConfigBlock(args) {
             throw error;
         }
 
-        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + "\"";
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + systemChannel + "\"";
 
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps

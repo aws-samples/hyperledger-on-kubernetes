@@ -24,9 +24,15 @@ function main {
     initOrdererVars ${OORGS[0]} 3
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --cafile $CA_CHAINFILE"
 
-    # Set MSP to orderer
-    export CORE_PEER_MSPCONFIGPATH=/data/orgs/org0/admin/msp
-    export CORE_PEER_LOCALMSPID=org0MSP
+    if [ "$SYSTEM_CHANNEL" = true ]; then
+        # Set MSP to orderer
+        export CORE_PEER_MSPCONFIGPATH=/data/orgs/org0/admin/msp
+        export CORE_PEER_LOCALMSPID=org0MSP
+    else
+        # Use the first peer of the first org for admin activities
+        IFS=', ' read -r -a PORGS <<< "$PEER_ORGS"
+        initPeerVars ${PORGS[0]} 1
+    fi
 
     # Fetch config block
     fetchConfigBlock
@@ -47,5 +53,6 @@ REPO=hyperledger-on-kubernetes
 source $SCRIPTS/env.sh
 echo "Args are: " $*
 CHANNEL_NAME=$1
+SYSTEM_CHANNEL=$2
 CONFIG_BLOCK_FILE=${DATADIR}/${CHANNEL_NAME}.pb
 main
