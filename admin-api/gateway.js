@@ -365,7 +365,7 @@ async function createTransactionConfig(args) {
 
     try {
         logger.info('Generating channel configuration: ' + cmd);
-        exec(cmd, (err, stdout, stderr) => {
+        await exec(cmd, (err, stdout, stderr) => {
         if (err) {
             logger.error('Failed to generate channel configuration transaction');
             logger.error(err);
@@ -405,7 +405,7 @@ async function createChannel(args) {
 
     try {
         logger.info('Executing cmd: ' + cmd);
-        exec(cmd, (err, stdout, stderr) => {
+        await exec(cmd, (err, stdout, stderr) => {
         if (err) {
             logger.error('Error during exec - failed to create channel: ' + channelName);
             logger.error(err);
@@ -544,7 +544,7 @@ async function addOrgToConsortium(args) {
         let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + " " + org + "\"";
 
         logger.info('Executing cmd: ' + cmd);
-        exec(cmd, (err, stdout, stderr) => {
+        await exec(cmd, (err, stdout, stderr) => {
         if (err) {
             logger.error('Error during exec - failed to add org to consortium defined in system channel: ' + channelName);
             logger.error(err);
@@ -560,6 +560,49 @@ async function addOrgToConsortium(args) {
         return {"status":200,"message":"Added org to consortium defined in system channel: " + channelName}
     } catch (error) {
         logger.error('Failed to add org to consortium defined in system channel: ' + error);
+        throw error;
+    }
+}
+
+// Gets the latest config block from a channel
+async function fetchLatestConfigBlock(args) {
+
+    try {
+        let channelName = args['channelname'];
+        logger.info('Getting latest config block from channel: ' + channelName);
+
+        let scriptName = 'fetch-config-block.sh';
+        let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
+        // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
+        // inside the CLI container
+        try {
+            logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
+            fs.copyFileSync(localScriptPath, path.join(scriptPath, scriptName));
+        } catch (error) {
+            logger.error('Failed to copy the script file: ' + error);
+            throw error;
+        }
+
+        let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + "\"";
+
+        logger.info('Executing cmd: ' + cmd);
+        // Needs to be sync as we need the output of this command for any subsequent steps
+        await exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            logger.error('Error during exec - failed to create channel: ' + channelName);
+            logger.error(err);
+            logger.info(`stdout: ${stdout}`);
+            logger.info(`stderr: ${stderr}`);
+            return;
+        }
+
+        // the *entire* stdout and stderr (buffered)
+        logger.info(`stdout: ${stdout}`);
+        logger.info(`stderr: ${stderr}`);
+        });
+        return {"status":200,"message":"Created new channel: " + channelName}
+    } catch (error) {
+        logger.error('Failed to create channel: ' + error);
         throw error;
     }
 }
@@ -587,7 +630,8 @@ async function createNewOrgConfig(args) {
         let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + " " + org + "\"";
 
         logger.info('Executing cmd: ' + cmd);
-        exec(cmd, (err, stdout, stderr) => {
+        // Needs to be sync as we need the output of this command for any subsequent steps
+        await exec(cmd, (err, stdout, stderr) => {
         if (err) {
             logger.error('Error during exec - failed to create config for org: ' + org);
             logger.error(err);
@@ -607,48 +651,6 @@ async function createNewOrgConfig(args) {
     }
 }
 
-// Gets the latest config block from a channel
-async function fetchLatestConfigBlock(args) {
-
-    try {
-        let channelName = args['channelname'];
-        logger.info('Getting latest config block from channel: ' + channelName);
-
-        let scriptName = 'fetch-config-block.sh';
-        let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
-        // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
-        // inside the CLI container
-        try {
-            logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
-            fs.copyFileSync(localScriptPath, path.join(scriptPath, scriptName));
-        } catch (error) {
-            logger.error('Failed to copy the script file: ' + error);
-            throw error;
-        }
-
-        let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + "\"";
-
-        logger.info('Executing cmd: ' + cmd);
-        exec(cmd, (err, stdout, stderr) => {
-        if (err) {
-            logger.error('Error during exec - failed to create channel: ' + channelName);
-            logger.error(err);
-            logger.info(`stdout: ${stdout}`);
-            logger.info(`stderr: ${stderr}`);
-            return;
-        }
-
-        // the *entire* stdout and stderr (buffered)
-        logger.info(`stdout: ${stdout}`);
-        logger.info(`stderr: ${stderr}`);
-        });
-        return {"status":200,"message":"Created new channel: " + channelName}
-    } catch (error) {
-        logger.error('Failed to create channel: ' + error);
-        throw error;
-    }
-}
-
 // This will prepare the environment for a new org: create directories, start K8s persistent volumes, etc.
 async function setupOrg(args) {
 
@@ -659,7 +661,8 @@ async function setupOrg(args) {
 
     try {
         logger.info('Running command: ' + cmd);
-        exec(cmd, (err, stdout, stderr) => {
+        // Needs to be sync as we need the output of this command for any subsequent steps
+        await exec(cmd, (err, stdout, stderr) => {
         if (err) {
             logger.error('Failed to prepare environment');
             logger.error(err);
@@ -689,7 +692,7 @@ async function startCA(args) {
 
     try {
         logger.info('Running command: ' + cmd);
-        exec(cmd, (err, stdout, stderr) => {
+        await exec(cmd, (err, stdout, stderr) => {
         if (err) {
             logger.error('Failed to start CA');
             logger.error(err);
@@ -717,7 +720,7 @@ async function startRegisterOrg(args) {
 
     try {
         logger.info('Running command: ' + cmd);
-        exec(cmd, (err, stdout, stderr) => {
+        await exec(cmd, (err, stdout, stderr) => {
         if (err) {
             logger.error('Failed to register org');
             logger.error(err);
