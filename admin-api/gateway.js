@@ -612,6 +612,7 @@ async function createChannelConfigUpdate(args) {
     try {
         let org = args['org'];
         let channelName = args['channelname'];
+        let systemChannel = args['systemchannel'];
         logger.info('Creating a channel update config for org: ' + org + ", channel: " + channelName);
 
         // Generate the update config for the org
@@ -645,6 +646,7 @@ async function applyChannelConfigUpdate(args) {
     try {
         let org = args['org'];
         let channelName = args['channelname'];
+        let systemChannel = args['systemchannel'];
         logger.info('Apply a channel update config for org: ' + org + ", channel: " + channelName);
 
         // Generate the update config for the org
