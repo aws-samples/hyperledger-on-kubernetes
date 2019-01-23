@@ -57,11 +57,11 @@ function isOrgInChannelConfig {
     local JSONFILE=$1
 
     # check if the org exists in the channel config
-    let groupJQPath = '';
+    local groupJQPath='';
     if [ "$SYSTEM_CHANNEL" = true ]; then
-        groupJQPath = ".channel_group.groups.Consortiums.groups.SampleConsortium.groups | contains({$NEW_ORG})";
+        groupJQPath=".channel_group.groups.Consortiums.groups.SampleConsortium.groups | contains({$NEW_ORG})";
     else
-        groupJQPath = ".channel_group.groups.Applications.groups | contains({$NEW_ORG})";
+        groupJQPath=".channel_group.groups.Applications.groups | contains({$NEW_ORG})";
     fi
 
     log "About to execute jq '$groupJQPath'"
