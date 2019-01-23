@@ -589,10 +589,6 @@ async function fetchLatestConfigBlock(args) {
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
         execSync(cmd);
-
-        // the *entire* stdout and stderr (buffered)
-        logger.info(`stdout: ${stdout}`);
-        logger.info(`stderr: ${stderr}`);
         return {"status":200,"message":"Got latest config block from channel: " + channelName}
     } catch (error) {
         logger.error('Failed to get latest config block from channel: ' + error);
@@ -624,19 +620,7 @@ async function createNewOrgConfig(args) {
 
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
-        await exec(cmd, (err, stdout, stderr) => {
-        if (err) {
-            logger.error('Error during exec - failed to create config for org: ' + org);
-            logger.error(err);
-            logger.info(`stdout: ${stdout}`);
-            logger.info(`stderr: ${stderr}`);
-            return;
-        }
-
-        // the *entire* stdout and stderr (buffered)
-        logger.info(`stdout: ${stdout}`);
-        logger.info(`stderr: ${stderr}`);
-        });
+        execSync(cmd);
         return {"status":200,"message":"Created new config for org: " + org}
     } catch (error) {
         logger.error('Failed to create new config for org: ' + error);
