@@ -41,7 +41,8 @@ function main {
 # Apply the new channel configuration to the channel
 function updateChannelConfig {
     log "Updating the configuration block of the channel '$CHANNEL_NAME' using config file /${DATA}/${CHANNEL_NAME}_${NEW_ORG}_config_update_as_envelope.pb"
-    peer channel update -f /${DATA}/${CHANNEL_NAME}_${NEW_ORG}_config_update_as_envelope.pb -c $CHANNEL_NAME $ORDERER_CONN_ARGS
+    log "peer channel update -f /${DATA}/${CHANNEL_NAME}_${NEW_ORG}_config_update_as_envelope.pb -c $CHANNEL_NAME $ORDERER_PORT_ARGS"
+    peer channel update -f /${DATA}/${CHANNEL_NAME}_${NEW_ORG}_config_update_as_envelope.pb -c $CHANNEL_NAME $ORDERER_PORT_ARGS
     log "Updated the configuration block of the channel '$CHANNEL_NAME' using config file /${DATA}/${CHANNEL_NAME}_${NEW_ORG}_config_update_as_envelope.pb"
     return 0
 }
