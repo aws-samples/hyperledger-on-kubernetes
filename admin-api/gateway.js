@@ -14,6 +14,7 @@ const walletPath = path.join(process.cwd(), 'wallet');
 const wallet = new FileSystemWallet(walletPath);
 const gateway = new Gateway();
 const { exec } = require('child_process');
+const { execSync } = require('child_process');
 const { execFile } = require('child_process');
 var CONFIG = require('./config.json');
 
