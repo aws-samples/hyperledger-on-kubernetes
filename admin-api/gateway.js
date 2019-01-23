@@ -616,7 +616,7 @@ async function createNewOrgConfig(args) {
             throw error;
         }
 
-        let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + channelName + " " + org + "\"";
+        let cmd = "kubectl exec -it $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c \"bash /scripts/" + scriptName + " " + org + "\"";
 
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
