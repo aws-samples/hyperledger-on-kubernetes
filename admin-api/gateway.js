@@ -587,7 +587,7 @@ async function fetchLatestConfigBlock(args) {
 
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
-        await exec(cmd, (err, stdout, stderr) => {
+        execSync(cmd);
         if (err) {
             logger.error('Error during exec - failed to create channel: ' + channelName);
             logger.error(err);
@@ -599,7 +599,6 @@ async function fetchLatestConfigBlock(args) {
         // the *entire* stdout and stderr (buffered)
         logger.info(`stdout: ${stdout}`);
         logger.info(`stderr: ${stderr}`);
-        });
         return {"status":200,"message":"Created new channel: " + channelName}
     } catch (error) {
         logger.error('Failed to create channel: ' + error);
