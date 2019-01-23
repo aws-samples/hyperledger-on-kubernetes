@@ -589,13 +589,6 @@ async function fetchLatestConfigBlock(args) {
         logger.info('Executing cmd: ' + cmd);
         // Needs to be sync as we need the output of this command for any subsequent steps
         execSync(cmd);
-        if (err) {
-            logger.error('Error during exec - failed to get latest config block from channel: ' + channelName);
-            logger.error(err);
-            logger.info(`stdout: ${stdout}`);
-            logger.info(`stderr: ${stderr}`);
-            return;
-        }
 
         // the *entire* stdout and stderr (buffered)
         logger.info(`stdout: ${stdout}`);
