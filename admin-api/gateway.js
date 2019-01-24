@@ -37,6 +37,11 @@ let cliCommand = "kubectl exec -i $(kubectl get pod -l name=cli -o jsonpath=\"{.
 require('dotenv').config({ path: path.join(scriptPath, envFilename) })
 console.log(process.env);
 
+/************************************************************************************
+ * Enroll an admin user. The admin user will either be obtained from the Fabric wallet
+ * or from the CA for this organisation
+ ************************************************************************************/
+
 async function enrollAdmin() {
     try {
         // Check to see if we've already enrolled the admin user.
@@ -65,6 +70,11 @@ async function enrollAdmin() {
         logger.error(`Failed to enroll admin user "admin": ${error}`);
     }
 }
+
+/************************************************************************************
+ * Set a Fabric client that uses the admin identity
+ ************************************************************************************/
+
 async function adminGateway() {
 
         // Set connection options; identity and wallet
@@ -81,6 +91,10 @@ async function adminGateway() {
         client = gateway.getClient();
 }
 
+/************************************************************************************
+ * Print out the Fabric network configuration as seen by the current Fabric client object
+ ************************************************************************************/
+
 async function listNetwork() {
 
     logger.info('Printing out the Fabric network');
@@ -93,85 +107,17 @@ async function listNetwork() {
 
 }
 
-// Loads configtx.yaml into a Javascript object for easy querying
-async function loadConfigtx() {
+/************************************************************************************
+ * Add a new organisation to the Fabric network. This will do a number of things:
+ *      Adds the org to configtx.yaml
+ *      Adds the org to the env.sh file that is used to configure the Fabric network
+ *      Adds the org to the consortium defined in the profiles section in configtx.yaml
+ *      Updates the system channel configuration block with the new consortium profile
+ *      Creates a new namespace in the EKS cluster for the org
+ *      Creates the necessary directory structure for the new org's MSP
+ *      Creates the EKS PV & PVCs (persistent volumes), mapping to the new org's MSP
+ ************************************************************************************/
 
-    try {
-        logger.info('Loading the Fabric configtx.yaml at path: ' + path.join(dataPath, configtxFilename));
-        configtxContents = yaml.safeLoad(fs.readFileSync(path.join(dataPath, configtxFilename), 'utf8'));
-        logger.info('Configtx loaded at path: ' + dataPath);
-    } catch (error) {
-        logger.error('Failed to loadConfigtx: ' + error);
-        throw error;
-    }
-
-}
-
-async function backupFile(absoluteFilename) {
-
-    try {
-        let filename = path.join(absoluteFilename + Math.floor(Date.now() / 1000));
-        logger.info('Backing up original file: ' + absoluteFilename + '. Backup file titled: ' + filename);
-        fs.copyFileSync(absoluteFilename, filename);
-    } catch (error) {
-        logger.error('Failed to backup file: ' + error);
-        throw error;
-    }
-}
-
-// Get the list of organisations that are configured in configtx.yaml
-async function getOrgsFromEnv() {
-
-    try {
-        let orgString = process.env.PEER_ORGS;
-        let orgArray = orgString.split(" ");
-        logger.info("Orgs in env.sh for this network are: " + orgString);
-        return orgArray;
-    } catch (error) {
-        logger.error('Failed to getOrgsFromEnv: ' + error);
-        throw error;
-    }
-}
-
-// Get the list of organisations that are configured in configtx.yaml
-async function getOrgsFromConfigtx() {
-
-    let orgs = [];
-    try {
-        await loadConfigtx();
-        for (let org in configtxContents['Organizations']) {
-            logger.info("Orgs in configtx for this network are: " + configtxContents['Organizations'][org]['Name'] + ' with MSP ' + configtxContents['Organizations'][org]['ID']);
-            orgs.push(configtxContents['Organizations'][org]['Name']);
-        }
-        return orgs;
-    } catch (error) {
-        logger.error('Failed to getOrgsFromConfigtx: ' + error);
-        throw error;
-    }
-}
-
-
-// Get the list of profiles that are configured in configtx.yaml
-async function getProfilesFromConfigtx() {
-
-    let profiles = [];
-    try {
-        await loadConfigtx();
-        for (let profile in configtxContents['Profiles']) {
-            logger.info("Profiles in configtx for this network are: " + profile);
-            profiles.push(profile.toString());
-        }
-        return profiles;
-    } catch (error) {
-        logger.error('Failed to getProfilesFromConfigtx: ' + error);
-        throw error;
-    }
-}
-
-// This will create a new org to both the configtx.yaml and env.sh config files
-// The new org also needs to be added to the consortium, which is defined in the orderer system channel, which
-// is created from the orderer genesis block when the Fabric network is booted
-//
 // TODO: the anchor peer needs to be passed to this function, and updated into configtx.yaml
 async function addOrg(args) {
 
@@ -206,9 +152,19 @@ async function addOrg(args) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// UPDATE FABRIC CONFIG FILES ///////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-// This will create a new org in configtx.yaml, by copying an existing org
-//
+// I have tried to edit configtx.yaml using the js-yaml, yaml libraries. Neither of them support anchors in YAML, so
+// the resulting YAML is written incorrectly and cannot be processed by configtxgen. I've therefore taken to
+// manually reading and writing the file, without using YAML
+
+/************************************************************************************
+ * This will create a new org in configtx.yaml, by copying an existing org from the
+ * template in the file ./templates/org.yaml
+ ************************************************************************************/
+
 // TODO: the anchor peer needs to be passed to this function, and updated into configtx.yaml
 async function addOrgToConfigtx(org) {
 
@@ -244,7 +200,10 @@ async function addOrgToConfigtx(org) {
     }
 }
 
-// This will create a new org in env.sh
+/************************************************************************************
+ * This will create a new org in env.sh
+ ************************************************************************************/
+
 async function addOrgToEnv(org) {
 
     try {
@@ -288,11 +247,13 @@ async function addOrgToEnv(org) {
     }
 }
 
-// This will create a new profile in configtx.yaml, which can be used for creating new channels
-// I have tried to edit this file using the js-yaml, yaml libraries. Neither of them support anchors in YAML, so
-// the resulting YAML is written incorrectly and cannot be processed by configtxgen. I've therefore taken to
-// manually reading and writing the file, without using YAML
-async function addConfigtxProfile(args) {
+/************************************************************************************
+ * This will create a new profile in configtx.yaml, by copying an existing profile from the
+ * template in the file ./templates/profile.yaml. The profile can be used for
+ * creating new channels.
+ ************************************************************************************/
+
+async function addProfileToConfigtx(args) {
 
     let profileName = args['profilename'];
     let orgs = args['orgs']; // orgs to be included in the profile
@@ -335,7 +296,7 @@ async function addConfigtxProfile(args) {
             logger.info('Appending a new profile to configtx.yaml for profile: ' + profileName);
 
         } catch (err) {
-            logger.error('Failed to addConfigtxProfile: ' + error);
+            logger.error('Failed to addProfileToConfigtx: ' + error);
         } finally {
             if (fd !== undefined)
                 fs.closeSync(fd);
@@ -344,12 +305,17 @@ async function addConfigtxProfile(args) {
         logger.info('Appended a new profile to configtx.yaml at path: ' + dataPath);
         return {"status":200,"message":"Profile added to configtx.yaml: " + profileName}
     } catch (error) {
-        logger.error('Failed to addConfigtxProfile: ' + error);
+        logger.error('Failed to addProfileToConfigtx: ' + error);
         throw error;
     }
 }
 
-// This will generate a new transaction config, used to create a new channel
+/************************************************************************************
+ * This will generate a new channel transaction config, used to create a new channel. The
+ * transaction config is generated by running configtxgen against configtx.yaml, and
+ * specifying one of the profiles in configtx.yaml to use for the new channel config
+ ************************************************************************************/
+
 async function createTransactionConfig(args) {
 
     let profileName = args['profilename'];
@@ -388,6 +354,9 @@ async function createTransactionConfig(args) {
     }
 }
 
+/************************************************************************************
+ * This will create a new channel using a channel transaction config
+ ************************************************************************************/
 
 async function createChannel(args) {
 
@@ -427,101 +396,12 @@ async function createChannel(args) {
         logger.error('Failed to create channel: ' + error);
         throw error;
     }
-
-
-
-
-//
-//    let signatures = [];
-//    logger.info('Creating channel: ' + channelName + ' using transaction config file: ' + channelName + ".tx");
-//    try {
-////        let userorg = "org1";
-////        let username = userorg + 'user';
-////        let userdetails = {"username":username,"org":userorg};
-////    	let response = await connection.getRegisteredUser(userdetails, true);
-////        let caClient = client.getCertificateAuthority();
-////        logger.info('##### getRegisteredUser - Got caClient %s', util.inspect(caClient));
-////        let adminUserObj = await client.setUserContext({username: caClient._registrar[0].enrollId, password: caClient._registrar[0].enrollSecret});
-////
-//        // Set connection options; identity and wallet
-//        let connectionOptions = {
-//          identity: 'admin',
-//          wallet: wallet,
-//          discovery: { enabled:true, asLocalhost:false }
-//        };
-//
-//        // Connect to gateway using application specified parameters
-//        logger.info('Connecting to Fabric gateway.');
-//
-//        await gateway.connect(ccp, connectionOptions);
-//        client = gateway.getClient();
-//
-//        // first read in the file, this gives us a binary config envelope
-//        let envelope_bytes = fs.readFileSync(path.join(dataPath, channelName + ".tx"));
-//        // have the nodeSDK extract out the config update
-//        var config_update = await client.extractChannelConfig(envelope_bytes);
-//
-////        //get the client used to sign the package
-////        let userorg = "org1";
-////        let username = userorg + 'user';
-////        let userdetails = {"username":username,"org":userorg};
-////    	let response = await connection.getRegisteredUser(userdetails, true);
-////        logger.info('getRegisteredUser response: ' + util.inspect(response));
-////        client = await connection.getClientForOrg(userorg, username);
-////        if(!client) {
-////			throw new Error(util.format('User was not found :', username));
-////		} else {
-////			logger.debug('User %s was found to be registered and enrolled', username);
-////        }
-//
-//
-//
-//        var signature = client.signChannelConfig(config_update);
-//        signatures.push(signature);
-//
-////        //get the client used to sign the package
-////        userorg = "org2";
-////        username = userorg + 'user';
-////        userdetails = {"username":username,"org":userorg};
-////    	response = await connection.getRegisteredUser(userdetails, true);
-////        logger.info('getRegisteredUser response: ' + util.inspect(response));
-////        client = await connection.getClientForOrg(userorg, username);
-////        if(!client) {
-////			throw new Error(util.format('User was not found :', username));
-////		} else {
-////			logger.debug('User %s was found to be registered and enrolled', username);
-////        }
-////        signature = client.signChannelConfig(config_update);
-////        signatures.push(signature);
-//
-//        // create an orderer object to represent the orderer of the network
-//        logger.info('Connecting to orderer: ' + ordererUrl);
-//        var orderer = client.newOrderer(ordererUrl);
-////        var orderer = client.newOrderer(ordererUrl, {"pem":"/opt/share/rca-data/org0-ca-chain.pem"});
-//
-//        // have the SDK generate a transaction id
-//        let tx_id = client.newTransactionID();
-//        logger.info('Creating channel - tx_id: ' + tx_id);
-//
-//        let request = {
-//          config: config_update, //the binary config
-//          signatures : [signature], // the collected signatures
-//          name : channelName, // the channel name
-//          orderer : orderer,
-//          txId  : tx_id //the generated transaction id
-//        };
-//
-//        // this call will return a Promise
-//        let response = await client.createChannel(request);
-//        logger.info('Channel created - response: ' + util.inspect(response));
-//
-//    } catch (error) {
-//        logger.error('Failed to createChannel: ' + error);
-//        throw error;
-//    }
 }
 
-// Adds a new org to the consortium defined in the system channel
+/************************************************************************************
+ * Adds a new org to the consortium defined in the system channel
+ ************************************************************************************/
+
 async function addOrgToConsortium(args) {
 
     try {
@@ -541,7 +421,10 @@ async function addOrgToConsortium(args) {
     }
 }
 
-// Gets the latest config block from a channel
+/************************************************************************************
+ * Gets the latest config block from a channel
+ ************************************************************************************/
+
 async function fetchLatestConfigBlock(args) {
 
     try {
@@ -573,7 +456,10 @@ async function fetchLatestConfigBlock(args) {
     }
 }
 
-// Creates a config for the new org using configtxgen
+/************************************************************************************
+ * Creates a config for the new org using configtxgen
+ ************************************************************************************/
+
 async function createNewOrgConfig(args) {
 
     try {
@@ -605,8 +491,12 @@ async function createNewOrgConfig(args) {
     }
 }
 
-// Creates an update config by performing a 'diff' between the existing channel config and the config generated in
-// createNewOrgConfig. This update config can then be applied to the channel to update the channel config.
+/************************************************************************************
+ * Creates an update config by performing a 'diff' between the existing channel config
+ * and the config generated in createNewOrgConfig. This update config can then be
+ * applied to the channel to update the channel config.
+ ************************************************************************************/
+
 async function createChannelConfigUpdate(args) {
 
     try {
@@ -640,7 +530,11 @@ async function createChannelConfigUpdate(args) {
     }
 }
 
-// Applies the channel config update envelope to the channel.
+/************************************************************************************
+ * Applies the channel config update envelope to the channel. This will create a new
+ * transaction config block on the channel.
+ ************************************************************************************/
+
 async function applyChannelConfigUpdate(args) {
 
     try {
@@ -674,7 +568,11 @@ async function applyChannelConfigUpdate(args) {
     }
 }
 
-// This will prepare the environment for a new org: create directories, start K8s persistent volumes, etc.
+/************************************************************************************
+ * This will prepare the environment for a new org: create directories, start K8s
+ * persistent volumes, etc.
+ ************************************************************************************/
+
 async function setupOrg(args) {
 
     let org = args['org'];
@@ -705,7 +603,11 @@ async function setupOrg(args) {
     }
 }
 
-// This will start a root and intermediate CA
+/************************************************************************************
+ * This will start a root and intermediate CA for the new org. These will run in
+ * Kubernetes pods in EKS
+ ************************************************************************************/
+
 async function startCA(args) {
 
     let org = args['org'];
@@ -733,7 +635,11 @@ async function startCA(args) {
     }
 }
 
-// This will register the new org
+/************************************************************************************
+ * This will register the new org. Registration creates an identity for the new org.
+ * Registration will run in a Kubernetes pod in EKS
+ ************************************************************************************/
+
 async function startRegisterOrg(args) {
 
     let org = args['org'];
@@ -761,6 +667,100 @@ async function startRegisterOrg(args) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// MANAGE FABRIC CONFIG FILES ///////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/************************************************************************************
+ * Loads configtx.yaml into a Javascript object for easy querying
+ ************************************************************************************/
+
+async function loadConfigtx() {
+
+    try {
+        logger.info('Loading the Fabric configtx.yaml at path: ' + path.join(dataPath, configtxFilename));
+        configtxContents = yaml.safeLoad(fs.readFileSync(path.join(dataPath, configtxFilename), 'utf8'));
+        logger.info('Configtx loaded at path: ' + dataPath);
+    } catch (error) {
+        logger.error('Failed to loadConfigtx: ' + error);
+        throw error;
+    }
+
+}
+
+/************************************************************************************
+ * Backup a file. Used to backup config files before updating them
+ ************************************************************************************/
+
+async function backupFile(absoluteFilename) {
+
+    try {
+        let filename = path.join(absoluteFilename + Math.floor(Date.now() / 1000));
+        logger.info('Backing up original file: ' + absoluteFilename + '. Backup file titled: ' + filename);
+        fs.copyFileSync(absoluteFilename, filename);
+    } catch (error) {
+        logger.error('Failed to backup file: ' + error);
+        throw error;
+    }
+}
+
+/************************************************************************************
+ * Get the list of organisations that are configured in configtx.yaml
+ ************************************************************************************/
+
+async function getOrgsFromEnv() {
+
+    try {
+        let orgString = process.env.PEER_ORGS;
+        let orgArray = orgString.split(" ");
+        logger.info("Orgs in env.sh for this network are: " + orgString);
+        return orgArray;
+    } catch (error) {
+        logger.error('Failed to getOrgsFromEnv: ' + error);
+        throw error;
+    }
+}
+
+/************************************************************************************
+ * Get the list of organisations that are configured in configtx.yaml
+ ************************************************************************************/
+
+async function getOrgsFromConfigtx() {
+
+    let orgs = [];
+    try {
+        await loadConfigtx();
+        for (let org in configtxContents['Organizations']) {
+            logger.info("Orgs in configtx for this network are: " + configtxContents['Organizations'][org]['Name'] + ' with MSP ' + configtxContents['Organizations'][org]['ID']);
+            orgs.push(configtxContents['Organizations'][org]['Name']);
+        }
+        return orgs;
+    } catch (error) {
+        logger.error('Failed to getOrgsFromConfigtx: ' + error);
+        throw error;
+    }
+}
+
+/************************************************************************************
+ * Get the list of profiles that are configured in configtx.yaml
+ ************************************************************************************/
+
+async function getProfilesFromConfigtx() {
+
+    let profiles = [];
+    try {
+        await loadConfigtx();
+        for (let profile in configtxContents['Profiles']) {
+            logger.info("Profiles in configtx for this network are: " + profile);
+            profiles.push(profile.toString());
+        }
+        return profiles;
+    } catch (error) {
+        logger.error('Failed to getProfilesFromConfigtx: ' + error);
+        throw error;
+    }
+}
+
 exports.enrollAdmin = enrollAdmin;
 exports.adminGateway = adminGateway;
 exports.listNetwork = listNetwork;
@@ -769,7 +769,7 @@ exports.addOrg = addOrg;
 exports.setupOrg = setupOrg;
 exports.getOrgsFromConfigtx = getOrgsFromConfigtx;
 exports.getProfilesFromConfigtx = getProfilesFromConfigtx;
-exports.addConfigtxProfile = addConfigtxProfile;
+exports.addProfileToConfigtx = addProfileToConfigtx;
 exports.createTransactionConfig = createTransactionConfig;
 exports.createChannel = createChannel;
 exports.startCA = startCA;

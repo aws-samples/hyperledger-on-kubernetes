@@ -88,83 +88,25 @@ kubectl apply -f k8s/fabric-deployment-ica-notls-org1.yaml
 kubectl apply -f k8s/fabric-nlb-ca-org1.yaml
 ```
 
+## Use cases supported by the API
+
+The use cases that the API supports are as follows:
+
+* After creating an EKS cluster, create a new Fabric network. This is the equivalent of running the script ./fabric-main/start-fabric.sh.
+It will start an RCA/ICA, register the new org, start the orderer and peer nodes, create the configtx.yaml config, create a channel,
+join the peers to the channel, and install/test chaincode
+* Add a new org. The API assumes that the new org is going to collaborate with other network members and therefore needs
+to be part of a channel profile (defined in configtx.yaml). This also means that the new org has to be defined as a consortium member.
+Consortium members are defined in configtx.yaml, and are then encoded in the system channel configuration block. Adding a new
+org means that the system channel config must be updated
+* Revoking an org. To do this we will revoke the certificates and also update the system channel configuration block, as an extra 
+security measure, to make sure that the revoked org is specifically noted in the system channel
+* Create a channel profile in configtx.yaml that includes the new org plus the creator org
+* Create a channel based on the channel profile above
+* Join peers from the new org and the creator org to the channel
+* Install, instantiate, test chaincode on the new peers
+* Upload the MSP for an org to S3, so that the org owner can setup a remote peer
+
 ## Testing
 
-cp /opt/share/rca-data/configtx-orig.yaml /opt/share/rca-data/configtx.yaml
-
-export HFC_LOGGING='{"debug":"console","info":"console"}'
-
-nvm use lts/carbon
-
-node app.js &
-
-export ENDPOINT=localhost
-export PORT=3000
-echo connecting to server: $ENDPOINT:$PORT
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/init)
-echo $response
-
-USERID=michael
-echo
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/users -H 'content-type: application/x-www-form-urlencoded' -d '{"username":"'"${USERID}"'","org":"org1"}')
-echo $response
-
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/configtx)
-echo $response
-
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/configtx/orgs)  
-echo $response
-
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/configtx/profiles)  
-echo $response
-
-// This should fail as the new org does not exist
-PROFILENAME=org3profile;
-CHANNELNAME=org3channel;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/channelconfigs -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
-echo $response
-
-// add the new org
-ORG=org3;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
-echo $response
-
-// add the new profile
-PROFILENAME=org3profile;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org3"]}')
-echo $response
-
-// Start the CA for the new org
-ORG=org3;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/ca -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
-echo $response
-
-// Register the new org
-ORG=org3;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs/register -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
-echo $response
-
-// create the channel configuration transaction file
-PROFILENAME=org3profile;
-CHANNELNAME=org3channel;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/channelconfigs -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
-echo $response
-
-// create the channel
-CHANNELNAME=org3channel;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'"}')
-echo $response
-
-
-
-
-// create the channel configuration transaction file
-PROFILENAME=org2profile;
-CHANNELNAME=org2channel;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/channelconfigs -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","channelname":"'"${CHANNELNAME}"'"}')
-echo $response
-
-// create the channel
-CHANNELNAME=org2channel;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'"}')
-echo $response
+See the script test.sh

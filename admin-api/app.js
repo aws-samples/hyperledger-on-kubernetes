@@ -99,28 +99,89 @@ function getErrorMessage(field) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//////////////////////////////// START WEBSOCKET SERVER ///////////////////////
-///////////////////////////////////////////////////////////////////////////////
-const wss = new WebSocketServer.Server({ server });
-wss.on('connection', function connection(ws) {
-	logger.info('****************** WEBSOCKET SERVER - received connection ************************');
-	ws.on('message', function incoming(message) {
-		console.log('##### Websocket Server received message: %s', message);
-	});
-
-	ws.send('something');
-});
-
-///////////////////////////////////////////////////////////////////////////////
 ///////////////////////// REST ENDPOINTS START HERE ///////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-// Health check - can be called by load balancer to check health of REST API
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// GET METHODS //////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/************************************************************************************
+ * Health check - can be called by load balancer to check health of REST API
+ ************************************************************************************/
+
 app.get('/health', awaitHandler(async (req, res) => {
 	res.sendStatus(200);
 }));
 
-// Register and enroll user. A user must be registered and enrolled before any queries 
-// or transactions can be invoked
+/************************************************************************************
+ * Enroll an admin user and import it into the Fabric wallet
+ ************************************************************************************/
+
+app.get('/users/admin', awaitHandler(async (req, res) => {
+	logger.info('================ GET on Init');
+	logger.info('##### End point : /init');
+    await gateway.enrollAdmin();
+    await gateway.adminGateway();
+	logger.info('##### GET on Init - completed');
+}));
+
+/************************************************************************************
+ * Print the organisations contained in env.sh
+ ************************************************************************************/
+
+app.get('/env/orgs', awaitHandler(async (req, res) => {
+	logger.info('================ GET on endpoint /env/orgs');
+    let response = await gateway.getOrgsFromEnv();
+    res.json({success: true, message: response});
+	logger.info('##### GET on /env/orgs - completed');
+}));
+
+/************************************************************************************
+ * Print the organisations contained in configtx.yaml
+ ************************************************************************************/
+
+app.get('/configtx/orgs', awaitHandler(async (req, res) => {
+	logger.info('================ GET on endpoint /configtx/orgs');
+    let response = await gateway.getOrgsFromConfigtx();
+    res.json({success: true, message: response});
+	logger.info('##### GET on /configtx/orgs - completed');
+}));
+
+/************************************************************************************
+ * Print the channel profiles contained in configtx.yaml
+ ************************************************************************************/
+
+app.get('/configtx/profiles', awaitHandler(async (req, res) => {
+	logger.info('================ GET on endpoint /configtx/profiles');
+    let response = await gateway.getProfilesFromConfigtx();
+    res.json({success: true, message: response});
+	logger.info('##### GET on /configtx/profiles - completed');
+}));
+
+/************************************************************************************
+ * Print the details of the Fabric network, as seen by the Fabric client
+ ************************************************************************************/
+
+app.get('/networks', awaitHandler(async (req, res) => {
+	logger.info('================ GET on endpoint /networks');
+    let response = await gateway.listNetwork();
+    res.json({success: true, message: response});
+	logger.info('##### GET on networks - completed');
+}));
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// POST METHODS /////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/************************************************************************************
+ * Register and enroll user. A user must be registered and enrolled before any queries
+ * or transactions can be invoked
+ ************************************************************************************/
+
 app.post('/users', awaitHandler(async (req, res) => {
 	logger.info('================ POST on Users');
 	let args = req.body;
@@ -142,44 +203,21 @@ app.post('/users', awaitHandler(async (req, res) => {
 	}
 }));
 
-// Enroll an admin user
-app.get('/init', awaitHandler(async (req, res) => {
-	logger.info('================ GET on Init');
-	logger.info('##### End point : /init');
-    await gateway.enrollAdmin();
-    await gateway.adminGateway();
-	logger.info('##### GET on Init - completed');
-}));
+/************************************************************************************
+ * Add a new organisation. This API call does a number of things:
+ *      Adds the org to configtx.yaml
+ *      Adds the org to the env.sh file that is used to configure the Fabric network
+ *      Adds the org to the consortium defined in the profiles section in configtx.yaml
+ *      Updates the system channel configuration block with the new consortium profile
+ *      Creates a new namespace in the EKS cluster for the org
+ *      Creates the necessary directory structure for the new org's MSP
+ *      Creates the EKS PV & PVCs (persistent volumes), mapping to the new org's MSP
+ *
+ ************************************************************************************/
 
-// Loads the configtx defined for this Fabric network, and prints out the key info such as orgs
-app.get('/configtx', awaitHandler(async (req, res) => {
-	logger.info('================ GET on loadconfigtx');
-	logger.info('##### End point : /loadconfigtx');
-    await gateway.loadConfigtx();
-	logger.info('##### GET on loadconfigtx - completed');
-}));
-
-// Loads the configtx defined for this Fabric network, and prints out the orgs
-app.get('/configtx/orgs', awaitHandler(async (req, res) => {
-	logger.info('================ GET on endpoint /configtx/orgs');
-    let response = await gateway.getOrgsFromConfigtx();
-    res.json({success: true, message: response});
-	logger.info('##### GET on /configtx/orgs - completed');
-}));
-
-// Loads the configtx defined for this Fabric network, and prints out the profiles
-app.get('/configtx/profiles', awaitHandler(async (req, res) => {
-	logger.info('================ GET on endpoint /configtx/profiles');
-    let response = await gateway.getProfilesFromConfigtx();
-    res.json({success: true, message: response});
-	logger.info('##### GET on /configtx/profiles - completed');
-}));
-
-// Add a new org to configtx.yaml and env.sh
 app.post('/orgs', awaitHandler(async (req, res) => {
-	logger.info('================ POST on orgs');
+	logger.info('================ POST on endpoint /orgs');
 	let args = req.body;
-	logger.info('##### End point : /orgs');
 	logger.info('##### POST on orgs - args : ' + JSON.stringify(args));
 	let response = await gateway.addOrg(args);
 	response = await gateway.setupOrg(args);
@@ -192,13 +230,16 @@ app.post('/orgs', awaitHandler(async (req, res) => {
 	}
 }));
 
-// Add a new profile to configtx.yaml
+/************************************************************************************
+ * Add a new profile to configtx.yaml
+ ************************************************************************************/
+
 app.post('/configtx/profiles', awaitHandler(async (req, res) => {
 	logger.info('================ POST on AddProfile');
 	let args = req.body;
 	logger.info('##### End point : /addprofile');
 	logger.info('##### POST on addprofile - args : ' + JSON.stringify(args));
-	let response = await gateway.addConfigtxProfile(args);
+	let response = await gateway.addProfileToConfigtx(args);
 	logger.info('##### POST on addprofile - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -208,7 +249,10 @@ app.post('/configtx/profiles', awaitHandler(async (req, res) => {
 	}
 }));
 
-// Generate a new channel transaction config using a profile in configtx.yaml
+/************************************************************************************
+ * Generate a new channel transaction config using a profile in configtx.yaml
+ ************************************************************************************/
+
 app.post('/configtx/channelconfigs', awaitHandler(async (req, res) => {
 	logger.info('================ POST on configtx/channelconfig');
 	let args = req.body;
@@ -224,7 +268,10 @@ app.post('/configtx/channelconfigs', awaitHandler(async (req, res) => {
 	}
 }));
 
-// Create a new channel
+/************************************************************************************
+ * Create a new channel
+ ************************************************************************************/
+
 app.post('/channels', awaitHandler(async (req, res) => {
 	logger.info('================ POST on channel');
 	let args = req.body;
@@ -241,21 +288,11 @@ app.post('/channels', awaitHandler(async (req, res) => {
 }));
 
 
-// Print out the details of the Fabric network
-app.get('/networks', awaitHandler(async (req, res) => {
-	logger.info('================ GET on networks');
-	logger.info('##### End point : /networks');
-    await gateway.listNetwork();
-	logger.info('##### GET on networks - completed');
-}));
+/************************************************************************************
+ * Start a CA for the new org
+ ************************************************************************************/
 
-//   /networks/org/<orgid>   - add a new org. Adds org to env.sh, gens new directories, gen K8s templates, create K8s namespace, creates PVC
-//   /networks/org/<orgid>/register
-//  add org to configtx.yaml, using /configtx/org api call
-//  create new channel profile and new channel, using configtx/profile and other api calls above
-
-// Start the new CA
-app.post('/ca', awaitHandler(async (req, res) => {
+app.post('/orgs/ca', awaitHandler(async (req, res) => {
 	logger.info('================ POST on ca');
 	let args = req.body;
 	logger.info('##### End point : /ca');
@@ -270,7 +307,10 @@ app.post('/ca', awaitHandler(async (req, res) => {
 	}
 }));
 
-// Start the new CA
+/************************************************************************************
+ * Register the new org
+ ************************************************************************************/
+
 app.post('/orgs/register', awaitHandler(async (req, res) => {
 	logger.info('================ POST on orgs/register');
 	let args = req.body;
