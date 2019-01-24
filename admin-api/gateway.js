@@ -694,7 +694,6 @@ async function execCmd(cmd) {
         }
     } catch (error) {
         logger.error('Error during execSync. Error object is: ' + util.inspect(error));
-        logger.error('Error during execSync. Status is: ' + error.status + " message: " + error.message + " stderr: " + error.stderr.toString() + " stdout: " + error.stdout.toString());
         throw error;
     }
     return response;
