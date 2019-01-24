@@ -366,8 +366,8 @@ async function createChannel(args) {
 
         let cmd = cliCommand + "\"bash /scripts/create-channel.sh " + channelName + "\"";
 
-        execCmd(cmd);
-        return {"status":200,"message":"Created new channel: " + channelName}
+        await execCmd(cmd);
+        return {"status":200,"message":"Created new channel: " + channelName};
     } catch (error) {
         logger.error('Failed to create channel: ' + error);
         throw error;
