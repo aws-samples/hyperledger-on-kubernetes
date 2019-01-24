@@ -132,7 +132,7 @@ async function addOrg(args) {
         if (orgsInConfig.indexOf(org) > -1) {
             logger.error('Org: ' + org + ' already exists in configtx.yaml. These orgs are already present: ' + orgsInConfig);
         } else {
-            await addOrgToConfigtx(org);
+            await addOrgToConfigtx({"org": org});
         }
 
         let orgsInEnv = await getOrgsFromEnv();
@@ -140,7 +140,7 @@ async function addOrg(args) {
         if (orgsInEnv.indexOf(org) > -1) {
             logger.error('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
         } else {
-            await addOrgToEnv(org);
+            await addOrgToEnv({"org": org});
         }
         logger.info('Added a new org to configtx.yaml and env.sh');
 
@@ -168,9 +168,10 @@ async function addOrg(args) {
  ************************************************************************************/
 
 // TODO: the anchor peer needs to be passed to this function, and updated into configtx.yaml
-async function addOrgToConfigtx(org) {
+async function addOrgToConfigtx(args) {
 
     try {
+        let org = args['org'];
         let orgsInConfig = await getOrgsFromConfigtx();
         //Check that the new org to be added does not already exist in configtx.yaml
         if (orgsInConfig.indexOf(org) > -1) {
@@ -206,9 +207,10 @@ async function addOrgToConfigtx(org) {
  * This will create a new org in env.sh
  ************************************************************************************/
 
-async function addOrgToEnv(org) {
+async function addOrgToEnv(args) {
 
     try {
+        let org = args['org'];
         let orgsInEnv = await getOrgsFromEnv();
         //Check that the new org to be added does not already exist in env.sh
         if (orgsInEnv.indexOf(org) > -1) {
@@ -714,3 +716,4 @@ exports.createChannel = createChannel;
 exports.startCA = startCA;
 exports.startRegisterOrg = startRegisterOrg;
 exports.addOrgToConsortium = addOrgToConsortium;
+exports.addOrgToEnv = addOrgToEnv;

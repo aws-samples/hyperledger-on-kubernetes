@@ -230,6 +230,24 @@ app.post('/orgs', awaitHandler(async (req, res) => {
 }));
 
 /************************************************************************************
+ * Add a new org to env.sh
+ ************************************************************************************/
+
+app.post('/env/orgs', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /env/orgs');
+	let args = req.body;
+	logger.info('##### POST on env/orgs - args : ' + JSON.stringify(args));
+	let response = await gateway.addOrgToEnv(args);
+	logger.info('##### POST on env/orgs - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on env/orgs failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+/************************************************************************************
  * Add a new profile to configtx.yaml
  ************************************************************************************/
 
