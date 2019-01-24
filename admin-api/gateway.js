@@ -50,7 +50,7 @@ async function enrollAdmin() {
             logger.info('An identity for the admin user "admin" already exists in the wallet');
             logger.info('Wallet identities: ' + util.inspect(wallet.list()));
             logger.info('Wallet admin exists: ' + util.inspect(wallet.exists('admin')));
-            return;
+            return {"status":200,"message":"Admin user enrolled and set to the current user"};
         }
 
         // Create a new CA client for interacting with the CA.
@@ -66,8 +66,10 @@ async function enrollAdmin() {
         logger.info('Successfully enrolled admin user "admin" and imported it into the wallet');
         logger.info('Wallet identities: ' + util.inspect(wallet.list()));
         logger.info('Wallet admin exists: ' + util.inspect(wallet.exists('admin')));
+        return {"status":200,"message":"Admin user enrolled and set to the current user"};
     } catch (error) {
         logger.error(`Failed to enroll admin user "admin": ${error}`);
+        throw error;
     }
 }
 
@@ -77,18 +79,18 @@ async function enrollAdmin() {
 
 async function adminGateway() {
 
-        // Set connection options; identity and wallet
-        let connectionOptions = {
-          identity: 'admin',
-          wallet: wallet,
-          discovery: { enabled:true, asLocalhost:false }
-        };
+    // Set connection options; identity and wallet
+    let connectionOptions = {
+      identity: 'admin',
+      wallet: wallet,
+      discovery: { enabled:true, asLocalhost:false }
+    };
 
-        // Connect to gateway using application specified parameters
-        logger.info('Connecting to Fabric gateway.');
+    // Connect to gateway using application specified parameters
+    logger.info('Connecting to Fabric gateway.');
 
-        await gateway.connect(ccp, connectionOptions);
-        client = gateway.getClient();
+    await gateway.connect(ccp, connectionOptions);
+    client = gateway.getClient();
 }
 
 /************************************************************************************
@@ -318,36 +320,23 @@ async function addProfileToConfigtx(args) {
 
 async function createTransactionConfig(args) {
 
-    let profileName = args['profilename'];
-    let channelName = args['channelname'];
-    logger.info('Generating a transaction config for profile/channel: ' + args);
-    if (!(profileName && channelName)) {
-        logger.error('Both profileName and channelName must be provided to generate a transaction config');
-        logger.error('Failed to createTransactionConfig');
-    }
-    let profilesInConfig = await getProfilesFromConfigtx();
-    //Check that the new profile to be added does not already exist in configtx.yaml
-    if (profilesInConfig.indexOf(profileName) < 0) {
-        logger.error('Profile: ' + profileName + ' does not exist in configtx.yaml - cannot generate a transaction config. These profiles are already present: ' + profilesInConfig);
-        return ('Profile: ' + profileName + ' does not exist in configtx.yaml - cannot generate a transaction config. These profiles are already present: ' + profilesInConfig);
-    }
-    let cmd = cliCommand + "\"cd /data; export FABRIC_CFG_PATH=/data; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName + "\"";
-
     try {
-        logger.info('Generating channel configuration: ' + cmd);
-        await exec(cmd, (err, stdout, stderr) => {
-        if (err) {
-            logger.error('Failed to generate channel configuration transaction');
-            logger.error(err);
-            logger.info(`stderr: ${stderr}`);
-            return;
+        let profileName = args['profilename'];
+        let channelName = args['channelname'];
+        logger.info('Generating a transaction config for profile/channel: ' + args);
+        if (!(profileName && channelName)) {
+            logger.error('Both profileName and channelName must be provided to generate a transaction config');
+            logger.error('Failed to createTransactionConfig');
         }
+        let profilesInConfig = await getProfilesFromConfigtx();
+        //Check that the new profile to be added does not already exist in configtx.yaml
+        if (profilesInConfig.indexOf(profileName) < 0) {
+            logger.error('Profile: ' + profileName + ' does not exist in configtx.yaml - cannot generate a transaction config. These profiles are already present: ' + profilesInConfig);
+            return ('Profile: ' + profileName + ' does not exist in configtx.yaml - cannot generate a transaction config. These profiles are already present: ' + profilesInConfig);
+        }
+        let cmd = cliCommand + "\"cd /data; export FABRIC_CFG_PATH=/data; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName + "\"";
 
-        // the *entire* stdout and stderr (buffered)
-        logger.info(`stdout: ${stdout}`);
-        logger.info(`stderr: ${stderr}`);
-        });
-        logger.info('Generated a transaction config for profile/channel: ' + args + ". Check ls -lt /opt/share/rca-data for the latest .tx file");
+        execCmd(cmd);
         return {"status":200,"message":"Created channel configuration transaction file - Check ls -lt /opt/share/rca-data for the latest .tx file"}
     } catch (error) {
         logger.error('Failed to createTransactionConfig: ' + error);
@@ -360,37 +349,24 @@ async function createTransactionConfig(args) {
 
 async function createChannel(args) {
 
-    let channelName = args['channelname'];
-    logger.info('Creating new channel: ' + channelName);
-    let scriptName = 'scripts-for-api/create-channel.sh';
-    let localScriptPath = path.resolve(__dirname, scriptName);
-    // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
-    // inside the CLI container
     try {
-        logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
-        fs.copyFileSync(localScriptPath, path.join(scriptPath, "create-channel.sh"));
-    } catch (error) {
-        logger.error('Failed to copy the script file: ' + error);
-        throw error;
-    }
-
-    let cmd = cliCommand + "\"bash /scripts/create-channel.sh " + channelName + "\"";
-
-    try {
-        logger.info('Executing cmd: ' + cmd);
-        await exec(cmd, (err, stdout, stderr) => {
-        if (err) {
-            logger.error('Error during exec - failed to create channel: ' + channelName);
-            logger.error(err);
-            logger.info(`stdout: ${stdout}`);
-            logger.info(`stderr: ${stderr}`);
-            return;
+        let channelName = args['channelname'];
+        logger.info('Creating new channel: ' + channelName);
+        let scriptName = 'scripts-for-api/create-channel.sh';
+        let localScriptPath = path.resolve(__dirname, scriptName);
+        // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
+        // inside the CLI container
+        try {
+            logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
+            fs.copyFileSync(localScriptPath, path.join(scriptPath, "create-channel.sh"));
+        } catch (error) {
+            logger.error('Failed to copy the script file: ' + error);
+            throw error;
         }
 
-        // the *entire* stdout and stderr (buffered)
-        logger.info(`stdout: ${stdout}`);
-        logger.info(`stderr: ${stderr}`);
-        });
+        let cmd = cliCommand + "\"bash /scripts/create-channel.sh " + channelName + "\"";
+
+        execCmd(cmd);
         return {"status":200,"message":"Created new channel: " + channelName}
     } catch (error) {
         logger.error('Failed to create channel: ' + error);
@@ -446,9 +422,7 @@ async function fetchLatestConfigBlock(args) {
 
         let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + systemChannel + "\"";
 
-        logger.info('Executing cmd: ' + cmd);
-        // Needs to be sync as we need the output of this command for any subsequent steps
-        execSync(cmd, {stdio: 'inherit'});
+        execCmd(cmd);
         return {"status":200,"message":"Got latest config block from channel: " + channelName}
     } catch (error) {
         logger.error('Failed to get latest config block from channel: ' + error);
@@ -481,9 +455,7 @@ async function createNewOrgConfig(args) {
 
         let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + org + "\"";
 
-        logger.info('Executing cmd: ' + cmd);
-        // Needs to be sync as we need the output of this command for any subsequent steps
-        execSync(cmd, {stdio: 'inherit'});
+        execCmd(cmd);
         return {"status":200,"message":"Created new config for org: " + org}
     } catch (error) {
         logger.error('Failed to create new config for org: ' + error);
@@ -520,9 +492,7 @@ async function createChannelConfigUpdate(args) {
 
         let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + org + " " + systemChannel + "\"";
 
-        logger.info('Executing cmd: ' + cmd);
-        // Needs to be sync as we need the output of this command for any subsequent steps
-        execSync(cmd, {stdio: 'inherit'});
+        execCmd(cmd);
         return {"status":200,"message":"Created new channel update config for org: " + org}
     } catch (error) {
         logger.error('Failed to create new channel update config for org: ' + error);
@@ -558,9 +528,7 @@ async function applyChannelConfigUpdate(args) {
 
         let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + org + " " + systemChannel + "\"";
 
-        logger.info('Executing cmd: ' + cmd);
-        // Needs to be sync as we need the output of this command for any subsequent steps
-        execSync(cmd, {stdio: 'inherit'});
+        execCmd(cmd);
         return {"status":200,"message":"Applied new channel update config for org: " + org}
     } catch (error) {
         logger.error('Failed to apply new channel update config for org: ' + error);
@@ -580,27 +548,8 @@ async function setupOrg(args) {
     let scriptName = 'scripts-for-api/setup-org.sh';
     let cmd = path.resolve(__dirname, scriptName);
 
-    try {
-        logger.info('Running command: ' + cmd);
-        // Needs to be sync as we need the output of this command for any subsequent steps
-        await exec(cmd, (err, stdout, stderr) => {
-        if (err) {
-            logger.error('Failed to prepare environment');
-            logger.error(err);
-            logger.info(`stdout: ${stdout}`);
-            logger.info(`stderr: ${stderr}`);
-            return;
-        }
-
-        // the *entire* stdout and stderr (buffered)
-        logger.info(`stdout: ${stdout}`);
-        logger.info(`stderr: ${stderr}`);
-        });
-        return {"status":200,"message":"Org setup. New org is: " + org}
-    } catch (error) {
-        logger.error('Failed to prepare environment: ' + error);
-        throw error;
-    }
+    execCmd(cmd);
+    return {"status":200,"message":"Org setup. New org is: " + org}
 }
 
 /************************************************************************************
@@ -615,24 +564,8 @@ async function startCA(args) {
     let scriptName = 'scripts-for-api/start-ca.sh';
     let cmd = path.resolve(__dirname, scriptName);
 
-    try {
-        logger.info('Running command: ' + cmd);
-        await exec(cmd, (err, stdout, stderr) => {
-        if (err) {
-            logger.error('Failed to start CA');
-            logger.error(err);
-            logger.info(`stderr: ${stderr}`);
-            return;
-        }
-
-        // the *entire* stdout and stderr (buffered)
-        logger.info(`stdout: ${stdout}`);
-        logger.info(`stderr: ${stderr}`);
-        });
-        return {"status":200,"message":"CA started "}
-    } catch (error) {
-        logger.error('Failed to start CA: ' + error);
-    }
+    execCmd(cmd);
+    return {"status":200,"message":"CA started "}
 }
 
 /************************************************************************************
@@ -647,24 +580,8 @@ async function startRegisterOrg(args) {
     let scriptName = 'scripts-for-api/start-register-org.sh';
     let cmd = path.resolve(__dirname, scriptName);
 
-    try {
-        logger.info('Running command: ' + cmd);
-        await exec(cmd, (err, stdout, stderr) => {
-        if (err) {
-            logger.error('Failed to register org');
-            logger.error(err);
-            logger.info(`stderr: ${stderr}`);
-            return;
-        }
-
-        // the *entire* stdout and stderr (buffered)
-        logger.info(`stdout: ${stdout}`);
-        logger.info(`stderr: ${stderr}`);
-        });
-        return {"status":200,"message":"register org started "}
-    } catch (error) {
-        logger.error('Failed to register org: ' + error);
-    }
+    execCmd(cmd);
+    return {"status":200,"message":"register org started "}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -759,6 +676,20 @@ async function getProfilesFromConfigtx() {
         logger.error('Failed to getProfilesFromConfigtx: ' + error);
         throw error;
     }
+}
+
+async function execCmd(cmd) {
+    logger.info('Executing cmd: ' + cmd);
+    // Needs to be sync as we need the output of this command for any subsequent steps
+    try {
+        let stdout = execSync(cmd, {stdio: 'inherit'});
+        logger.info('Output of execSync is: ' + stdout.toString());
+        return stdout.toString();
+    } catch (error) {
+        logger.error('Error during execSync. Status is: ' + error.status + " message: " + error.message + " stderr: " + error.stderr.toString() + " stdout: " + error.stdout.toString());
+        throw error;
+    }
+    return {"status":200,"message":"Got latest config block from channel: " + channelName}
 }
 
 exports.enrollAdmin = enrollAdmin;
