@@ -680,17 +680,24 @@ async function getProfilesFromConfigtx() {
 
 async function execCmd(cmd) {
     logger.info('Executing cmd: ' + cmd);
+    let response = '';
     // Needs to be sync as we need the output of this command for any subsequent steps
     try {
         let stdout = execSync(cmd, {stdio: 'inherit'});
-        logger.info('Output of execSync is: ' + stdout.toString());
-        return stdout.toString();
+        if (stdout == null) {
+            logger.info('Output of execSync is null. Assume success');
+            response = {"status":200,"message":"Exec command executed successfully"};
+        }
+        else {
+            logger.info('Output of execSync is: ' + stdout.toString());
+            response = {"status":200,"message":"Exec command executed successfully. Stdout is: " + stdout.toString()};
+        }
     } catch (error) {
         logger.error('Error during execSync. Error object is: ' + util.inspect(error));
         logger.error('Error during execSync. Status is: ' + error.status + " message: " + error.message + " stderr: " + error.stderr.toString() + " stdout: " + error.stdout.toString());
         throw error;
     }
-    return {"status":200,"message":"Got latest config block from channel: " + channelName}
+    return response;
 }
 
 exports.enrollAdmin = enrollAdmin;
