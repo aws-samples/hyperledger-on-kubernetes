@@ -212,13 +212,13 @@ async function addOrgToConfigtx(args) {
             }
             if (profilesBool === true) {
                 // Note when I have reached the Profiles->Consortiums section
-                let ix = line.toString().indexOf("Consortiums:");
+                ix = line.toString().indexOf("Consortiums:");
                 if (ix > -1) {
                     consortiumsBool = true;
                 }
                 if (consortiumsBool === true) {
                     // Add the new org when I have reached the Profiles->Consortiums->Organizations section
-                    let ix = line.toString().indexOf("Organizations:");
+                    ix = line.toString().indexOf("Organizations:");
                     if (ix > -1) {
                         let newOrgLine = "                - *" + org;
                         contents += newOrgLine + "\n";
@@ -227,7 +227,7 @@ async function addOrgToConfigtx(args) {
                     }
                 }
             }
-            let ix = line.toString().indexOf("Organizations:");
+            ix = line.toString().indexOf("Organizations:");
             if (ix > -1 && ix < 2) {
                 logger.info('Found the Organizations section in configtx.yaml - writing new org here');
                 let data = fs.readFileSync ('./templates/org.yaml', 'utf8');

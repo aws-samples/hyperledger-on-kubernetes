@@ -41,12 +41,12 @@ echo $response
 ########################################################################################################################
 
 # Set the variables
-ORG=org5;
-PROFILENAME=org5profile;
-CHANNELNAME=org5channel;
+ORG=org6;
+PROFILENAME=org6profile;
+CHANNELNAME=org6channel;
 
 # Try and add a channel profile for an org that does not exist. This should fail as the new org does not exist
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org3"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org6"]}')
 echo $response
 
 # add the new org to the Fabric config file, env.sh
@@ -70,7 +70,7 @@ response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs -H 'content-type: app
 echo $response
 
 # add the new channel profile that includes the new org
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org3"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org6"]}')
 echo $response
 
 # create the channel configuration transaction file
@@ -83,7 +83,7 @@ echo $response
 
 
 # join the channel
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org3"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org6"]}')
 echo $response
 
 
