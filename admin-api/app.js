@@ -319,6 +319,23 @@ app.post('/channels', awaitHandler(async (req, res) => {
 	}
 }));
 
+/************************************************************************************
+ * Join a new channel
+ ************************************************************************************/
+
+app.post('/channels/join', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /channel/join');
+	let args = req.body;
+	logger.info('##### POST on channel/join - args : ' + JSON.stringify(args));
+	let response = await gateway.joinChannel(args);
+	logger.info('##### POST on channel/join - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on channel/join failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
 
 /************************************************************************************
  * Start a CA for the new org

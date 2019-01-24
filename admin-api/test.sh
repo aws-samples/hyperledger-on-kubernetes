@@ -82,3 +82,8 @@ response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels -H 'content-type:
 echo $response
 
 
+# join the channel
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org3"]}')
+echo $response
+
+

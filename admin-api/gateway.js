@@ -181,10 +181,52 @@ async function addOrgToConfigtx(args) {
         let configtxFilepath = path.join(dataPath, configtxFilename);
         await backupFile(configtxFilepath);
 
-        // Use the template to add a new org to configtx.yaml
+        // Use the template to add a new org to configtx.yaml. The new org needs to be
+        // added in two places:
+        //      1) The Consortium definition, under Profiles, in Consortiums->SampleConsortium->Organizations
+        //      2) The Organizations section
         let contents = "";
+        let profilesBool = false;
+        let consortiumsBool = false;
+        let configtxSections = ["Capabilities","Organizations","Orderer","Channel","Application"];
         fs.readFileSync(configtxFilepath).toString().split('\n').forEach(function (line) {
             contents += line + "\n";
+
+            // Add the new org to the Consortiums section. This is a bit tricky as there could be more than one
+            // Consortiums section in configtx.yaml, though only one of them will be used to generate the orderer
+            // genesis block. So I'll need to add the new org to all Consortiums
+
+            // Reset my indicators that track where I am in the file, if I enter a new section in configtx.yaml
+            for (let i = 0; i < configtxSections.length; i++) {
+                let ix = line.toString().indexOf(configtxSections[i]);
+                if (ix > -1 && ix < 2) {
+                    profilesBool = false;
+                    consortiumsBool = false;
+                }
+            }
+
+            // Note when I have reached the Profiles section
+            let ix = line.toString().indexOf("Profiles:");
+            if (ix > -1 && ix < 2) {
+                profilesBool = true;
+            }
+            if (profilesBool === true) {
+                // Note when I have reached the Profiles->Consortiums section
+                let ix = line.toString().indexOf("Consortiums:");
+                if (ix > -1) {
+                    consortiumsBool = true;
+                }
+                if (consortiumsBool === true) {
+                    // Add the new org when I have reached the Profiles->Consortiums->Organizations section
+                    let ix = line.toString().indexOf("Organizations:");
+                    if (ix > -1) {
+                        let newOrgLine = "                - *" + org;
+                        contents += newOrgLine + "\n";
+                        // Set to false. This will allow me to add the same org to different consortium definitions
+                        consortiumsBool = false;
+                    }
+                }
+            }
             let ix = line.toString().indexOf("Organizations:");
             if (ix > -1 && ix < 2) {
                 logger.info('Found the Organizations section in configtx.yaml - writing new org here');
