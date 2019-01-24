@@ -219,7 +219,6 @@ app.post('/orgs', awaitHandler(async (req, res) => {
 	let args = req.body;
 	logger.info('##### POST on orgs - args : ' + JSON.stringify(args));
 	let response = await gateway.addOrg(args);
-	response = await gateway.setupOrg(args);
 	logger.info('##### POST on orgs - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
@@ -243,6 +242,25 @@ app.post('/env/orgs', awaitHandler(async (req, res) => {
 		res.json(response);
 	} else {
 		logger.error('##### POST on env/orgs failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+/************************************************************************************
+ * Prepare the environment for a new org: create directories, start K8s
+ * persistent volumes, etc. Should be done after /env/orgs, and before /orgs/ca
+ ************************************************************************************/
+
+app.post('/orgs/setup', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /orgs/setup');
+	let args = req.body;
+	logger.info('##### POST on orgs/setup - args : ' + JSON.stringify(args));
+	let response = await gateway.setupOrg(args);
+	logger.info('##### POST on orgs/setup - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on orgs/setup failed: %s', response);
 		res.json({success: false, message: response});
 	}
 }));

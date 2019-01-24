@@ -53,6 +53,10 @@ echo $response
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/env/orgs -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
 echo $response
 
+# Prepare the environment for a new org: create directories, start K8s persistent volumes, etc.
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs/setup -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
+echo $response
+
 # Start the CA for the new org
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs/ca -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
 echo $response
