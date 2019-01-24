@@ -336,7 +336,7 @@ async function createTransactionConfig(args) {
         }
         let cmd = cliCommand + "\"cd /data; export FABRIC_CFG_PATH=/data; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName + "\"";
 
-        execCmd(cmd);
+        await execCmd(cmd);
         return {"status":200,"message":"Created channel configuration transaction file - Check ls -lt /opt/share/rca-data for the latest .tx file"}
     } catch (error) {
         logger.error('Failed to createTransactionConfig: ' + error);
@@ -422,7 +422,7 @@ async function fetchLatestConfigBlock(args) {
 
         let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + systemChannel + "\"";
 
-        execCmd(cmd);
+        await execCmd(cmd);
         return {"status":200,"message":"Got latest config block from channel: " + channelName}
     } catch (error) {
         logger.error('Failed to get latest config block from channel: ' + error);
@@ -455,7 +455,7 @@ async function createNewOrgConfig(args) {
 
         let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + org + "\"";
 
-        execCmd(cmd);
+        await execCmd(cmd);
         return {"status":200,"message":"Created new config for org: " + org}
     } catch (error) {
         logger.error('Failed to create new config for org: ' + error);
@@ -492,7 +492,7 @@ async function createChannelConfigUpdate(args) {
 
         let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + org + " " + systemChannel + "\"";
 
-        execCmd(cmd);
+        await execCmd(cmd);
         return {"status":200,"message":"Created new channel update config for org: " + org}
     } catch (error) {
         logger.error('Failed to create new channel update config for org: ' + error);
@@ -528,7 +528,7 @@ async function applyChannelConfigUpdate(args) {
 
         let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + org + " " + systemChannel + "\"";
 
-        execCmd(cmd);
+        await execCmd(cmd);
         return {"status":200,"message":"Applied new channel update config for org: " + org}
     } catch (error) {
         logger.error('Failed to apply new channel update config for org: ' + error);
@@ -548,7 +548,7 @@ async function setupOrg(args) {
     let scriptName = 'scripts-for-api/setup-org.sh';
     let cmd = path.resolve(__dirname, scriptName);
 
-    execCmd(cmd);
+    await execCmd(cmd);
     return {"status":200,"message":"Org setup. New org is: " + org}
 }
 
@@ -564,7 +564,7 @@ async function startCA(args) {
     let scriptName = 'scripts-for-api/start-ca.sh';
     let cmd = path.resolve(__dirname, scriptName);
 
-    execCmd(cmd);
+    await execCmd(cmd);
     return {"status":200,"message":"CA started "}
 }
 
@@ -580,7 +580,7 @@ async function startRegisterOrg(args) {
     let scriptName = 'scripts-for-api/start-register-org.sh';
     let cmd = path.resolve(__dirname, scriptName);
 
-    execCmd(cmd);
+    await execCmd(cmd);
     return {"status":200,"message":"register org started "}
 }
 
