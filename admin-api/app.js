@@ -122,11 +122,10 @@ app.get('/health', awaitHandler(async (req, res) => {
  ************************************************************************************/
 
 app.get('/users/admin', awaitHandler(async (req, res) => {
-	logger.info('================ GET on Init');
-	logger.info('##### End point : /init');
+	logger.info('================ GET on endpoint /users/admin');
     await gateway.enrollAdmin();
     await gateway.adminGateway();
-	logger.info('##### GET on Init - completed');
+	logger.info('##### GET on /users/admin - completed');
 }));
 
 /************************************************************************************
@@ -183,9 +182,8 @@ app.get('/networks', awaitHandler(async (req, res) => {
  ************************************************************************************/
 
 app.post('/users', awaitHandler(async (req, res) => {
-	logger.info('================ POST on Users');
+	logger.info('================ POST on endpoint /users');
 	let args = req.body;
-	logger.info('##### End point : /users');
 	logger.info('##### POST on Users- args : ' + JSON.stringify(args));
 	let response = await connection.getRegisteredUser(args, true);
 	logger.info('##### POST on Users - returned from registering the username %s for organization %s', args);
@@ -235,16 +233,15 @@ app.post('/orgs', awaitHandler(async (req, res) => {
  ************************************************************************************/
 
 app.post('/configtx/profiles', awaitHandler(async (req, res) => {
-	logger.info('================ POST on AddProfile');
+	logger.info('================ POST on endpoint /configtx/profiles');
 	let args = req.body;
-	logger.info('##### End point : /addprofile');
-	logger.info('##### POST on addprofile - args : ' + JSON.stringify(args));
+	logger.info('##### POST on /configtx/profiles - args : ' + JSON.stringify(args));
 	let response = await gateway.addProfileToConfigtx(args);
-	logger.info('##### POST on addprofile - response %s', util.inspect(response));
+	logger.info('##### POST on /configtx/profiles - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
 	} else {
-		logger.error('##### POST on addprofile failed: %s', response);
+		logger.error('##### POST on /configtx/profiles failed: %s', response);
 		res.json({success: false, message: response});
 	}
 }));
@@ -254,9 +251,8 @@ app.post('/configtx/profiles', awaitHandler(async (req, res) => {
  ************************************************************************************/
 
 app.post('/configtx/channelconfigs', awaitHandler(async (req, res) => {
-	logger.info('================ POST on configtx/channelconfig');
+	logger.info('================ POST on endpoint /configtx/channelconfig');
 	let args = req.body;
-	logger.info('##### End point : /configtx/channelconfig');
 	logger.info('##### POST on configtx/channelconfig - args : ' + JSON.stringify(args));
 	let response = await gateway.createTransactionConfig(args);
 	logger.info('##### POST on configtx/channelconfig - response %s', util.inspect(response));
@@ -273,9 +269,8 @@ app.post('/configtx/channelconfigs', awaitHandler(async (req, res) => {
  ************************************************************************************/
 
 app.post('/channels', awaitHandler(async (req, res) => {
-	logger.info('================ POST on channel');
+	logger.info('================ POST on endpoint /channel');
 	let args = req.body;
-	logger.info('##### End point : /channel');
 	logger.info('##### POST on channel - args : ' + JSON.stringify(args));
 	let response = await gateway.createChannel(args);
 	logger.info('##### POST on channel - response %s', util.inspect(response));
@@ -293,16 +288,15 @@ app.post('/channels', awaitHandler(async (req, res) => {
  ************************************************************************************/
 
 app.post('/orgs/ca', awaitHandler(async (req, res) => {
-	logger.info('================ POST on ca');
+	logger.info('================ POST on endpoint /orgs/ca');
 	let args = req.body;
-	logger.info('##### End point : /ca');
-	logger.info('##### POST on ca - args : ' + JSON.stringify(args));
+	logger.info('##### POST on /orgs/ca - args : ' + JSON.stringify(args));
 	let response = await gateway.startCA(args);
-	logger.info('##### POST on ca - response %s', util.inspect(response));
+	logger.info('##### POST on /orgs/ca - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
 	} else {
-		logger.error('##### POST on ca failed: %s', response);
+		logger.error('##### POST on /orgs/ca failed: %s', response);
 		res.json({success: false, message: response});
 	}
 }));
@@ -312,16 +306,15 @@ app.post('/orgs/ca', awaitHandler(async (req, res) => {
  ************************************************************************************/
 
 app.post('/orgs/register', awaitHandler(async (req, res) => {
-	logger.info('================ POST on orgs/register');
+	logger.info('================ POST on endpoint /orgs/register');
 	let args = req.body;
-	logger.info('##### End point : /orgs/register');
-	logger.info('##### POST on orgs/register - args : ' + JSON.stringify(args));
+	logger.info('##### POST on /orgs/register - args : ' + JSON.stringify(args));
 	let response = await gateway.startRegisterOrg(args);
-	logger.info('##### POST on orgs/register - response %s', util.inspect(response));
+	logger.info('##### POST on /orgs/register - response %s', util.inspect(response));
     if (response && typeof response !== 'string') {
 		res.json(response);
 	} else {
-		logger.error('##### POST on orgs/register failed: %s', response);
+		logger.error('##### POST on /orgs/register failed: %s', response);
 		res.json({success: false, message: response});
 	}
 }));

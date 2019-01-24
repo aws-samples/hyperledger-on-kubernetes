@@ -173,7 +173,7 @@ async function addOrgToConfigtx(org) {
         //Check that the new org to be added does not already exist in configtx.yaml
         if (orgsInConfig.indexOf(org) > -1) {
             logger.error('Org: ' + org + ' already exists in configtx.yaml. These orgs are already present: ' + orgsInConfig);
-            return;
+            return ('Org: ' + org + ' already exists in configtx.yaml. These orgs are already present: ' + orgsInConfig);
         }
         let configtxFilepath = path.join(dataPath, configtxFilename);
         await backupFile(configtxFilepath);
@@ -211,7 +211,7 @@ async function addOrgToEnv(org) {
         //Check that the new org to be added does not already exist in env.sh
         if (orgsInEnv.indexOf(org) > -1) {
             logger.error('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
-            return;
+            return ('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
         }
         let envFilepath = path.join(scriptPath, envFilename);
         await backupFile(envFilepath);
@@ -262,14 +262,14 @@ async function addProfileToConfigtx(args) {
         //Check that the new profile to be added does not already exist in configtx.yaml
         if (profilesInConfig.indexOf(profileName) > -1) {
             logger.error('Profile: ' + profileName + ' already exists in configtx.yaml. These profiles are already present: ' + profilesInConfig);
-            return;
+            return ('Profile: ' + profileName + ' already exists in configtx.yaml. These profiles are already present: ' + profilesInConfig);
         }
         let orgsInConfig = await getOrgsFromConfigtx();
         //Check that the orgs to be used in the profile already exist in configtx.yaml
         for (let org of orgs) {
             if (orgsInConfig.indexOf(org) < 0) {
                 logger.error('Org: ' + org + ' does not exist in configtx.yaml - you cannot create a profile that uses this org. These orgs are already present: ' + orgsInConfig);
-                return;
+                return ('Org: ' + org + ' does not exist in configtx.yaml - you cannot create a profile that uses this org. These orgs are already present: ' + orgsInConfig);
             }
         }
         let configtxFilepath = path.join(dataPath, configtxFilename);
@@ -329,7 +329,7 @@ async function createTransactionConfig(args) {
     //Check that the new profile to be added does not already exist in configtx.yaml
     if (profilesInConfig.indexOf(profileName) < 0) {
         logger.error('Profile: ' + profileName + ' does not exist in configtx.yaml - cannot generate a transaction config. These profiles are already present: ' + profilesInConfig);
-        return;
+        return ('Profile: ' + profileName + ' does not exist in configtx.yaml - cannot generate a transaction config. These profiles are already present: ' + profilesInConfig);
     }
     let cmd = cliCommand + "\"cd /data; export FABRIC_CFG_PATH=/data; configtxgen -profile " + profileName + " -outputCreateChannelTx " + channelName + ".tx -channelID " + channelName + "\"";
 
@@ -768,6 +768,7 @@ exports.loadConfigtx = loadConfigtx;
 exports.addOrg = addOrg;
 exports.setupOrg = setupOrg;
 exports.getOrgsFromConfigtx = getOrgsFromConfigtx;
+exports.getOrgsFromEnv = getOrgsFromEnv;
 exports.getProfilesFromConfigtx = getProfilesFromConfigtx;
 exports.addProfileToConfigtx = addProfileToConfigtx;
 exports.createTransactionConfig = createTransactionConfig;
