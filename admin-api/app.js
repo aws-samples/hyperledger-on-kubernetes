@@ -123,7 +123,7 @@ app.get('/health', awaitHandler(async (req, res) => {
 
 app.get('/users/admin', awaitHandler(async (req, res) => {
 	logger.info('================ GET on endpoint /users/admin');
-    await gateway.enrollAdmin();
+    let response = await gateway.enrollAdmin();
     await gateway.adminGateway();
     res.json({success: true, message: response});
 	logger.info('##### GET on /users/admin - completed');
