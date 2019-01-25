@@ -27,12 +27,13 @@ function main {
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --cafile $CA_CHAINFILE"
 
     # Join the first peer to the channel. You could loop through all peers in the org and add them here, if necessary
+    # I chose peer 2 as in some cases peer 1 is exposed via NLB.
     initPeerVars $NEW_ORG 2
 
     # Create the channel
     joinChannel
 
-    log "Congratulations! Peer 1 for org ${NEW_ORG} joined channel ${CHANNEL_NAME}"
+    log "Congratulations! Peer 2 for org ${NEW_ORG} joined channel ${CHANNEL_NAME}"
 }
 
 
