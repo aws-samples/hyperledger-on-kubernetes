@@ -21,12 +21,6 @@ function main {
 
     echo "In join-channel.sh script - joining org ${ORG} to new channel: ${CHANNEL_NAME}"
 
-    # Set ORDERER_PORT_ARGS to the args needed to communicate with the 1st orderer
-    IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
-    initOrdererVars ${OORGS[0]} 1
-    export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --tls --cafile $CA_CHAINFILE --clientauth"
-    #   export ORDERER_PORT_ARGS="-o $ORDERER_HOST:7050 --cafile $CA_CHAINFILE"
-
     # Join the first peer to the channel. You could loop through all peers in the org and add them here, if necessary
     initPeerVars $ORG 1
 
