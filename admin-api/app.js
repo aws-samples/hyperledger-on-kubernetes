@@ -391,6 +391,24 @@ app.post('/peers/register', awaitHandler(async (req, res) => {
 }));
 
 /************************************************************************************
+ * Start the new peer. This generates the MSP for the peer
+ ************************************************************************************/
+
+app.post('/peers/start', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /peers/start');
+	let args = req.body;
+	logger.info('##### POST on /peers/start - args : ' + JSON.stringify(args));
+	let response = await gateway.startPeer(args);
+	logger.info('##### POST on /peers/start - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on /peers/start failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+/************************************************************************************
  * Error handler
  ************************************************************************************/
 

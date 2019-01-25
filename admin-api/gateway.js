@@ -676,6 +676,21 @@ async function startRegisterPeer(args) {
     return {"status":200,"message":"register peer started "}
 }
 
+/************************************************************************************
+ * This will start the new peer. Starting the peer also creates the MSP for the peer.
+ ************************************************************************************/
+
+async function startPeer(args) {
+
+    let org = args['org'];
+    logger.info('Starting the peers for org: ' + org);
+    let scriptName = 'start-peers.sh';
+    let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
+
+    await execCmd(cmd);
+    return {"status":200,"message":"Peer started "}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// MANAGE FABRIC CONFIG FILES ///////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -807,5 +822,6 @@ exports.joinChannel = joinChannel;
 exports.startCA = startCA;
 exports.startRegisterOrg = startRegisterOrg;
 exports.startRegisterPeer = startRegisterPeer;
+exports.startPeer = startPeer;
 exports.addOrgToConsortium = addOrgToConsortium;
 exports.addOrgToEnv = addOrgToEnv;
