@@ -41,12 +41,12 @@ function main {
 function createChannel {
    switchToAdminIdentity
    cd $DATADIR
-   log "Creating channel '$CHANNEL_NAME' with file ${CHANNEL_NAME}.tx on $ORDERER_HOST using connection '$ORDERER_CONN_ARGS'"
+   log "Creating channel '$CHANNEL_NAME' with file ${CHANNEL_NAME}.tx on $ORDERER_HOST using connection '$ORDERER_PORT_ARGS'"
    local CHANNELLIST=`peer channel list | grep -c ${CHANNEL_NAME}`
    if [ $CHANNELLIST -gt 0 ]; then
        log "Channel '$CHANNEL_NAME' already exists - creation request ignored"
    else
-       peer channel create --logging-level=DEBUG -c $CHANNEL_NAME -f ${CHANNEL_NAME}.tx $ORDERER_CONN_ARGS
+       peer channel create --logging-level=DEBUG -c $CHANNEL_NAME -f ${CHANNEL_NAME}.tx $ORDERER_PORT_ARGS
    fi
 }
 
