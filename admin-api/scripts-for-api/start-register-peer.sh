@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
@@ -18,34 +18,18 @@
 set -e
 
 function main {
-
-    echo "In join-channel.sh script - joining org ${ORG} to new channel: ${CHANNEL_NAME}"
-
-    # Join the first peer to the channel. You could loop through all peers in the org and add them here, if necessary
-    initPeerVars $ORG 1
-
-    # Create the channel
-    joinChannel
-
-    log "Congratulations! Peer 1 for org ${ORG} joined channel ${CHANNEL_NAME}"
+    echo "Starting to register the peer"
+    cd $HOME/$REPO/fabric-main
+    source utilities.sh
+    source $SCRIPTS/env.sh
+    cd $HOME/$REPO/fabric-main
+    startRegisterPeers $HOME $REPO
+    echo "Starting to register the peer complete"
 }
 
-
-# Enroll as a peer admin and create the channel
-function joinChannel {
-    switchToAdminIdentity
-    cd $DATADIR
-    log "Joining channel '$CHANNEL_NAME' with genesis block file '${DATADIR}/${CHANNEL_NAME}.block'"
-    log "Peer '$PEER_NAME' is attempting to join channel '$CHANNEL_NAME'"
-    peer channel join -b ${DATADIR}/${CHANNEL_NAME}.block
-}
-
-DATADIR=/data
-SCRIPTS=/scripts
+SDIR=$(dirname "$0")
+DATADIR=/opt/share/
+SCRIPTS=$DATADIR/rca-scripts
 REPO=hyperledger-on-kubernetes
-source $SCRIPTS/env.sh
-echo "Args are: " $*
-CHANNEL_NAME=$1
-ORG=$2
 main
 

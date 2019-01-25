@@ -373,6 +373,24 @@ app.post('/orgs/register', awaitHandler(async (req, res) => {
 }));
 
 /************************************************************************************
+ * Register the new peer
+ ************************************************************************************/
+
+app.post('/peers/register', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /peers/register');
+	let args = req.body;
+	logger.info('##### POST on /peers/register - args : ' + JSON.stringify(args));
+	let response = await gateway.startRegisterPeer(args);
+	logger.info('##### POST on /peers/register - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on /peers/register failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+/************************************************************************************
  * Error handler
  ************************************************************************************/
 

@@ -660,6 +660,22 @@ async function startRegisterOrg(args) {
     return {"status":200,"message":"register org started "}
 }
 
+/************************************************************************************
+ * This will register the new peer. Registration creates an identity for the new peer.
+ * Registration will run in a Kubernetes pod in EKS
+ ************************************************************************************/
+
+async function startRegisterPeer(args) {
+
+    let org = args['org'];
+    logger.info('Starting to register peer for org: ' + org);
+    let scriptName = 'start-register-peer.sh';
+    let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
+
+    await execCmd(cmd);
+    return {"status":200,"message":"register peer started "}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// MANAGE FABRIC CONFIG FILES ///////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -790,5 +806,6 @@ exports.createChannel = createChannel;
 exports.joinChannel = joinChannel;
 exports.startCA = startCA;
 exports.startRegisterOrg = startRegisterOrg;
+exports.startRegisterPeer = startRegisterPeer;
 exports.addOrgToConsortium = addOrgToConsortium;
 exports.addOrgToEnv = addOrgToEnv;
