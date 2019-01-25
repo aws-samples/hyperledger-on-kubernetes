@@ -19,7 +19,7 @@ set -e
 
 function main {
 
-    echo "In join-channel.sh script - joining org ${ORG} to new channel: ${CHANNEL_NAME}"
+    echo "In join-channel.sh script - joining org ${NEW_ORG} to new channel: ${CHANNEL_NAME}"
 
     # Set ORDERER_PORT_ARGS to the args needed to communicate with the 3rd orderer. TLS is set to false for orderer3
     IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
@@ -27,12 +27,12 @@ function main {
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --cafile $CA_CHAINFILE"
 
     # Join the first peer to the channel. You could loop through all peers in the org and add them here, if necessary
-    initPeerVars $ORG 1
+    initPeerVars $NEW_ORG 1
 
     # Create the channel
     joinChannel
 
-    log "Congratulations! Peer 1 for org ${ORG} joined channel ${CHANNEL_NAME}"
+    log "Congratulations! Peer 1 for org ${NEW_ORG} joined channel ${CHANNEL_NAME}"
 }
 
 
@@ -51,6 +51,6 @@ REPO=hyperledger-on-kubernetes
 source $SCRIPTS/env.sh
 echo "Args are: " $*
 CHANNEL_NAME=$1
-ORG=$2
+NEW_ORG=$2
 main
 
