@@ -19,7 +19,7 @@ set -e
 
 function main {
 
-    echo "In create-channel.sh script - creating new channel: ${CHANNEL_NAME}"
+    echo "In join-channel.sh script - joining org ${ORG} to new channel: ${CHANNEL_NAME}"
 
     # Set ORDERER_PORT_ARGS to the args needed to communicate with the 1st orderer
     IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
@@ -27,28 +27,23 @@ function main {
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --tls --cafile $CA_CHAINFILE --clientauth"
     #   export ORDERER_PORT_ARGS="-o $ORDERER_HOST:7050 --cafile $CA_CHAINFILE"
 
-    # Use the first peer of the first org for admin activities
-    IFS=', ' read -r -a PORGS <<< "$PEER_ORGS"
-    initPeerVars ${PORGS[0]} 1
+    # Join the first peer to the channel. You could loop through all peers in the org and add them here, if necessary
+    initPeerVars $ORG 1
 
     # Create the channel
-    createChannel
+    joinChannel
 
     log "Congratulations! $CHANNEL_NAME created successfully."
 }
 
 
 # Enroll as a peer admin and create the channel
-function createChannel {
-   switchToAdminIdentity
-   cd $DATADIR
-   log "Creating channel '$CHANNEL_NAME' with file ${CHANNEL_NAME}.tx on $ORDERER_HOST using connection '$ORDERER_CONN_ARGS'"
-   local CHANNELLIST=`peer channel list | grep -c ${CHANNEL_NAME}`
-   if [ $CHANNELLIST -gt 0 ]; then
-       log "Channel '$CHANNEL_NAME' already exists - creation request ignored"
-   else
-       peer channel create --logging-level=DEBUG -c $CHANNEL_NAME -f ${CHANNEL_NAME}.tx $ORDERER_CONN_ARGS
-   fi
+function joinChannel {
+    switchToAdminIdentity
+    cd $DATADIR
+    log "Joining channel '$CHANNEL_NAME' with genesis block file '${DATADIR}/${CHANNEL_NAME}.block'"
+    log "Peer $PEER_HOST is attempting to join channel '$CHANNEL_NAME'"
+    peer channel join -b ${DATADIR}/${CHANNEL_NAME}.block
 }
 
 DATADIR=/data
@@ -57,5 +52,6 @@ REPO=hyperledger-on-kubernetes
 source $SCRIPTS/env.sh
 echo "Args are: " $*
 CHANNEL_NAME=$1
+ORG=$2
 main
 

@@ -208,9 +208,6 @@ app.post('/users', awaitHandler(async (req, res) => {
  *      Adds the org to the env.sh file that is used to configure the Fabric network
  *      Adds the org to the consortium defined in the profiles section in configtx.yaml
  *      Updates the system channel configuration block with the new consortium profile
- *      Creates a new namespace in the EKS cluster for the org
- *      Creates the necessary directory structure for the new org's MSP
- *      Creates the EKS PV & PVCs (persistent volumes), mapping to the new org's MSP
  *
  ************************************************************************************/
 
@@ -247,8 +244,10 @@ app.post('/env/orgs', awaitHandler(async (req, res) => {
 }));
 
 /************************************************************************************
- * Prepare the environment for a new org: create directories, start K8s
- * persistent volumes, etc. Should be done after /env/orgs, and before /orgs/ca
+ * Prepare the Kubernetes environment for a new org:
+ *      Creates a new namespace in the EKS cluster for the org
+ *      Creates the necessary directory structure for the new org's MSP
+ *      Creates the EKS PV & PVCs (persistent volumes), mapping to the new org's MSP
  ************************************************************************************/
 
 app.post('/orgs/setup', awaitHandler(async (req, res) => {

@@ -115,9 +115,6 @@ async function listNetwork() {
  *      Adds the org to the env.sh file that is used to configure the Fabric network
  *      Adds the org to the consortium defined in the profiles section in configtx.yaml
  *      Updates the system channel configuration block with the new consortium profile
- *      Creates a new namespace in the EKS cluster for the org
- *      Creates the necessary directory structure for the new org's MSP
- *      Creates the EKS PV & PVCs (persistent volumes), mapping to the new org's MSP
  ************************************************************************************/
 
 // TODO: the anchor peer needs to be passed to this function, and updated into configtx.yaml
@@ -396,24 +393,57 @@ async function createChannel(args) {
     try {
         let channelName = args['channelname'];
         logger.info('Creating new channel: ' + channelName);
-        let scriptName = 'scripts-for-api/create-channel.sh';
-        let localScriptPath = path.resolve(__dirname, scriptName);
+        let scriptName = 'create-channel.sh';
+        let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
         // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
         // inside the CLI container
         try {
             logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
-            fs.copyFileSync(localScriptPath, path.join(scriptPath, "create-channel.sh"));
+            fs.copyFileSync(localScriptPath, path.join(scriptPath, scriptName));
         } catch (error) {
             logger.error('Failed to copy the script file: ' + error);
             throw error;
         }
 
-        let cmd = cliCommand + "\"bash /scripts/create-channel.sh " + channelName + "\"";
+        let cmd = cliCommand + "\"bash /scripts" + scriptName + " " + channelName + "\"";
 
         await execCmd(cmd);
         return {"status":200,"message":"Created new channel: " + channelName};
     } catch (error) {
         logger.error('Failed to create channel: ' + error);
+        throw error;
+    }
+}
+
+/************************************************************************************
+ * This will join peer nodes to a new channel
+ ************************************************************************************/
+
+async function joinChannel(args) {
+
+    try {
+        let channelName = args['channelname'];
+        let orgs = args['orgs'];
+        logger.info('Joining peers to new channel: ' + channelName + " for orgs: " + orgs);
+        let scriptName = 'join-channel.sh';
+        let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
+        // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
+        // inside the CLI container
+        try {
+            logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
+            fs.copyFileSync(localScriptPath, path.join(scriptPath, scriptName));
+        } catch (error) {
+            logger.error('Failed to copy the script file: ' + error);
+            throw error;
+        }
+        for (let org of orgs) {
+            logger.info('Joining peer for org: ' + org + ' to new channel: ' + channelName);
+            let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + " " + org + "\"";
+            await execCmd(cmd);
+        }
+        return {"status":200,"message":"Joined orgs: " + orgs + " to new channel: " + channelName};
+    } catch (error) {
+        logger.error('Failed to join channel: ' + error);
         throw error;
     }
 }
@@ -581,16 +611,18 @@ async function applyChannelConfigUpdate(args) {
 }
 
 /************************************************************************************
- * This will prepare the environment for a new org: create directories, start K8s
- * persistent volumes, etc.
+ * Prepare the Kubernetes environment for a new org:
+ *      Creates a new namespace in the EKS cluster for the org
+ *      Creates the necessary directory structure for the new org's MSP
+ *      Creates the EKS PV & PVCs (persistent volumes), mapping to the new org's MSP
  ************************************************************************************/
 
 async function setupOrg(args) {
 
     let org = args['org'];
     logger.info('Preparing environment for org: ' + org);
-    let scriptName = 'scripts-for-api/setup-org.sh';
-    let cmd = path.resolve(__dirname, scriptName);
+    let scriptName = 'setup-org.sh';
+    let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
 
     await execCmd(cmd);
     return {"status":200,"message":"Org setup. New org is: " + org}
@@ -605,8 +637,8 @@ async function startCA(args) {
 
     let org = args['org'];
     logger.info('Starting CAs');
-    let scriptName = 'scripts-for-api/start-ca.sh';
-    let cmd = path.resolve(__dirname, scriptName);
+    let scriptName = 'start-ca.sh';
+    let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
 
     await execCmd(cmd);
     return {"status":200,"message":"CA started "}
@@ -621,8 +653,8 @@ async function startRegisterOrg(args) {
 
     let org = args['org'];
     logger.info('Starting to register org: ' + org);
-    let scriptName = 'scripts-for-api/start-register-org.sh';
-    let cmd = path.resolve(__dirname, scriptName);
+    let scriptName = 'start-register-org.sh';
+    let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
 
     await execCmd(cmd);
     return {"status":200,"message":"register org started "}
