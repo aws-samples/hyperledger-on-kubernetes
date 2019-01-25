@@ -41,12 +41,12 @@ echo $response
 ########################################################################################################################
 
 # Set the variables
-ORG=org13
-PROFILENAME=org13profile;
-CHANNELNAME=org13channel;
+ORG=org14
+PROFILENAME=org14profile;
+CHANNELNAME=org14channel;
 
 # Try and add a channel profile for an org that does not exist. This should fail as the new org does not exist
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org13"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org14"]}')
 echo $response
 
 # add the new org to the Fabric config file, env.sh
@@ -70,7 +70,7 @@ response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs -H 'content-type: app
 echo $response
 
 # add the new channel profile that includes the new org
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org13"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org14"]}')
 echo $response
 
 # create the channel configuration transaction file
@@ -89,15 +89,19 @@ echo $response
 # It could take up to 5 minutes for enrollment of the peer to complete. This is because the Kubernetes pod
 # starts a Fabric Tools image which does not contain a fabric-ca. It seems the newer Docker images for Fabric do
 # not include a CA client, so I have to install it in the script. This takes time to download and build.
+# An alternative would be to move the code that registers the TLS certs and identities to the /peers/register script
+# above, since this already runs a fabric-ca image, but this will require some work to set the right ENV variables
+# Another alternative would be to use the Fabric SDK to generate the necessary id's and TLS certs
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/peers/start -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
 echo $response
 sleep 300
 
 ####
 #### Wait 5 minutes before starting this. See comment above
+#### Do a 'kubectl logs' on the peer pod started above to check whether fabric-ca has been built, and has generated the identities required
 ####
 # join the channel
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org13"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org14"]}')
 echo $response
 
 

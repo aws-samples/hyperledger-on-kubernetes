@@ -405,7 +405,7 @@ async function createChannel(args) {
             throw error;
         }
 
-        let cmd = cliCommand + "\"bash /scripts" + scriptName + " " + channelName + "\"";
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + "\"";
 
         await execCmd(cmd);
         return {"status":200,"message":"Created new channel: " + channelName};
