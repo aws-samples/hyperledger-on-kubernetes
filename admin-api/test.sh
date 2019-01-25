@@ -81,10 +81,21 @@ echo $response
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'"}')
 echo $response
 
-# Register a peer for new org - this will generate an MSP for the peer
+# Register a peer for new org - this will generate an identity
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/peers/register -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
 echo $response
 
+# Start a peer for new org - this will generate an MSP for the peer
+# It could take up to 5 minutes for enrollment of the peer to complete. This is because the Kubernetes pod
+# starts a Fabric Tools image which does not contain a fabric-ca. It seems the newer Docker images for Fabric do
+# not include a CA client, so I have to install it in the script. This takes time to download and build.
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/peers/start -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
+echo $response
+sleep 300
+
+####
+#### Wait 5 minutes before starting this. See comment above
+####
 # join the channel
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org7"]}')
 echo $response
