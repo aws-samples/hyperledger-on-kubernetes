@@ -27,7 +27,7 @@ function main {
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --cafile $CA_CHAINFILE"
 
     # Join the first peer to the channel. You could loop through all peers in the org and add them here, if necessary
-    initPeerVars $NEW_ORG 1
+    initPeerVars $NEW_ORG 2
 
     # Create the channel
     joinChannel
