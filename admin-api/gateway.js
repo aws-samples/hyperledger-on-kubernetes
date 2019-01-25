@@ -787,6 +787,7 @@ exports.getProfilesFromConfigtx = getProfilesFromConfigtx;
 exports.addProfileToConfigtx = addProfileToConfigtx;
 exports.createTransactionConfig = createTransactionConfig;
 exports.createChannel = createChannel;
+exports.joinChannel = joinChannel;
 exports.startCA = startCA;
 exports.startRegisterOrg = startRegisterOrg;
 exports.addOrgToConsortium = addOrgToConsortium;
