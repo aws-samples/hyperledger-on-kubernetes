@@ -475,13 +475,12 @@ function getExternalAnchorPeer {
    for i in "${!orgsarr[@]}"; do
       if [[ "${orgsarr[$i]}" = "${1}" ]]; then
         # make sure this index exists in the anchor peers array
-        echo "Checking anchor peers for index: ${i}. Anchor array len is: ${#anchorarr[@]}"
         if [[ "${#anchorarr[@]}" -le "${i}" ]]; then
             return
         fi
         IFS=':' read -r -a arr <<< "${anchorarr[$i]}"
-        EXTERNALANCHORPEER=${arr[0]}
-        EXTERNALANCHORPORT=${arr[1]}
+        EXTERNALANCHORPEER=echo -e ${arr[0]} | tr -d "[:blank:]"
+        EXTERNALANCHORPORT=echo -e ${arr[1]} | tr -d "[:blank:]"
         return
       fi
    done
