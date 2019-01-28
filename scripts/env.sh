@@ -262,12 +262,9 @@ function initPeerVars {
    # must be exposed via an NLB so that it can communicate with peers in other accounts/regions
    if [ $FABRIC_NETWORK_TYPE == "PROD" ] && [ $NUM -eq 1 ] && [[ ! -v $"REMOTE_PEER" ]]; then
      getExternalAnchorPeer $ORG
-     echo "EXTERNALANCHORPEER is:" $EXTERNALANCHORPEER
      if [ -z "$EXTERNALANCHORPEER" ]; then
-        echo "No anchor peer for this peer. Setting PEER_HOST=${PEER_NAME}.${DOMAIN}"
         PEER_HOST=${PEER_NAME}.${DOMAIN}
      else
-        echo "Anchor peer defined for this peer. Setting PEER_HOST=$EXTERNALANCHORPEER"
         PEER_HOST=$EXTERNALANCHORPEER
      fi
    else
