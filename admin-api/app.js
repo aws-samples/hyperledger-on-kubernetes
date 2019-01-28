@@ -427,6 +427,24 @@ app.post('/fabric/start', awaitHandler(async (req, res) => {
 }));
 
 /************************************************************************************
+ * Stop the new Fabric network. This does the same as ./fabric-main/stop-fabric.sh
+ ************************************************************************************/
+
+app.post('/fabric/stop', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /fabric/stop');
+	let args = req.body;
+	logger.info('##### POST on /fabric/stop - args : ' + JSON.stringify(args));
+	let response = await gateway.stopFabricNetwork(args);
+	logger.info('##### POST on /fabric/stop - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on /fabric/stop failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+/************************************************************************************
  * Error handler
  ************************************************************************************/
 

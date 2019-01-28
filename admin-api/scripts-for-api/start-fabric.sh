@@ -26,7 +26,12 @@ function main {
     source util-prep.sh
     updateRepo $HOME $REPO
     makeDirs $DATADIR
-    copyScripts $HOME $REPO $DATADIR
+    # prevent overwriting env.sh if it exists. We use env.sh as a config - it contains the list of orgs in the network
+    if [ -f "${SCRIPTS}/env.sh" ]; then
+        echo "File ${SCRIPTS}/env.sh exists. I will NOT overwrite it. If you want to overwrite it, copy it manually. Note that I won't be overwriting any scripts in this directory"
+    else
+        copyScripts $HOME $REPO $DATADIR
+    fi
     source $SCRIPTS/env.sh
     cd $HOME/$REPO/fabric-main
     source utilities.sh
@@ -44,7 +49,11 @@ function main {
         startOrdererNLB $HOME $REPO
         startAnchorPeerNLB $HOME $REPO
     fi
-    updateChannelArtifacts $HOME $REPO
+    if [ -f "${DATADIR}/rca-data/configtx.yaml" ]; then
+        echo "File ${DATADIR}/rca-data/configtx.yaml exists. I will NOT overwrite it. If you want to overwrite it, copy it manually. This means I will also not be running gen-channel-artifacts.sh"
+    else
+        updateChannelArtifacts $HOME $REPO
+    fi
     startOrderer $HOME $REPO
     startPeers $HOME $REPO
     if [ $FABRIC_NETWORK_TYPE == "PROD" ]; then

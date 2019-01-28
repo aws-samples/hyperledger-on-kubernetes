@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
+# This file will be backed up for you, but if you want the extra security, you can back it up manually
+cp /opt/share/rca-data/configtx.yaml /opt/share/rca-data/configtx-orig.yaml
 
-cp /opt/share/rca-data/configtx-orig.yaml /opt/share/rca-data/configtx.yaml
-
+# To see debug logs
 export HFC_LOGGING='{"debug":"console","info":"console"}'
 
+# Start the app in one Cloud9 session
 nvm use lts/carbon
-
 node app.js &
 
+# In another Cloud9 session run the test cases
 export ENDPOINT=localhost
 export PORT=3000
 echo connecting to server: $ENDPOINT:$PORT
@@ -33,6 +35,25 @@ echo $response
 
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/configtx/profiles)
 echo $response
+
+########################################################################################################################
+# Start a new Fabric network. After creating the EKS cluster and following the steps in the admin-api/README to install
+# the API server, start the Fabric network using this API.
+#
+# You can rerun this as often as necessary. It reads the configuration from ./scripts/env.sh and starts a Fabric
+# network using this configuration. In the background it is starting Kubernetes pods, so there is no problem running
+# this multiple times.
+########################################################################################################################
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/fabric/start -H 'content-type: application/json')
+echo $response
+sleep 300
+
+########################################################################################################################
+# Stop a new Fabric network. Stops everything started by /fabric/start.
+########################################################################################################################
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/fabric/stop -H 'content-type: application/json')
+echo $response
+sleep 300
 
 ########################################################################################################################
 # Add a new org

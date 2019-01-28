@@ -708,6 +708,21 @@ async function startFabricNetwork(args) {
     return {"status":200,"message":"Fabric network started "}
 }
 
+/************************************************************************************
+ * This will stop all the components in a new Fabric network.
+ * It carries out the same tasks as ./fabric-main/stop-fabric.sh.
+ ************************************************************************************/
+
+async function stopFabricNetwork(args) {
+
+    logger.info('Stopping the Fabric network');
+    let scriptName = 'stop-fabric.sh';
+    let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
+
+    await execCmd(cmd);
+    return {"status":200,"message":"Fabric network stopped "}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// MANAGE FABRIC CONFIG FILES ///////////////////
 ///////////////////////////////////////////////////////////////////////////////
