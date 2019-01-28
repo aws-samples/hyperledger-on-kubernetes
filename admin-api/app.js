@@ -409,6 +409,24 @@ app.post('/peers/start', awaitHandler(async (req, res) => {
 }));
 
 /************************************************************************************
+ * Start the new Fabric network. This does the same as ./fabric-main/start-fabric.sh
+ ************************************************************************************/
+
+app.post('/fabric/start', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /fabric/start');
+	let args = req.body;
+	logger.info('##### POST on /fabric/start - args : ' + JSON.stringify(args));
+	let response = await gateway.startFabricNetwork(args);
+	logger.info('##### POST on /fabric/start - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on /fabric/start failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+/************************************************************************************
  * Error handler
  ************************************************************************************/
 

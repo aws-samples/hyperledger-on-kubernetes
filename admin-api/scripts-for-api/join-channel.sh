@@ -26,7 +26,7 @@ function main {
     initOrdererVars ${OORGS[0]} 3
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --cafile $CA_CHAINFILE"
 
-    # Join the first peer to the channel. You could loop through all peers in the org and add them here, if necessary
+    # Join the second peer to the channel. You could loop through all peers in the org and add them here, if necessary.
     # I chose peer 2 as in some cases peer 1 is exposed via NLB.
     initPeerVars $NEW_ORG 2
 

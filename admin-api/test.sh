@@ -99,8 +99,17 @@ sleep 300
 ####
 #### Wait 5 minutes before starting this. See comment above
 #### Do a 'kubectl logs' on the peer pod started above to check whether fabric-ca has been built, and has generated the identities required
+#### Look for this log entry: 2019-01-28 03:35:39.458 UTC [nodeCmd] serve -> INFO 020 Started peer with ID=[name:"peer2-org3" ], network ID=[dev], address=[192.168.188.57:7051]
 ####
 # join the channel
+# You should see something like this in the peer logs:
+# $ kubectl logs peer2-org3-59988dbdf-f29dm  -n org3 -c peer2-org3 | grep org3channel
+# 2019-01-28 03:37:32.993 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org3channel] with genesis block
+#
+# and something similar in the logs for the other org:
+# $ kubectl logs peer2-org1-65c97bb4b7-l7cnl -n org1 -c peer2-org1 | grep org3channel
+# 2019-01-28 03:37:31.923 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org3channel] with genesis block
+
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org3"]}')
 echo $response
 

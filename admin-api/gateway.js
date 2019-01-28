@@ -692,6 +692,22 @@ async function startPeer(args) {
     return {"status":200,"message":"Peer started "}
 }
 
+/************************************************************************************
+ * This will start all the components in a new Fabric network. After creating the EKS
+ * cluster and deploying this API server, this function should be called via the API.
+ * It carries out the same tasks as ./fabric-main/start-fabric.sh.
+ ************************************************************************************/
+
+async function startFabricNetwork(args) {
+
+    logger.info('Starting the Fabric network');
+    let scriptName = 'start-fabric.sh';
+    let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
+
+    await execCmd(cmd);
+    return {"status":200,"message":"Fabric network started "}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// MANAGE FABRIC CONFIG FILES ///////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -845,5 +861,6 @@ exports.startCA = startCA;
 exports.startRegisterOrg = startRegisterOrg;
 exports.startRegisterPeer = startRegisterPeer;
 exports.startPeer = startPeer;
+exports.startFabricNetwork = startFabricNetwork;
 exports.addOrgToConsortium = addOrgToConsortium;
 exports.addOrgToEnv = addOrgToEnv;

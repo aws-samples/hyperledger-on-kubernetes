@@ -9,7 +9,7 @@ export HFC_LOGGING='{"debug":"console","info":"console"}'
 
 
 # Pre-requisites
-We need the Fabric binaries so we can run commands such as configtxgen.
+We need the Fabric binaries so we can run commands such as configtxgen on the bastion host.
 
 ```bash
 cd ~
