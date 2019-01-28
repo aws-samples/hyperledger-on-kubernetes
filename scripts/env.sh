@@ -261,10 +261,9 @@ function initPeerVars {
    # When building a PROD network, the 1st peer of each org will be considered the anchor peer, and it's endpoint
    # must be exposed via an NLB so that it can communicate with peers in other accounts/regions
    if [ $FABRIC_NETWORK_TYPE == "PROD" ] && [ $NUM -eq 1 ] && [[ ! -v $"REMOTE_PEER" ]]; then
-     echo "calling getExternalAnchorPeer with org: " $ORG
      getExternalAnchorPeer $ORG
-     echo "EXTERNALANCHORPEER is: " $EXTERNALANCHORPEER
-     if [ !EXTERNALANCHORPEER ]; then
+     echo "EXTERNALANCHORPEER is:" $EXTERNALANCHORPEER
+     if [ -z "$EXTERNALANCHORPEER" ]; then
         echo "No anchor peer for this peer. Setting PEER_HOST=${PEER_NAME}.${DOMAIN}"
         PEER_HOST=${PEER_NAME}.${DOMAIN}
      else
@@ -479,8 +478,8 @@ function getExternalAnchorPeer {
             return
         fi
         IFS=':' read -r -a arr <<< "${anchorarr[$i]}"
-        EXTERNALANCHORPEER=echo -e ${arr[0]} | tr -d "[:blank:]"
-        EXTERNALANCHORPORT=echo -e ${arr[1]} | tr -d "[:blank:]"
+        EXTERNALANCHORPEER=${arr[0]}
+        EXTERNALANCHORPORT=${arr[1]}
         return
       fi
    done
