@@ -16,9 +16,14 @@ const gateway = new Gateway();
 const { exec } = require('child_process');
 const { execSync } = require('child_process');
 const { execFile } = require('child_process');
+// This is a useful little library. It loads the file env.sh as a list of properties so that I can easily refer to a property in the code
+// See loadEnv()
+const dotenv = require('dotenv')
+
 var CONFIG = require('./config.json');
 
 let configtxContents = '';
+let envConfigContents = '';
 let dataPath = CONFIG.datapath;
 let configtxFilename = CONFIG.configtxfile;
 let scriptPath = CONFIG.scriptpath;
@@ -32,10 +37,6 @@ let systemChannelName = 'testchainid';
 
 // command line to execute a script/command inside the CLI container
 let cliCommand = "kubectl exec -i $(kubectl get pod -l name=cli -o jsonpath=\"{.items[0].metadata.name}\" -n org0) -n org0 -- bash -c ";
-
-// This is a little hack. It loads the file env.sh as a list of properties so that I can easily refer to a property in the code
-require('dotenv').config({ path: path.join(scriptPath, envFilename) })
-console.log(process.env);
 
 /************************************************************************************
  * Enroll an admin user. The admin user will either be obtained from the Fabric wallet
@@ -712,6 +713,26 @@ async function loadConfigtx() {
 
 }
 
+
+/************************************************************************************
+ * Loads env.sh into ENV variables for easy querying
+ ************************************************************************************/
+
+async function loadEnv() {
+
+    try {
+    require('dotenv').config({ path: path.join(scriptPath, envFilename) })
+
+        logger.info('Loading the Fabric env.sh at path: ' + path.join(scriptPath, envFilename));
+        envConfigContents = dotenv.parse(fs.readFileSync(path.join(scriptPath, envFilename)))
+        logger.info('Env.sh loaded at path: ' + path.join(scriptPath, envFilename));
+    } catch (error) {
+        logger.error('Failed to loadEnv: ' + error);
+        throw error;
+    }
+
+}
+
 /************************************************************************************
  * Backup a file. Used to backup config files before updating them
  ************************************************************************************/
@@ -735,7 +756,8 @@ async function backupFile(absoluteFilename) {
 async function getOrgsFromEnv() {
 
     try {
-        let orgString = process.env.PEER_ORGS;
+        await loadEnv();
+        let orgString = envConfigContents.PEER_ORGS;
         let orgArray = orgString.split(" ");
         logger.info("Orgs in env.sh for this network are: " + orgString);
         return orgArray;
