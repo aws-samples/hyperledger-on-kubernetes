@@ -96,8 +96,25 @@ function genRCA {
     log "Generating RCA K8s YAML files"
     for ORG in $ORGS; do
         getDomain $ORG
+        # Find a port number that hasn't been used
+        while true
+        do
+            local portInUse=false
+            for i in "${RCA_PORTS_IN_USE[@]}"
+            do
+                if [ "$i" -eq "$rcaport" ] ; then
+                    rcaport=$((rcaport+100))
+                    portInUse=true
+                    break
+                fi
+            done
+            if [ "$portInUse" = false ] ; then
+                break
+            fi
+        done
+        RCA_PORTS_IN_USE+=($rcaport)
+        log "Port assigned to rca: rca-$ORG is $rcaport"
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${rcaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-rca.yaml > ${K8SYAML}/fabric-deployment-rca-$ORG.yaml
-        rcaport=$((rcaport+100))
     done
 }
 
@@ -106,11 +123,28 @@ function genICA {
     for ORG in $ORGS; do
         getDomain $ORG
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${icaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-ica.yaml > ${K8SYAML}/fabric-deployment-ica-$ORG.yaml
+        # Find a port number that hasn't been used
+        while true
+        do
+            local portInUse=false
+            for i in "${ICA_PORTS_IN_USE[@]}"
+            do
+                if [ "$i" -eq "$icaport" ] ; then
+                    icaport=$((icaport+100))
+                    portInUse=true
+                    break
+                fi
+            done
+            if [ "$portInUse" = false ] ; then
+                break
+            fi
+        done
+        ICA_PORTS_IN_USE+=($icaport)
+        log "Port assigned to ica: ica-$ORG is $icaport"
         icaport=$((icaport+1))
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${icaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-ica-notls.yaml > ${K8SYAML}/fabric-deployment-ica-notls-$ORG.yaml
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-nlb-ca.yaml > ${K8SYAML}/fabric-nlb-ca-$ORG.yaml
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-elb-ca.yaml > ${K8SYAML}/fabric-elb-ca-$ORG.yaml
-        icaport=$((icaport+100))
     done
 }
 
@@ -224,6 +258,24 @@ function genOrderer {
         getDomain $ORG
         local COUNT=1
         while [[ "$COUNT" -le $NUM_ORDERERS ]]; do
+            # Find a port number that hasn't been used
+            while true
+            do
+                local portInUse=false
+                for i in "${ORDERER_PORTS_IN_USE[@]}"
+                do
+                    if [ "$i" -eq "$ordererport" ] ; then
+                        ordererport=$((ordererport+100))
+                        portInUse=true
+                        break
+                    fi
+                done
+                if [ "$portInUse" = false ] ; then
+                    break
+                fi
+            done
+            ORDERER_PORTS_IN_USE+=($ordererport)
+            log "Port assigned to orderer: orderer$COUNT-$ORG is $ordererport"
             # for the 3rd orderer we generate an orderer with no TLS. Use for client applications connections
             # during the workshop
             if [ $COUNT -eq 3 ]; then
@@ -234,9 +286,7 @@ function genOrderer {
                 sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" ${K8STEMPLATES}/fabric-nlb-orderer.yaml > ${K8SYAML}/fabric-nlb-orderer$COUNT-$ORG.yaml
             fi
             COUNT=$((COUNT+1))
-            ordererport=$((ordererport+1))
         done
-        ordererport=$((ordererport+100))
     done
 }
 
@@ -247,6 +297,24 @@ function genPeers {
         local COUNT=1
         #the first peer of an org defaults to the anchor peer
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" ${K8STEMPLATES}/fabric-nlb-anchor-peer.yaml > ${K8SYAML}/fabric-nlb-anchor-peer$COUNT-$ORG.yaml
+        # Find a port number that hasn't been used
+        while true
+        do
+            local portInUse=false
+            for i in "${PEER_PORTS_IN_USE[@]}"
+            do
+                if [ "$i" -eq "$peerport" ] ; then
+                    peerport=$((peerport+100))
+                    portInUse=true
+                    break
+                fi
+            done
+            if [ "$portInUse" = false ] ; then
+                break
+            fi
+        done
+        PEER_PORTS_IN_USE+=($peerport)
+        log "Port assigned to peer: peer$COUNT-$ORG is $peerport"
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
             PORTCHAIN=$((PORTCHAIN+2))
@@ -254,7 +322,6 @@ function genPeers {
             sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-peer.yaml > ${K8SYAML}/fabric-deployment-peer$COUNT-$ORG.yaml
             COUNT=$((COUNT+1))
         done
-        peerport=$((peerport+100))
    done
 }
 
@@ -265,6 +332,24 @@ function genRemotePeers {
     for ORG in $PEER_ORGS; do
         getDomain $ORG
         local COUNT=1
+        # Find a port number that hasn't been used
+        while true
+        do
+            local portInUse=false
+            for i in "${PEER_PORTS_IN_USE[@]}"
+            do
+                if [ "$i" -eq "$peerport" ] ; then
+                    peerport=$((peerport+100))
+                    portInUse=true
+                    break
+                fi
+            done
+            if [ "$portInUse" = false ] ; then
+                break
+            fi
+        done
+        PEER_PORTS_IN_USE+=($peerport)
+        log "Port assigned to peer: peer$COUNT-$ORG is $peerport"
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
             PORTCHAIN=$((PORTCHAIN+2))
@@ -273,7 +358,6 @@ function genRemotePeers {
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" remote-peer/k8s/fabric-nlb-remote-peer.yaml > ${K8SYAML}/fabric-nlb-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             COUNT=$((COUNT+1))
         done
-        peerport=$((peerport+100))
    done
 }
 
@@ -283,6 +367,24 @@ function genWorkshopRemotePeers {
     for ORG in $PEER_ORGS; do
         getDomain $ORG
         local COUNT=1
+        # Find a port number that hasn't been used
+        while true
+        do
+            local portInUse=false
+            for i in "${PEER_PORTS_IN_USE[@]}"
+            do
+                if [ "$i" -eq "$peerport" ] ; then
+                    peerport=$((peerport+100))
+                    portInUse=true
+                    break
+                fi
+            done
+            if [ "$portInUse" = false ] ; then
+                break
+            fi
+        done
+        PEER_PORTS_IN_USE+=($peerport)
+        log "Port assigned to peer: peer$COUNT-$ORG is $peerport"
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
             PORTCHAIN=$((PORTCHAIN+2))
@@ -291,7 +393,6 @@ function genWorkshopRemotePeers {
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" workshop-remote-peer/k8s/fabric-nlb-workshop-remote-peer.yaml > ${K8SYAML}/fabric-nlb-workshop-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             COUNT=$((COUNT+1))
         done
-        peerport=$((peerport+100))
    done
 }
 

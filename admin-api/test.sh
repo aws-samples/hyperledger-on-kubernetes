@@ -46,14 +46,12 @@ echo $response
 ########################################################################################################################
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/fabric/start -H 'content-type: application/json')
 echo $response
-sleep 300
 
 ########################################################################################################################
 # Stop a new Fabric network. Stops everything started by /fabric/start.
 ########################################################################################################################
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/fabric/stop -H 'content-type: application/json')
 echo $response
-sleep 300
 
 ########################################################################################################################
 # Add a new org
@@ -62,12 +60,12 @@ sleep 300
 ########################################################################################################################
 
 # Set the variables
-ORG=org3
-PROFILENAME=org3profile;
-CHANNELNAME=org3channel;
+ORG=org4
+PROFILENAME=org4profile;
+CHANNELNAME=org4channel;
 
 # Try and add a channel profile for an org that does not exist. This should fail as the new org does not exist
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org3"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org4"]}')
 echo $response
 
 # add the new org to the Fabric config file, env.sh
@@ -91,7 +89,7 @@ response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs -H 'content-type: app
 echo $response
 
 # add the new channel profile that includes the new org
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org3"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org4"]}')
 echo $response
 
 # create the channel configuration transaction file
@@ -120,18 +118,18 @@ sleep 300
 ####
 #### Wait 5 minutes before starting this. See comment above
 #### Do a 'kubectl logs' on the peer pod started above to check whether fabric-ca has been built, and has generated the identities required
-#### Look for this log entry: 2019-01-28 03:35:39.458 UTC [nodeCmd] serve -> INFO 020 Started peer with ID=[name:"peer2-org3" ], network ID=[dev], address=[192.168.188.57:7051]
+#### Look for this log entry: 2019-01-28 03:35:39.458 UTC [nodeCmd] serve -> INFO 020 Started peer with ID=[name:"peer2-org4" ], network ID=[dev], address=[192.168.188.57:7051]
 ####
 # join the channel
 # You should see something like this in the peer logs:
-# $ kubectl logs peer2-org3-59988dbdf-f29dm  -n org3 -c peer2-org3 | grep org3channel
-# 2019-01-28 03:37:32.993 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org3channel] with genesis block
+# $ kubectl logs peer2-org4-59988dbdf-f29dm  -n org4 -c peer2-org4 | grep org4channel
+# 2019-01-28 03:37:32.993 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org4channel] with genesis block
 #
 # and something similar in the logs for the other org:
-# $ kubectl logs peer2-org1-65c97bb4b7-l7cnl -n org1 -c peer2-org1 | grep org3channel
-# 2019-01-28 03:37:31.923 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org3channel] with genesis block
+# $ kubectl logs peer2-org1-65c97bb4b7-l7cnl -n org1 -c peer2-org1 | grep org4channel
+# 2019-01-28 03:37:31.923 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org4channel] with genesis block
 
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org3"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org4"]}')
 echo $response
 
 

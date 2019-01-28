@@ -141,6 +141,19 @@ app.get('/env/orgs', awaitHandler(async (req, res) => {
 }));
 
 /************************************************************************************
+ * Print the port numbers contained in env.sh
+ ************************************************************************************/
+
+app.get('/env/ports', awaitHandler(async (req, res) => {
+	logger.info('================ GET on endpoint /env/ports');
+	logger.info('Params: ' + req.params);
+	let args = req.params;
+    let response = await gateway.getPortsFromEnv(args);
+    res.json({success: true, message: response});
+	logger.info('##### GET on /env/ports - completed');
+}));
+
+/************************************************************************************
  * Print the organisations contained in configtx.yaml
  ************************************************************************************/
 

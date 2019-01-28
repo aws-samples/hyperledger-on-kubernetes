@@ -838,6 +838,38 @@ async function getProfilesFromConfigtx() {
     }
 }
 
+/************************************************************************************
+ * Get the list of ports that have been assigned to peers, orderers, ca's in env.sh
+ ************************************************************************************/
+
+async function getPortsFromEnv(args) {
+
+    try {
+        let portType = args['portType'];
+        await loadEnv();
+        lets ports = [];
+        switch (portType) {
+          case "orderer":
+             ports = envConfigContents.ORDERER_PORTS_IN_USE;
+             break;
+          case "peer":
+             ports = envConfigContents.PEER_PORTS_IN_USE;
+             break;
+          case "rca":
+             ports = envConfigContents.RCA_PORTS_IN_USE;
+             break;
+          case "ica":
+             ports = envConfigContents.ICA_PORTS_IN_USE;
+             break;
+        }
+        logger.info("Ports assigned to " + portType + " in env.sh for this network are: " + ports);
+        return ports;
+    } catch (error) {
+        logger.error('Failed to getPortsFromEnv: ' + error);
+        throw error;
+    }
+}
+
 async function execCmd(cmd) {
     logger.info('Executing cmd: ' + cmd);
     let response = '';
@@ -879,3 +911,4 @@ exports.startPeer = startPeer;
 exports.startFabricNetwork = startFabricNetwork;
 exports.addOrgToConsortium = addOrgToConsortium;
 exports.addOrgToEnv = addOrgToEnv;
+export.getPortsFromEnv = getPortsFromEnv;
