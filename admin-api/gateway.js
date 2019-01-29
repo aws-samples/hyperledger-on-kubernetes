@@ -911,4 +911,4 @@ exports.startPeer = startPeer;
 exports.startFabricNetwork = startFabricNetwork;
 exports.addOrgToConsortium = addOrgToConsortium;
 exports.addOrgToEnv = addOrgToEnv;
-export.getPortsFromEnv = getPortsFromEnv;
+exports.getPortsFromEnv = getPortsFromEnv;
