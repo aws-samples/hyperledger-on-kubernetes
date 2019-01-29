@@ -365,7 +365,7 @@ async function createTransactionConfig(args) {
     try {
         let profileName = args['profilename'];
         let channelName = args['channelname'];
-        logger.info('Generating a transaction config for profile/channel: ' + args);
+        logger.info('Generating a transaction config for profile/channel: ' + util.inspect(args));
         if (!(profileName && channelName)) {
             logger.error('Both profileName and channelName must be provided to generate a transaction config');
             logger.error('Failed to createTransactionConfig');
@@ -909,6 +909,7 @@ exports.startRegisterOrg = startRegisterOrg;
 exports.startRegisterPeer = startRegisterPeer;
 exports.startPeer = startPeer;
 exports.startFabricNetwork = startFabricNetwork;
+exports.stopFabricNetwork = stopFabricNetwork;
 exports.addOrgToConsortium = addOrgToConsortium;
 exports.addOrgToEnv = addOrgToEnv;
 exports.getPortsFromEnv = getPortsFromEnv;

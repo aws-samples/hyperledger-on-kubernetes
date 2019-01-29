@@ -19,7 +19,7 @@ set -e
 
 function main {
 
-    echo "In join-channel.sh script - joining org ${NEW_ORG} to new channel: ${CHANNEL_NAME}"
+    log "In join-channel.sh script - joining org ${NEW_ORG} to new channel: ${CHANNEL_NAME}"
 
     # Set ORDERER_PORT_ARGS to the args needed to communicate with the 3rd orderer. TLS is set to false for orderer3
     IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
