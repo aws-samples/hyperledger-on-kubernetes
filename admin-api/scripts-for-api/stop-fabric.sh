@@ -21,7 +21,7 @@
 set -e
 
 function main {
-    log "Stopping Hyperledger Fabric on Kubernetes ..."
+    echo "Stopping Hyperledger Fabric on Kubernetes ..."
     source $SCRIPTS/env.sh
     cd $HOME/$REPO/fabric-main
     source utilities.sh
@@ -46,7 +46,7 @@ function main {
     removeDirs $DATA
     kubectl delete pv --all
     whatsRunning
-    log "Hyperledger Fabric on Kubernetes stopped"
+    echo "Hyperledger Fabric on Kubernetes stopped"
 }
 
 SDIR=$(dirname "$0")
