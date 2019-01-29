@@ -847,7 +847,7 @@ async function getPortsFromEnv(args) {
     try {
         let portType = args['portType'];
         await loadEnv();
-        lets ports = [];
+        let ports = [];
         switch (portType) {
           case "orderer":
              ports = envConfigContents.ORDERER_PORTS_IN_USE;

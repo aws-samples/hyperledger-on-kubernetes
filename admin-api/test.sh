@@ -8,7 +8,7 @@ export HFC_LOGGING='{"debug":"console","info":"console"}'
 
 # Start the app in one Cloud9 session
 nvm use lts/carbon
-node app.js &
+node app.js
 
 # In another Cloud9 session run the test cases
 export ENDPOINT=localhost
