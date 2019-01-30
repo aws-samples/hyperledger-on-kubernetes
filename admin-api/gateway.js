@@ -136,14 +136,14 @@ async function installChaincode(args) {
 
 
 
-        logger.info("getChannel: " + util.inspect(clientLocal.getChannel('mychannel')));
+        logger.info("getChannel: " + util.inspect(clientLocal.getChannel()));
 
-        const network = await gateway.getNetwork('mychannel');
-        logger.info('network: ' + util.inspect(network));
-        const channel = network.getChannel();
-        logger.info('channel: ' + util.inspect(channel));
-        const contract = network.getContract(chaincodeName);
-        logger.info('contract: ' + util.inspect(contract));
+//        const network = await gateway.getNetwork('mychannel');
+//        logger.info('network: ' + util.inspect(network));
+//        const channel = network.getChannel();
+//        logger.info('channel: ' + util.inspect(channel));
+//        const contract = network.getContract(chaincodeName);
+//        logger.info('contract: ' + util.inspect(contract));
     } catch (error) {
         logger.error('Failed to installChaincode: ' + error);
         throw error;
