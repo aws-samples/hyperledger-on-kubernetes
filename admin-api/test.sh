@@ -38,7 +38,16 @@ echo $response
 
 # Print out the ports used by the Kubernetes pods/services contained in env.sh
 PORTTYPE=orderer
-response=$(curl -s -X 'GET http://${ENDPOINT}:${PORT}/env/ports?portType=${PORTTYPE}')
+response=$(curl -s -X GET "http://${ENDPOINT}:${PORT}/env/ports?portType=${PORTTYPE}")
+echo $response
+PORTTYPE=peer
+response=$(curl -s -X GET "http://${ENDPOINT}:${PORT}/env/ports?portType=${PORTTYPE}")
+echo $response
+PORTTYPE=rca
+response=$(curl -s -X GET "http://${ENDPOINT}:${PORT}/env/ports?portType=${PORTTYPE}")
+echo $response
+PORTTYPE=ica
+response=$(curl -s -X GET "http://${ENDPOINT}:${PORT}/env/ports?portType=${PORTTYPE}")
 echo $response
 
 ########################################################################################################################
@@ -140,5 +149,12 @@ sleep 300
 
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org3"]}')
 echo $response
+
+# install chaincode on all peers joined to the specified channel
+CHANNELNAME=org3channel;
+CHAINCODENAME=marblescc;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodeName":"'"${CHAINCODENAME}"'"}')
+echo $response
+
 
 

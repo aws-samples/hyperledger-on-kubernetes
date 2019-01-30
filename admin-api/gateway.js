@@ -111,6 +111,26 @@ async function listNetwork() {
 }
 
 /************************************************************************************
+ * Install chaincode on all peers joined to a channel
+ ************************************************************************************/
+
+async function installChaincode(args) {
+
+    let channelName = args['channelName'];
+    let chaincodeName = args['chaincodeName'];
+
+    logger.info("Installing chaincode: " + chaincodeName + " on peers joined to channel: " + channelName);
+    const network = await gateway.getNetwork(channelName);
+    logger.info('network: ' + util.inspect(network));
+    const channel = network.getChannel();
+    logger.info('channel: ' + util.inspect(channel));
+    const contract = network.getContract(chaincodeName);
+    logger.info('contract: ' + util.inspect(contract));
+
+}
+
+
+/************************************************************************************
  * Add a new organisation to the Fabric network. This will do a number of things:
  *      Adds the org to configtx.yaml
  *      Adds the org to the env.sh file that is used to configure the Fabric network
@@ -409,7 +429,7 @@ async function createChannel(args) {
         let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + "\"";
 
         await execCmd(cmd);
-        return {"status":200,"message":"Created new channel: " + channelName};
+        return {"status":200,"message":"Created new channel: " + channelName + ". Check ls -lt /opt/share/rca-data for the latest .block file"}"
     } catch (error) {
         logger.error('Failed to create channel: ' + error);
         throw error;
@@ -913,3 +933,4 @@ exports.stopFabricNetwork = stopFabricNetwork;
 exports.addOrgToConsortium = addOrgToConsortium;
 exports.addOrgToEnv = addOrgToEnv;
 exports.getPortsFromEnv = getPortsFromEnv;
+exports.installChaincode = installChaincode;

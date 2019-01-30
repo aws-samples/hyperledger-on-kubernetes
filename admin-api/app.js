@@ -350,6 +350,24 @@ app.post('/channels/join', awaitHandler(async (req, res) => {
 }));
 
 /************************************************************************************
+ * Install chaincode on all peers joined to a channel
+ ************************************************************************************/
+
+app.post('/channels/chaincode/install', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /channels/chaincode/install');
+	let args = req.body;
+	logger.info('##### POST on /channels/chaincode/install - args : ' + JSON.stringify(args));
+	let response = await gateway.installChaincode(args);
+	logger.info('##### POST on /channels/chaincode/install - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on /channels/chaincode/install failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+/************************************************************************************
  * Start a CA for the new org
  ************************************************************************************/
 
