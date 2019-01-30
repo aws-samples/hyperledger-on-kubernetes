@@ -139,12 +139,13 @@ function genICA {
             fi
         done
         ICA_PORTS_IN_USE+=($icaport)
-        sed "/ICA_PORTS_IN_USE/s/.*/ICA_PORTS_IN_USE=(${ICA_PORTS_IN_USE})/" -i $SCRIPTS/env.sh
         log "Port assigned to ica: ica-$ORG is $icaport"
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${icaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-ica.yaml > ${K8SYAML}/fabric-deployment-ica-$ORG.yaml
         icaport=$((icaport+1))
         ICA_PORTS_IN_USE+=($icaport)
         log "Port assigned to ica notls: ica-$ORG is $icaport"
+        log "ICA Ports in use: $ICA_PORTS_IN_USE"
+        sed "/ICA_PORTS_IN_USE/s/.*/ICA_PORTS_IN_USE=(${ICA_PORTS_IN_USE})/" -i $SCRIPTS/env.sh
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${icaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-ica-notls.yaml > ${K8SYAML}/fabric-deployment-ica-notls-$ORG.yaml
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-nlb-ca.yaml > ${K8SYAML}/fabric-nlb-ca-$ORG.yaml
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-elb-ca.yaml > ${K8SYAML}/fabric-elb-ca-$ORG.yaml
