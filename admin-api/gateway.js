@@ -131,7 +131,7 @@ async function installChaincode(args) {
         logger.info("getRegisteredUser response: " + util.inspect(response));
 
         // client.loadFromConfig('connection-profile/org1/client-org1.yaml');
-        let clientLocal = await connection.getClientForOrg("org1");
+        let clientLocal = await connection.getClientForOrg("org1","admin");
         logger.info("clientLocal response: " + util.inspect(clientLocal));
 
 
