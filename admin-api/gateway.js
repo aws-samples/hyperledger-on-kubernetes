@@ -119,8 +119,10 @@ async function installChaincode(args) {
     let channelName = args['channelName'];
     let chaincodeName = args['chaincodeName'];
 
-    let response = await gateway.enrollAdmin();
-    await gateway.adminGateway();
+    logger.info("Installing chaincode: " + chaincodeName + " on peers joined to channel: " + channelName);
+//
+//    let response = await gateway.enrollAdmin();
+//    await gateway.adminGateway();
 
     let user = {"username":"admin","org":"org1"};
  	let response = await connection.getRegisteredUser(user, true);
@@ -129,7 +131,6 @@ async function installChaincode(args) {
     let clientLocal = await getClientForOrg(userorg);
     logger.info("clientLocal: " + util.inspect(clientLocal));
 
-    logger.info("Installing chaincode: " + chaincodeName + " on peers joined to channel: " + channelName);
     logger.info("getChannel: " + util.inspect(client.getChannel('mychannel')));
 
     const network = await gateway.getNetwork('mychannel');
