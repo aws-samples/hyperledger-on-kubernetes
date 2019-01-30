@@ -38,7 +38,7 @@ echo $response
 
 # Print out the ports used by the Kubernetes pods/services contained in env.sh
 PORTTYPE=orderer
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/env/ports?portType=${PORTTYPE})
+response=$(curl -s -X 'GET http://${ENDPOINT}:${PORT}/env/ports?portType=${PORTTYPE}')
 echo $response
 
 ########################################################################################################################
