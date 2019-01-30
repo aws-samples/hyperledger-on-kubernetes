@@ -33,6 +33,7 @@ function main {
     stopRegisterOrgs $HOME $REPO
     stopRegisterOrderers $HOME $REPO
     stopOrderer $HOME $REPO
+    stopCLI $HOME $REPO
     stopKafka $HOME $REPO
     for DELETE_ORG in $ORGS; do
         stopPeers $HOME $REPO $DELETE_ORG

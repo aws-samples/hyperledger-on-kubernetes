@@ -55,6 +55,7 @@ function main {
         updateChannelArtifacts $HOME $REPO
     fi
     startOrderer $HOME $REPO
+    startCLI $HOME $REPO
     startPeers $HOME $REPO
     if [ $FABRIC_NETWORK_TYPE == "PROD" ]; then
         checkNLBHealthy

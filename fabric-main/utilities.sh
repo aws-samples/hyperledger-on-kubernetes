@@ -306,6 +306,25 @@ function stopOrderer {
     confirmDeploymentsStopped orderer
 }
 
+function stopCLI {
+    if [ $# -ne 2 ]; then
+        echo "Usage: stopCLI <home-dir> <repo-name>"
+        exit 1
+    fi
+    local HOME=$1
+    local REPO=$2
+    cd $HOME
+    log "Stopping CLI in K8s"
+    for ORG in $ORDERER_ORGS; do
+      local COUNT=1
+      while [[ "$COUNT" -le $NUM_ORDERERS ]]; do
+         kubectl delete -f $REPO/k8s/fabric-deployment-cli-$ORG.yaml
+         COUNT=$((COUNT+1))
+      done
+    done
+    confirmDeploymentsStopped cli
+}
+
 function stopChannelArtifacts {
     if [ $# -ne 2 ]; then
         echo "Usage: stopChannelArtifacts <home-dir> <repo-name>"
@@ -663,6 +682,25 @@ function startOrderer {
       local COUNT=1
       while [[ "$COUNT" -le $NUM_ORDERERS ]]; do
         kubectl apply -f $REPO/k8s/fabric-deployment-orderer$COUNT-$ORG.yaml
+        COUNT=$((COUNT+1))
+      done
+    done
+    confirmDeployments
+}
+
+function startCLI {
+    if [ $# -ne 2 ]; then
+        echo "Usage: startCLI <home-dir> <repo-name>"
+        exit 1
+    fi
+    local HOME=$1
+    local REPO=$2
+    cd $HOME
+    log "Starting CLI in K8s"
+    for ORG in $ORDERER_ORGS; do
+      local COUNT=1
+      while [[ "$COUNT" -le $NUM_ORDERERS ]]; do
+        kubectl apply -f $REPO/k8s/fabric-deployment-cli-$ORG.yaml
         COUNT=$((COUNT+1))
       done
     done

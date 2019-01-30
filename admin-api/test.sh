@@ -49,6 +49,7 @@ echo $response
 
 ########################################################################################################################
 # Stop a new Fabric network. Stops everything started by /fabric/start.
+# Stop your CLI container before running this, otherwise it will prevent the PV/PVC being deleted.
 ########################################################################################################################
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/fabric/stop -H 'content-type: application/json')
 echo $response
