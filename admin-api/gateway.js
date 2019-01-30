@@ -132,7 +132,9 @@ async function installChaincode(args) {
     let clientLocal = await connection.getClientForOrg("org1");
     logger.info("clientLocal response: " + util.inspect(clientLocal));
 
-    logger.info("getChannel: " + util.inspect(client.getChannel('mychannel')));
+
+
+    logger.info("getChannel: " + util.inspect(clientLocal.getChannel('mychannel')));
 
     const network = await gateway.getNetwork('mychannel');
     logger.info('network: ' + util.inspect(network));
