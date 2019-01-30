@@ -126,10 +126,11 @@ async function installChaincode(args) {
 
     let user = {"username":"admin","org":"org1"};
  	let response = await connection.getRegisteredUser(user, true);
+    logger.info("getRegisteredUser response: " + util.inspect(response));
 
     // client.loadFromConfig('connection-profile/org1/client-org1.yaml');
-    let clientLocal = await getClientForOrg(userorg);
-    logger.info("clientLocal: " + util.inspect(clientLocal));
+    let clientLocal = await connection.getClientForOrg(userorg);
+    logger.info("clientLocal response: " + util.inspect(clientLocal));
 
     logger.info("getChannel: " + util.inspect(client.getChannel('mychannel')));
 
