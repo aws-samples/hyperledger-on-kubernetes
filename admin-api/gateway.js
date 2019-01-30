@@ -429,7 +429,7 @@ async function createChannel(args) {
         let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + channelName + "\"";
 
         await execCmd(cmd);
-        return {"status":200,"message":"Created new channel: " + channelName + ". Check ls -lt /opt/share/rca-data for the latest .block file"}"
+        return {"status":200,"message":"Created new channel: " + channelName + ". Check ls -lt /opt/share/rca-data for the latest .block file"};
     } catch (error) {
         logger.error('Failed to create channel: ' + error);
         throw error;
