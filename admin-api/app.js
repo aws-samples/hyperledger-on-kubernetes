@@ -146,7 +146,7 @@ app.get('/env/orgs', awaitHandler(async (req, res) => {
 
 app.get('/env/ports', awaitHandler(async (req, res) => {
 	logger.info('================ GET on endpoint /env/ports');
-	logger.info('Params: ' + req.params);
+	logger.info('GET on /env/ports. Params: ' + JSON.stringify(req.params));
 	let args = req.params;
     let response = await gateway.getPortsFromEnv(args);
     res.json({success: true, message: response});
