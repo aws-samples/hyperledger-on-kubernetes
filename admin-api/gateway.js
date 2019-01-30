@@ -134,7 +134,8 @@ async function installChaincode(args) {
         let clientLocal = await connection.getClientForOrg("org1","admin");
         logger.info("clientLocal response: " + util.inspect(clientLocal));
 
-
+        let peer = clientLocal.getPeer("peer1-org1.org1");
+        logger.info("getPeer: " + util.inspect(peer));
 
         logger.info("getChannel: " + util.inspect(clientLocal.getChannel()));
 
