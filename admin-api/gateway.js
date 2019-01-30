@@ -126,12 +126,12 @@ async function installChaincode(args) {
     //    let response = await gateway.enrollAdmin();
     //    await gateway.adminGateway();
 
-        let user = {"username":"admin","org":"org1"};
+        let user = {"username":"michael","org":"org1"};
         let response = await connection.getRegisteredUser(user, true);
         logger.info("getRegisteredUser response: " + util.inspect(response));
 
         // client.loadFromConfig('connection-profile/org1/client-org1.yaml');
-        let clientLocal = await connection.getClientForOrg("org1","admin");
+        let clientLocal = await connection.getClientForOrg("org1","michael");
         logger.info("clientLocal response: " + util.inspect(clientLocal));
 
         logger.info("about to getPeer");
