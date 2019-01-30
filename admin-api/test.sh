@@ -153,7 +153,7 @@ echo $response
 # install chaincode on all peers joined to the specified channel
 CHANNELNAME=org3channel;
 CHAINCODENAME=marblescc;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodeName":"'"${CHAINCODENAME}"'"}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install -H 'content-type: application/json' -d '{"channelName":"'"${CHANNELNAME}"'","chaincodeName":"'"${CHAINCODENAME}"'"}')
 echo $response
 
 

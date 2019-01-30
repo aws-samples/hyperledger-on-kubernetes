@@ -4,7 +4,7 @@ description: "Fabric Network"
 version: "1.0"
 
 channels:
-  org2channel:
+  mychannel:
     orderers:
       - orderer3-org0.org0
     peers:
@@ -35,28 +35,28 @@ organizations:
 
 orderers:
   orderer3-org0.org0:
-    url: grpc://a27d67024149a11e9b99c0a474a321b2-077bc484b0b7447e.elb.ap-northeast-1.amazonaws.com:7050
+    url: grpc://a7ad12e90243c11e9b99c0a474a321b2-a24057be5bd7e023.elb.ap-northeast-1.amazonaws.com:7050
     grpcOptions:
-      ssl-target-name-override: null
+      ssl-target-name-override: orderer3-org0.org0
       verify: false
 
 peers:
   peer1-org1.org1:
-    url: grpc://a356c5bbd149a11e9b056065bcb9591f-8126999b12ac9d8f.elb.ap-northeast-1.amazonaws.com:7051
-    eventUrl: grpc://a356c5bbd149a11e9b056065bcb9591f-8126999b12ac9d8f.elb.ap-northeast-1.amazonaws.com:7052
+    url: grpc://a88810772243c11e9b99c0a474a321b2-f65a421b0b03a7b6.elb.ap-northeast-1.amazonaws.com:7051
+    eventUrl: grpc://a88810772243c11e9b99c0a474a321b2-f65a421b0b03a7b6.elb.ap-northeast-1.amazonaws.com:7052
     grpcOptions:
-      ssl-target-name-override: null
+      ssl-target-name-override: peer1-org1.org1
       verify: false
   peer1-org2.org2:
-    url: grpc://a35aff371149a11e9b99c0a474a321b2-80b3d2e96c9914ef.elb.ap-northeast-1.amazonaws.com:7051
-    eventUrl: grpc://a35aff371149a11e9b99c0a474a321b2-80b3d2e96c9914ef.elb.ap-northeast-1.amazonaws.com:7052
+    url: grpc://a88ae492c243c11e9b056065bcb9591f-34910a629c328c05.elb.ap-northeast-1.amazonaws.com:7051
+    eventUrl: grpc://a88ae492c243c11e9b056065bcb9591f-34910a629c328c05.elb.ap-northeast-1.amazonaws.com:7052
     grpcOptions:
-      ssl-target-name-override: null
+      ssl-target-name-override: peer1-org2.org2
       verify: false
 
 certificateAuthorities:
   ca-org1:
-    url: http://ab04a7f9717ac11e9b99c0a474a321b2-2e24b91adb9f9388.elb.ap-northeast-1.amazonaws.com:7054
+    url: http://aaa4a35fb246511e9b056065bcb9591f-471f5627be7b393c.elb.ap-northeast-1.amazonaws.com:7054
     httpOptions:
       verify: false
     registrar:

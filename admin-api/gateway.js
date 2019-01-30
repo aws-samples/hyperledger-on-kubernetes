@@ -119,8 +119,14 @@ async function installChaincode(args) {
     let channelName = args['channelName'];
     let chaincodeName = args['chaincodeName'];
 
+    let response = await gateway.enrollAdmin();
+    await gateway.adminGateway();
+
+
+    logger.info("getChannel: " + util.inspect(client.getChannel('mychannel')));
+
     logger.info("Installing chaincode: " + chaincodeName + " on peers joined to channel: " + channelName);
-    const network = await gateway.getNetwork(channelName);
+    const network = await gateway.getNetwork('mychannel');
     logger.info('network: ' + util.inspect(network));
     const channel = network.getChannel();
     logger.info('channel: ' + util.inspect(channel));
