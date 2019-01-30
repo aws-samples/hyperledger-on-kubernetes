@@ -114,6 +114,11 @@ function genRCA {
         done
         RCA_PORTS_IN_USE+=($rcaport)
         log "Port assigned to rca: rca-$ORG is $rcaport"
+        # Update the ports used in env.sh. The admin-api will query the ports from env.sh
+        log "RCA Ports in use: ${RCA_PORTS_IN_USE[@]}"
+        str="RCA_PORTS_IN_USE=(${RCA_PORTS_IN_USE[@]})"
+        sed "/^RCA_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
+
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${rcaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-rca.yaml > ${K8SYAML}/fabric-deployment-rca-$ORG.yaml
     done
 }
@@ -283,6 +288,11 @@ function genOrderer {
             done
             ORDERER_PORTS_IN_USE+=($ordererport)
             log "Port assigned to orderer: orderer$COUNT-$ORG is $ordererport"
+            # Update the ports used in env.sh. The admin-api will query the ports from env.sh
+            log "ORDERER Ports in use: ${ORDERER_PORTS_IN_USE[@]}"
+            str="ORDERER_PORTS_IN_USE=(${ORDERER_PORTS_IN_USE[@]})"
+            sed "/^ORDERER_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
+
             # for the 3rd orderer we generate an orderer with no TLS. Use for client applications connections
             # during the workshop
             if [ $COUNT -eq 3 ]; then
@@ -320,8 +330,8 @@ function genPeers {
                 break
             fi
         done
-        PEER_PORTS_IN_USE+=($peerport)
         log "Port assigned to peer: peer$COUNT-$ORG is $peerport"
+
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
             PORTCHAIN=$((PORTCHAIN+2))
@@ -329,6 +339,13 @@ function genPeers {
             sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-peer.yaml > ${K8SYAML}/fabric-deployment-peer$COUNT-$ORG.yaml
             COUNT=$((COUNT+1))
         done
+        PEER_PORTS_IN_USE+=($peerport)
+        PEER_PORTS_IN_USE+=($PORTCHAIN)
+        PEER_PORTS_IN_USE+=($PORTEND)
+        # Update the ports used in env.sh. The admin-api will query the ports from env.sh
+        log "PEER Ports in use: ${PEER_PORTS_IN_USE[@]}"
+        str="PEER_PORTS_IN_USE=(${PEER_PORTS_IN_USE[@]})"
+        sed "/^PEER_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
    done
 }
 
