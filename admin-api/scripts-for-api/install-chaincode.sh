@@ -28,10 +28,16 @@ function main {
         exit 1
     fi
 
-    # Copy the chaincode to the folder expected by 'peer chaincode install'
-    mkdir -p /opt/gopath/src/chaincode/${CHAINCODE_NAME}
-    cp -R $SCRIPTS/chaincode/${CHAINCODE_NAME} /opt/gopath/src/chaincode/${CHAINCODE_NAME}
-    log  "Copying chaincode as follows: cp -R $SCRIPTS/chaincode/${CHAINCODE_NAME} /opt/gopath/src/chaincode/${CHAINCODE_NAME}"
+    # If the chaincode is written in golang, copy the chaincode to the golang folder expected by 'peer chaincode install'
+    CHAINCODE_DIR="";
+    if [ "$CHAINCODE_LANGUAGE" == "golang" ]; then
+        mkdir -p /opt/gopath/src/chaincode/${CHAINCODE_NAME}
+        cp -R $SCRIPTS/chaincode/${CHAINCODE_NAME} /opt/gopath/src/chaincode/${CHAINCODE_NAME}
+        log  "Copying chaincode as follows: cp -R $SCRIPTS/chaincode/${CHAINCODE_NAME} /opt/gopath/src/chaincode/${CHAINCODE_NAME}"
+        CHAINCODE_DIR=chaincode/${CHAINCODE_NAME}
+    else
+        CHAINCODE_DIR=$SCRIPTS/chaincode/${CHAINCODE_NAME}
+    fi
 
     # Set ORDERER_PORT_ARGS to the args needed to communicate with the 3rd orderer. TLS is set to false for orderer3
     IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
@@ -58,7 +64,7 @@ function installChaincode {
    else
         log "Installing chaincode version '$MAXCCVERSION' on '$PEER_HOST'; currently at version '$MAXINSTALLEDCCVERSION'"
         log "Install command is: peer chaincode install -n $CHAINCODE_NAME -v $MAXCCVERSION -l $CHAINCODE_LANGUAGE -p chaincode/${CHAINCODE_NAME}"
-        peer chaincode install -n $CHAINCODE_NAME -v $MAXCCVERSION -l $CHAINCODE_LANGUAGE -p chaincode/${CHAINCODE_NAME}
+        peer chaincode install -n $CHAINCODE_NAME -v $MAXCCVERSION -l $CHAINCODE_LANGUAGE -p $CHAINCODE_DIR
    fi
 }
 
