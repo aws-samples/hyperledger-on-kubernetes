@@ -75,9 +75,9 @@ function getChaincodeVersion {
    MAXINSTALLEDCCVERSION=0
    #We get the installed versions to prevent us from reinstalling if we've previously installed the latest version.
    while read -r line ; do
-        echo "processing line '$line'"
+        echo "processing installed line '$line'"
         CCVERSION=`echo $line | awk '{print $4}' | cut -d "," -f 1 | cut -d "." -f 1`
-        log "CCVERSION '$CCVERSION'"
+        log "CCVERSION installed '$CCVERSION'"
         if [[ $CCVERSION -gt $MAXINSTALLEDCCVERSION ]]; then
             MAXINSTALLEDCCVERSION=$CCVERSION
         fi
@@ -89,8 +89,9 @@ function getChaincodeVersion {
    #We are interested in the chaincode instantiated on the channel. We want the same
    #version on all peers, so we get the instantiated version and increment it
    while read -r line ; do
+        echo "processing instantiated line '$line'"
         CCVERSION=`echo $line | awk '{print $4}' | cut -d "," -f 1 | cut -d "." -f 1`
-        log "CCVERSION '$CCVERSION'"
+        log "CCVERSION instantiated '$CCVERSION'"
         if [[ $CCVERSION -gt $MAXCCVERSION ]]; then
             MAXCCVERSION=$CCVERSION
         fi

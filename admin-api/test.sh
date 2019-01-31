@@ -150,7 +150,7 @@ sleep 300
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org3"]}')
 echo $response
 
-# install chaincode on all peers joined to the specified channel
+# install chaincode on all peers belonging to an org
 CHANNELNAME=org3channel;
 CHAINCODENAME=marblescc;
 CHAINCODEVERSION=1.0;
