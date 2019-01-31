@@ -76,11 +76,13 @@ function main {
    switchToAdminIdentity
    instantiateChaincode
 
+   set +e
    # Query chaincode from the 1st peer of the 1st org
    initPeerVars ${PORGS[0]} 1
    switchToUserIdentity
    chaincodeQuery 100
 
+   set -e
    # Invoke chaincode on the 1st peer of the 1st org
    initPeerVars ${PORGS[0]} 1
    switchToUserIdentity
