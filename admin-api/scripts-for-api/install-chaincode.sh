@@ -31,6 +31,7 @@ function main {
     # Copy the chaincode to the folder expected by 'peer chaincode install'
     mkdir -p /opt/gopath/src/chaincode/${CHAINCODE_NAME}
     cp -R $SCRIPTS/chaincode/${CHAINCODE_NAME} /opt/gopath/src/chaincode/${CHAINCODE_NAME}
+    log  "Copying chaincode as follows: cp -R $SCRIPTS/chaincode/${CHAINCODE_NAME} /opt/gopath/src/chaincode/${CHAINCODE_NAME}"
 
     # Set ORDERER_PORT_ARGS to the args needed to communicate with the 3rd orderer. TLS is set to false for orderer3
     IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
@@ -56,7 +57,7 @@ function installChaincode {
         log "Installed chaincode version is '$MAXINSTALLEDCCVERSION', and we need '$MAXCCVERSION' on '$PEER_HOST', so no need to install"
    else
         log "Installing chaincode version '$MAXCCVERSION' on '$PEER_HOST'; currently at version '$MAXINSTALLEDCCVERSION'"
-        peer chaincode install -n mycc -v $MAXCCVERSION -p /opt/gopath/src/chaincode/${CHAINCODE_NAME}
+        peer chaincode install -n mycc -v $MAXCCVERSION -p chaincode/${CHAINCODE_NAME}
    fi
 }
 
