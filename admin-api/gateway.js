@@ -1017,3 +1017,4 @@ exports.addOrgToConsortium = addOrgToConsortium;
 exports.addOrgToEnv = addOrgToEnv;
 exports.getPortsFromEnv = getPortsFromEnv;
 exports.installChaincode = installChaincode;
+exports.instantiateChaincode = instantiateChaincode;
