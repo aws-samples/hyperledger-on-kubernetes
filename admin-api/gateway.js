@@ -111,7 +111,7 @@ async function listNetwork() {
 }
 
 /************************************************************************************
- * Install chaincode on all peers joined to a channel
+ * Install chaincode on all peers belonging to an org
  ************************************************************************************/
 
 async function installChaincode(args) {
@@ -180,7 +180,39 @@ async function installChaincode(args) {
 
 }
 
+/************************************************************************************
+ * Install chaincode on all peers belonging to an org
+ ************************************************************************************/
 
+async function instantiateChaincode(args) {
+
+    try {
+        let channelName = args['channelname'];
+        let chaincodeName = args['chaincodename'];
+        let chaincodeVersion = args['chaincodeversion'];
+        let chaincodeInit = args['chaincodeinit'];
+        let org = args['org'];
+        logger.info('Instantiating chaincode name: ' + chaincodeName + ' version: ' + chaincodeVersion + ' on peer in org: ' + org);
+        let scriptName = 'instantiate-chaincode.sh';
+        let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
+        // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
+        // inside the CLI container
+        try {
+            logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
+            fs.copyFileSync(localScriptPath, path.join(scriptPath, scriptName));
+        } catch (error) {
+            logger.error('Failed to copy the script file: ' + error);
+            throw error;
+        }
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + chaincodeName + " " + chaincodeVersion + " " + chaincodeInit + " " + org + " " + channelName + "\"";
+
+        await execCmd(cmd);
+        return {"status":200,"message":"Instantiated chaincode name: " + chaincodeName + ' version: ' + chaincodeVersion + ' on peer in org: ' + org};
+    } catch (error) {
+        logger.error('Failed to instantiate chaincode: ' + error);
+        throw error;
+    }
+}
 /************************************************************************************
  * Add a new organisation to the Fabric network. This will do a number of things:
  *      Adds the org to configtx.yaml

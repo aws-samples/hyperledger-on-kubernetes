@@ -350,7 +350,7 @@ app.post('/channels/join', awaitHandler(async (req, res) => {
 }));
 
 /************************************************************************************
- * Install chaincode on all peers joined to a channel
+ * Install chaincode on all peers belonging to an org
  ************************************************************************************/
 
 app.post('/channels/chaincode/install', awaitHandler(async (req, res) => {
@@ -363,6 +363,24 @@ app.post('/channels/chaincode/install', awaitHandler(async (req, res) => {
 		res.json(response);
 	} else {
 		logger.error('##### POST on /channels/chaincode/install failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+/************************************************************************************
+ * Instantiate chaincode on a channel
+ ************************************************************************************/
+
+app.post('/channels/chaincode/instantiate', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /channels/chaincode/instantiate');
+	let args = req.body;
+	logger.info('##### POST on /channels/chaincode/instantiate - args : ' + JSON.stringify(args));
+	let response = await gateway.instantiateChaincode(args);
+	logger.info('##### POST on /channels/chaincode/instantiate - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on /channels/chaincode/instantiate failed: %s', response);
 		res.json({success: false, message: response});
 	}
 }));
