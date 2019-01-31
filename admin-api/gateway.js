@@ -120,6 +120,7 @@ async function installChaincode(args) {
         let channelName = args['channelname'];
         let chaincodeName = args['chaincodename'];
         let chaincodeVersion = args['chaincodeversion'];
+        let chaincodeLanguage = args['chaincodelanguage'];
         let org = args['org'];
         logger.info('Installing chaincode name: ' + chaincodeName + ' version: ' + chaincodeVersion + ' on all peers in org: ' + org);
         let scriptName = 'install-chaincode.sh';

@@ -57,7 +57,8 @@ function installChaincode {
         log "Installed chaincode version is '$MAXINSTALLEDCCVERSION', and we need '$MAXCCVERSION' on '$PEER_HOST', so no need to install"
    else
         log "Installing chaincode version '$MAXCCVERSION' on '$PEER_HOST'; currently at version '$MAXINSTALLEDCCVERSION'"
-        peer chaincode install -n mycc -v $MAXCCVERSION -p chaincode/${CHAINCODE_NAME}
+        log "Install command is: peer chaincode install -n $CHAINCODE_NAME -v $MAXCCVERSION -l $CHAINCODE_LANGUAGE -p chaincode/${CHAINCODE_NAME}"
+        peer chaincode install -n $CHAINCODE_NAME -v $MAXCCVERSION -l $CHAINCODE_LANGUAGE -p chaincode/${CHAINCODE_NAME}
    fi
 }
 
@@ -99,7 +100,8 @@ source $SCRIPTS/env.sh
 echo "Args are: " $*
 CHAINCODE_NAME=$1
 CHAINCODE_VERSION=$2
-CHAINCODE_ORG=$3
-CHANNEL_NAME=$4
+CHAINCODE_LANGUAGE=$3
+CHAINCODE_ORG=$4
+CHANNEL_NAME=$5
 main
 
