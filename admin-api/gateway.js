@@ -117,39 +117,65 @@ async function listNetwork() {
 async function installChaincode(args) {
 
     try {
+        let channelName = args['channelname'];
+        let chaincodeName = args['chaincodename'];
+        let chaincodeVersion = args['chaincodeversion'];
+        let org = args['org'];
+        logger.info('Installing chaincode name: ' + chaincodeName + ' version: ' + chaincodeVersion + ' on all peers in org: ' + org);
+        let scriptName = 'install-chaincode.sh';
+        let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
+        // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
+        // inside the CLI container
+        try {
+            logger.info('Copying script file that will be executed: ' + localScriptPath + '. to: ' + scriptPath);
+            fs.copyFileSync(localScriptPath, path.join(scriptPath, scriptName));
+        } catch (error) {
+            logger.error('Failed to copy the script file: ' + error);
+            throw error;
+        }
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + chaincodeName + " " + chaincodeVersion + " " + org + " " + channelName + "\"";
 
-        let channelName = args['channelName'];
-        let chaincodeName = args['chaincodeName'];
-
-        logger.info("Installing chaincode: " + chaincodeName + " on peers joined to channel: " + channelName);
-    //
-    //    let response = await gateway.enrollAdmin();
-    //    await gateway.adminGateway();
-
-        let user = {"username":"michael","org":"org1"};
-        let response = await connection.getRegisteredUser(user, true);
-        logger.info("getRegisteredUser response: " + util.inspect(response));
-
-        // client.loadFromConfig('connection-profile/org1/client-org1.yaml');
-        let clientLocal = await connection.getClientForOrg("org1","michael");
-        logger.info("clientLocal response: " + util.inspect(clientLocal));
-
-        logger.info("about to getPeer");
-        let peer = clientLocal.getPeer("peer1-org1.org1");
-        logger.info("getPeer: " + util.inspect(peer));
-
-//        logger.info("getChannel: " + util.inspect(clientLocal.getChannel()));
-
-//        const network = await gateway.getNetwork('mychannel');
-//        logger.info('network: ' + util.inspect(network));
-//        const channel = network.getChannel();
-//        logger.info('channel: ' + util.inspect(channel));
-//        const contract = network.getContract(chaincodeName);
-//        logger.info('contract: ' + util.inspect(contract));
+        await execCmd(cmd);
+        return {"status":200,"message":"Installed chaincode name: " + chaincodeName + ' version: ' + chaincodeVersion + ' on all peers in org: ' + org};
     } catch (error) {
-        logger.error('Failed to installChaincode: ' + error);
+        logger.error('Failed to install chaincode: ' + error);
         throw error;
     }
+
+//    try {
+//
+//        let channelName = args['channelName'];
+//        let chaincodeName = args['chaincodeName'];
+//
+//        logger.info("Installing chaincode: " + chaincodeName + " on peers joined to channel: " + channelName);
+//    //
+//    //    let response = await gateway.enrollAdmin();
+//    //    await gateway.adminGateway();
+//
+//        let user = {"username":"michael","org":"org1"};
+//        let response = await connection.getRegisteredUser(user, true);
+//        logger.info("getRegisteredUser response: " + util.inspect(response));
+//
+//        // client.loadFromConfig('connection-profile/org1/client-org1.yaml');
+//        let clientLocal = await connection.getClientForOrg("org1","michael");
+//        logger.info("clientLocal response: " + util.inspect(clientLocal));
+//
+//        logger.info("about to getPeer");
+//        let peer = clientLocal.getPeer("peer1-org1.org1");
+//        logger.info("getPeer: " + util.inspect(peer));
+//
+////        logger.info("getChannel: " + util.inspect(clientLocal.getChannel()));
+//
+////        const network = await gateway.getNetwork('mychannel');
+////        logger.info('network: ' + util.inspect(network));
+////        const channel = network.getChannel();
+////        logger.info('channel: ' + util.inspect(channel));
+////        const contract = network.getContract(chaincodeName);
+////        logger.info('contract: ' + util.inspect(contract));
+//    } catch (error) {
+//        logger.error('Failed to installChaincode: ' + error);
+//        throw error;
+//    }
 
 }
 
