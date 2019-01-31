@@ -154,7 +154,7 @@ echo $response
 CHANNELNAME=org3channel;
 CHAINCODENAME=marblescc;
 CHAINCODEVERSION=1.0;
-CHAINCODELANGUAGE=node;
+CHAINCODELANGUAGE=golang;
 ORG=org3
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodelanguage":"'"${CHAINCODELANGUAGE}"'","org":"'"${ORG}"'"}')
 echo $response

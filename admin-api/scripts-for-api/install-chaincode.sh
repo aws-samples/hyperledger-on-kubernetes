@@ -32,8 +32,8 @@ function main {
     CHAINCODE_DIR="";
     if [ "$CHAINCODE_LANGUAGE" == "golang" ]; then
         mkdir -p /opt/gopath/src/chaincode/${CHAINCODE_NAME}
-        cp -R $SCRIPTS/chaincode/${CHAINCODE_NAME} /opt/gopath/src/chaincode/${CHAINCODE_NAME}
-        log  "Copying chaincode as follows: cp -R $SCRIPTS/chaincode/${CHAINCODE_NAME} /opt/gopath/src/chaincode/${CHAINCODE_NAME}"
+        cp -R $SCRIPTS/chaincode/${CHAINCODE_NAME} /opt/gopath/src/chaincode
+        log  "Copying chaincode as follows: cp -R $SCRIPTS/chaincode/${CHAINCODE_NAME} /opt/gopath/src/chaincode"
         CHAINCODE_DIR=chaincode/${CHAINCODE_NAME}
     else
         CHAINCODE_DIR=$SCRIPTS/chaincode/${CHAINCODE_NAME}
@@ -63,7 +63,7 @@ function installChaincode {
         log "Installed chaincode version is '$MAXINSTALLEDCCVERSION', and we need '$MAXCCVERSION' on '$PEER_HOST', so no need to install"
    else
         log "Installing chaincode version '$MAXCCVERSION' on '$PEER_HOST'; currently at version '$MAXINSTALLEDCCVERSION'"
-        log "Install command is: peer chaincode install -n $CHAINCODE_NAME -v $MAXCCVERSION -l $CHAINCODE_LANGUAGE -p chaincode/${CHAINCODE_NAME}"
+        log "Install command is: peer chaincode install -n $CHAINCODE_NAME -v $MAXCCVERSION -l $CHAINCODE_LANGUAGE -p $CHAINCODE_DIR"
         peer chaincode install -n $CHAINCODE_NAME -v $MAXCCVERSION -l $CHAINCODE_LANGUAGE -p $CHAINCODE_DIR
    fi
 }
