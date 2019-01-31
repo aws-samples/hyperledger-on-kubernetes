@@ -21,11 +21,15 @@ function main {
 
     log "In install-chaincode.sh script. Installing chaincode name: ${CHAINCODE_NAME}, version ${CHAINCODE_VERSION} on all peers in org: ${CHAINCODE_ORG}"
 
-    # Checking if the chaincode has been copied to the appropriate directory
+    # Checking if the chaincode has been copied to the appropriate directory. Note that the /opt/share/rca-scripts directory
+    # on the bastion is mounted into all Kubernetes pods as /scripts
     if [ ! -d "$SCRIPTS/chaincode/${CHAINCODE_NAME}" ]; then
-        log "Copy your chaincode into this directory before calling this script: $SCRIPTS/chaincode/${CHAINCODE_NAME}"
+        log "Copy your chaincode into this directory before calling this script: /opt/share/rca-scripts/chaincode/${CHAINCODE_NAME}"
         exit 1
     fi
+
+    # Copy the chaincode to the folder expected by 'peer chaincode install'
+    cp -R $SCRIPTS/chaincode/${CHAINCODE_NAME} /opt/gopath/src
 
     # Set ORDERER_PORT_ARGS to the args needed to communicate with the 3rd orderer. TLS is set to false for orderer3
     IFS=', ' read -r -a OORGS <<< "$ORDERER_ORGS"
