@@ -134,7 +134,7 @@ async function installChaincode(args) {
             logger.error('Failed to copy the script file: ' + error);
             throw error;
         }
-        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + chaincodeName + " " + chaincodeVersion + " " + org + " " + channelName + "\"";
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + chaincodeName + " " + chaincodeVersion + " " + chaincodeLanguage + " " + org + " " + channelName + "\"";
 
         await execCmd(cmd);
         return {"status":200,"message":"Installed chaincode name: " + chaincodeName + ' version: ' + chaincodeVersion + ' on all peers in org: ' + org};
