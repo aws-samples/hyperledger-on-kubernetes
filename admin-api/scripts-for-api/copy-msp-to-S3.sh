@@ -47,7 +47,7 @@ function main {
             aws s3api head-bucket --bucket $S3BUCKETNAME --region $REGION || aws s3api create-bucket --bucket $S3BUCKETNAME --region $REGION --create-bucket-configuration LocationConstraint=$REGION
         fi
         # add the bucket policy to limit access to the other account
-        echo SDIR
+        echo $SDIR
 
         cd $HOME/$REPO/admin-api/scripts-for-api
         sed -e "s/%account%/${ACCOUNT}/g" -e "s/%bucket%/${S3BUCKETNAME}/g" bucket-policy-template.json > bucket-policy.json
@@ -55,11 +55,11 @@ function main {
 
         # 'tar' the keys/certs in the EFS /opt/share directory, and upload to s3
         cd $HOME
-        sudo tar -cvf opt.tar /opt/share/rca-data/orgs/${ORG}
-        aws s3api put-object --bucket $S3BUCKETNAME --key /${ORG}/opt.tar --body opt.tar
-        aws s3api put-object --bucket $S3BUCKETNAME --key /${ORG}/${ORG}-ca-cert.pem --body /opt/share/rca-data/${ORG}-ca-cert.pem
-        aws s3api put-object --bucket $S3BUCKETNAME --key /${ORG}/${ORG}-ca-chain.pem --body /opt/share/rca-data/${ORG}-ca-chain.pem
-        aws s3api put-object --bucket $S3BUCKETNAME --key /${ORG}/${ORG}channel.block --body /opt/share/rca-data/${ORG}channel.block
+        sudo tar -cvf ${ORG}-msp.tar /opt/share/rca-data/orgs/${ORG}
+        aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-msp.tar --body ${ORG}-msp.tar
+        aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-ca-cert.pem --body /opt/share/rca-data/${ORG}-ca-cert.pem
+        aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-ca-chain.pem --body /opt/share/rca-data/${ORG}-ca-chain.pem
+        aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}channel.block --body /opt/share/rca-data/${ORG}channel.block
     else
         echo "AWS CLI is not configured on this node. If you want the script to automatically create the S3 bucket, install and configure the AWS CLI"
     fi
