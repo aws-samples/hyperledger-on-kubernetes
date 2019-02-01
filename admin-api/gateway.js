@@ -1002,6 +1002,32 @@ async function uploadMSPtoS3(args) {
 }
 
 /************************************************************************************
+ * Download the MSP for an org from S3. This will allow the org to use the MSP
+ * and start a CA and peer node in an AWS account
+ ************************************************************************************/
+
+async function downloadMSPfromS3(args) {
+
+    try {
+        let org = args['org'];
+        let S3bucket = args['S3bucketname'];
+        logger.info('Downloading MSP for org: ' + org + ", from S3 bucket: " + S3bucket);
+
+        let scriptName = 'copy-msp-from-S3.sh';
+        let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
+
+        // This differs from other functions in that it executes the script locally, instead of executing in the CLI K8s pod
+        let cmd = localScriptPath + " " + S3bucket + " " + org;
+
+        await execCmd(cmd);
+        return {"status":200,"message":"Copied MSP from S3 for org: " + org}
+    } catch (error) {
+        logger.error('Failed to copy MSP from S3 for org: ' + error);
+        throw error;
+    }
+}
+
+/************************************************************************************
  * Helper function to execute a command on the command line
  ************************************************************************************/
 

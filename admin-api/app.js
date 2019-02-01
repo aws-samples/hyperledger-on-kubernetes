@@ -498,7 +498,7 @@ app.post('/fabric/stop', awaitHandler(async (req, res) => {
  ************************************************************************************/
 
 app.post('/orgs/msp/upload', awaitHandler(async (req, res) => {
-	logger.info('================ POST on endpoint /fabric/stop');
+	logger.info('================ POST on endpoint /orgs/msp/upload');
 	let args = req.body;
 	logger.info('##### POST on /orgs/msp/upload - args : ' + JSON.stringify(args));
 	let response = await gateway.uploadMSPtoS3(args);
@@ -507,6 +507,24 @@ app.post('/orgs/msp/upload', awaitHandler(async (req, res) => {
 		res.json(response);
 	} else {
 		logger.error('##### POST on /orgs/msp/upload failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+/************************************************************************************
+ * Download the MSP for a specific org from S3
+ ************************************************************************************/
+
+app.post('/orgs/msp/download', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /orgs/msp/download');
+	let args = req.body;
+	logger.info('##### POST on /orgs/msp/download - args : ' + JSON.stringify(args));
+	let response = await gateway.downloadMSPfromS3(args);
+	logger.info('##### POST on /orgs/msp/download - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on /orgs/msp/download failed: %s', response);
 		res.json({success: false, message: response});
 	}
 }));
