@@ -12,7 +12,7 @@ node app.js
 
 # In another Cloud9 session run the test cases
 export ENDPOINT=localhost
-export PORT=3000
+export PORT=4000
 echo connecting to server: $ENDPOINT:$PORT
 
 # Get the admin user
@@ -254,6 +254,12 @@ response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install
 echo $response
 
 # share the MSP via S3
+REGION=ap-southeast-1;
+ACCOUNT=295744685835;
+ORG=remoteorg1
+S3BUCKETNAME=acn-bkt-s3;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs/msp/upload -H 'content-type: application/json' -d '{"region":"'"${REGION}"'","account":"'"${ACCOUNT}"'","S3bucketname":"'"${S3BUCKETNAME}"'","org":"'"${ORG}"'"}')
+echo $response
 
 ########################################################################################################################
 # Follow the first part of the README in ./remote-peer to create an EKS cluster in a separate AWS account.

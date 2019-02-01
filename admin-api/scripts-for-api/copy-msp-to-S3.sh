@@ -67,5 +67,9 @@ SDIR=$(dirname "$0")
 DATADIR=/opt/share/
 SCRIPTS=$DATADIR/rca-scripts
 REPO=hyperledger-on-kubernetes
+S3BUCKETNAME=$1
+REGION=$2
+ACCOUNT=$3
+ORG=$4
 main
 

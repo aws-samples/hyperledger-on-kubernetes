@@ -984,14 +984,14 @@ async function uploadMSPtoS3(args) {
         let org = args['org'];
         let region = args['region'];
         let account = args['account'];
-        let S3bucket = args['S3bucket'];
+        let S3bucket = args['S3bucketname'];
         logger.info('Uploading MSP for org: ' + org + ", to S3 bucket: " + S3bucket + ", region: " + region + " account: " + account);
 
         let scriptName = 'copy-msp-to-S3.sh';
         let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
 
         // This differs from other functions in that it executes the script locally, instead of executing in the CLI K8s pod
-        let cmd = "\"bash " + localScriptPath + " " + org + " " + S3bucket + " " + region + " " + account + "\"";
+        let cmd = "\"bash " + localScriptPath + " " + S3bucket + " " + region + " " + account + " " + org + "\"";
 
         await execCmd(cmd);
         return {"status":200,"message":"Copied MSP to S3 for org: " + org}
