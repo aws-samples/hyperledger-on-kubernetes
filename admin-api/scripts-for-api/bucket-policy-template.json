@@ -1,19 +1,32 @@
 {
-  "Id": "Policy1548989015778",
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "Stmt1548989012645",
-      "Action": [
-        "s3:GetObject"
-      ],
-      "Effect": "Allow",
-      "Resource": "arn:aws:s3:::%bucket%/%account%",
-      "Principal": {
-        "AWS": [
-          "%account%"
-        ]
-      }
-    }
-  ]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Example permissions",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::%account%:root"
+            },
+            "Action": [
+                "s3:GetBucketLocation"
+            ],
+            "Resource": [
+                "arn:aws:s3:::%bucket%"
+            ]
+        },
+        {
+            "Sid": "Example permissions",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::%account%:root"
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::%bucket%/%org%"
+            ]
+        }
+    ]
 }

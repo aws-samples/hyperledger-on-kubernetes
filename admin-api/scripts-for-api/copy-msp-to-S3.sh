@@ -50,7 +50,7 @@ function main {
         echo $SDIR
 
         cd $HOME/$REPO/admin-api/scripts-for-api
-        sed -e "s/%account%/${ACCOUNT}/g" -e "s/%bucket%/${S3BUCKETNAME}/g" bucket-policy-template.json > bucket-policy.json
+        sed -e "s/%account%/${ACCOUNT}/g" -e "s/%bucket%/${S3BUCKETNAME}/g" -e "s/%org%/${ORG}/g" bucket-policy-template.json > bucket-policy.json
         aws s3api put-bucket-policy --bucket $S3BUCKETNAME --policy file://bucket-policy.json
 
         # 'tar' the keys/certs in the EFS /opt/share directory, and upload to s3
