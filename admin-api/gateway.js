@@ -973,6 +973,38 @@ async function getPortsFromEnv(args) {
     }
 }
 
+/************************************************************************************
+ * Copy the MSP for an org to S3. This will allow the other org to download the MSP
+ * and start a CA and peer node in another AWS account
+ ************************************************************************************/
+
+async function uploadMSPtoS3(args) {
+
+    try {
+        let org = args['org'];
+        let region = args['region'];
+        let account = args['account'];
+        let S3bucket = args['S3bucket'];
+        logger.info('Uploading MSP for org: ' + org + ", to S3 bucket: " + S3bucket + ", region: " + region + " account: " + account);
+
+        let scriptName = 'copy-msp-to-S3.sh';
+        let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
+
+        // This differs from other functions in that it executes the script locally, instead of executing in the CLI K8s pod
+        let cmd = "\"bash " + localScriptPath + " " + org + " " + S3bucket + " " + region + " " + account + "\"";
+
+        await execCmd(cmd);
+        return {"status":200,"message":"Copied MSP to S3 for org: " + org}
+    } catch (error) {
+        logger.error('Failed to copy MSP to S3 for org: ' + error);
+        throw error;
+    }
+}
+
+/************************************************************************************
+ * Helper function to execute a command on the command line
+ ************************************************************************************/
+
 async function execCmd(cmd) {
     logger.info('Executing cmd: ' + cmd);
     let response = '';
@@ -1018,3 +1050,4 @@ exports.addOrgToEnv = addOrgToEnv;
 exports.getPortsFromEnv = getPortsFromEnv;
 exports.installChaincode = installChaincode;
 exports.instantiateChaincode = instantiateChaincode;
+exports.uploadMSPtoS3 = uploadMSPtoS3;

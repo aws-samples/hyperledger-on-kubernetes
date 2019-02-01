@@ -494,6 +494,24 @@ app.post('/fabric/stop', awaitHandler(async (req, res) => {
 }));
 
 /************************************************************************************
+ * Upload the MSP for a specific org to S3
+ ************************************************************************************/
+
+app.post('/orgs/msp/upload', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /fabric/stop');
+	let args = req.body;
+	logger.info('##### POST on /orgs/msp/upload - args : ' + JSON.stringify(args));
+	let response = await gateway.uploadMSPtoS3(args);
+	logger.info('##### POST on /orgs/msp/upload - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on /orgs/msp/upload failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+/************************************************************************************
  * Error handler
  ************************************************************************************/
 
