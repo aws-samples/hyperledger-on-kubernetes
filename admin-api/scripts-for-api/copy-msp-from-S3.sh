@@ -31,6 +31,10 @@ function main {
     #quick way of determining whether the AWS CLI is installed and a default profile exists
     if [[ $(aws configure list) && $? -eq 0 ]]; then
         cd $DATADIR
+        aws s3api get-object --bucket $S3BUCKETNAME --key ${ORG}/rca-${ORG}.tar $DATADIR/rca-${ORG}.tar
+        sudo tar -xvf rca-${ORG}.tar -C /
+        aws s3api get-object --bucket $S3BUCKETNAME --key ${ORG}/ica-${ORG}.tar $DATADIR/ica-${ORG}.tar
+        sudo tar -xvf ica-${ORG}.tar -C /
         aws s3api get-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-msp.tar $DATADIR/${ORG}-msp.tar
         sudo tar -xvf ${ORG}-msp.tar -C /
         sudo chown ec2-user $DATADIR/rca-data

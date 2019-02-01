@@ -56,7 +56,11 @@ function main {
         # 'tar' the keys/certs in the EFS /opt/share directory, and upload to s3
         cd $HOME
         sudo tar -cvf ${ORG}-msp.tar /opt/share/rca-data/orgs/${ORG}
+        sudo tar -cvf rca-${ORG}.tar /opt/share/rca-${ORG}
+        sudo tar -cvf ica-${ORG}.tar /opt/share/ica-${ORG}
         aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-msp.tar --body ${ORG}-msp.tar
+        aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/rca-${ORG}.tar --body rca-${ORG}.tar
+        aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/ica-${ORG}.tar --body ica-${ORG}.tar
         aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-ca-cert.pem --body /opt/share/rca-data/${ORG}-ca-cert.pem
         aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-ca-chain.pem --body /opt/share/rca-data/${ORG}-ca-chain.pem
         aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}channel.block --body /opt/share/rca-data/${ORG}channel.block
