@@ -60,6 +60,7 @@ function main {
         aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-ca-cert.pem --body /opt/share/rca-data/${ORG}-ca-cert.pem
         aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-ca-chain.pem --body /opt/share/rca-data/${ORG}-ca-chain.pem
         aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}channel.block --body /opt/share/rca-data/${ORG}channel.block
+        aws s3api put-object --bucket $S3BUCKETNAME --key ${ORG}/env.sh --body /opt/share/rca-scripts/env.sh
     else
         echo "AWS CLI is not configured on this node. If you want the script to automatically create the S3 bucket, install and configure the AWS CLI"
     fi

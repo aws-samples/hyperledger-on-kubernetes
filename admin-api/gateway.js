@@ -354,6 +354,9 @@ async function addOrgToEnv(args) {
 
     try {
         let org = args['org'];
+        if (args.hasOwnProperty('override')) {
+            let override = args['override'];
+        }
         let orgsInEnv = await getOrgsFromEnv();
         //Check that the new org to be added does not already exist in env.sh
         if (orgsInEnv.indexOf(org) > -1) {
@@ -370,14 +373,26 @@ async function addOrgToEnv(args) {
             let ix = line.toString().indexOf("PEER_ORGS=");
             if (ix > -1 && ix < 2) {
                 logger.info('Found the PEER_ORGS section in env.sh - adding new org to this env variable');
-                let result = 'PEER_ORGS="' + orgsInEnv.join(" ") + '"'
+                let result = '';
+                if (override) {
+                    result = 'PEER_ORGS="' + org + '"'
+                }
+                else {
+                    result = 'PEER_ORGS="' + orgsInEnv.join(" ") + '"'
+                }
                 contents += result + "\n";
                 logger.info('Updated PEER_ORGS in env.sh to:' + result);
             } else {
                 ix = line.toString().indexOf("PEER_DOMAINS=");
                 if (ix > -1 && ix < 2) {
                     logger.info('Found the PEER_DOMAINS section in env.sh - adding new org to this env variable');
-                    let result = 'PEER_DOMAINS="' + orgsInEnv.join(" ") + '"'
+                    let result = '';
+                    if (override) {
+                        result = 'PEER_DOMAINS="' + org + '"'
+                    }
+                    else {
+                        result = 'PEER_DOMAINS="' + orgsInEnv.join(" ") + '"'
+                    }
                     contents += result + "\n";
                     logger.info('Updated PEER_DOMAINS in env.sh to:' + result);
                 } else {
@@ -796,6 +811,23 @@ async function startPeer(args) {
 }
 
 /************************************************************************************
+ * This will start a new peer in a remote AWS account, separate from the account that
+ * hosts the main Fabric orderer.
+ ************************************************************************************/
+
+async function startRemotePeer(args) {
+
+    let org = args['org'];
+    logger.info('Starting the remote peers for org: ' + org);
+    let scriptName = 'start-remote-peer.sh';
+    let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
+    await addOrgToEnv({"org": org, "override": true});
+
+    await execCmd(cmd);
+    return {"status":200,"message":"Remote peer started "}
+}
+
+/************************************************************************************
  * This will start all the components in a new Fabric network. After creating the EKS
  * cluster and deploying this API server, this function should be called via the API.
  * It carries out the same tasks as ./fabric-main/start-fabric.sh.
@@ -989,8 +1021,6 @@ async function uploadMSPtoS3(args) {
 
         let scriptName = 'copy-msp-to-S3.sh';
         let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
-
-        // This differs from other functions in that it executes the script locally, instead of executing in the CLI K8s pod
         let cmd = localScriptPath + " " + S3bucket + " " + region + " " + account + " " + org;
 
         await execCmd(cmd);
@@ -1015,8 +1045,6 @@ async function downloadMSPfromS3(args) {
 
         let scriptName = 'copy-msp-from-S3.sh';
         let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
-
-        // This differs from other functions in that it executes the script locally, instead of executing in the CLI K8s pod
         let cmd = localScriptPath + " " + S3bucket + " " + org;
 
         await execCmd(cmd);
