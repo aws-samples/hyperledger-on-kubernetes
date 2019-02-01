@@ -1077,4 +1077,4 @@ exports.getPortsFromEnv = getPortsFromEnv;
 exports.installChaincode = installChaincode;
 exports.instantiateChaincode = instantiateChaincode;
 exports.uploadMSPtoS3 = uploadMSPtoS3;
-exports.downloadMSPtoS3 = downloadMSPtoS3;
+exports.downloadMSPfromS3 = downloadMSPfromS3;
