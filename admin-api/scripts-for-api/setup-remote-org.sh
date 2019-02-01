@@ -21,16 +21,9 @@
 set -e
 
 function main {
-    echo "Beginning setup of remote peer on Hyperledger Fabric on Kubernetes ..."
+    echo "Preparing environment for new remote org"
     cd $HOME/$REPO/fabric-main
     source util-prep.sh
-    # prevent overwriting env.sh if it exists. We use env.sh as a config - it contains the list of orgs in the network
-    if [ -f "${SCRIPTS}/env.sh" ]; then
-        echo "File ${SCRIPTS}/env.sh exists. I will NOT overwrite it. If you want to overwrite it, copy it manually. Note that I won't be overwriting any scripts in this directory"
-    else
-        copyScripts $HOME $REPO $DATADIR
-    fi
-    cd $HOME/$REPO/fabric-main
     source $SCRIPTS/env.sh
     source utilities.sh
     cd $HOME/$REPO/fabric-main
@@ -38,18 +31,11 @@ function main {
     genTemplates $HOME $REPO
     createNamespaces $HOME $REPO
     startPVC $HOME $REPO
-#    startRCA $HOME $REPO
-#    startICA $HOME $REPO
-#    startRegisterPeers $HOME $REPO
-#    startRemotePeers $HOME $REPO
-#    startTestMarbles $HOME $REPO
-#    whatsRunning
-    echo "Setup of remote peer on Hyperledger Fabric on Kubernetes complete"
+    echo "Preparing environment for new remote org complete"
 }
 
 SDIR=$(dirname "$0")
 DATADIR=/opt/share/
 SCRIPTS=$DATADIR/rca-scripts
 REPO=hyperledger-on-kubernetes
-MERGEFILE=remote-peer/scripts/env-remote-peer.sh
 main

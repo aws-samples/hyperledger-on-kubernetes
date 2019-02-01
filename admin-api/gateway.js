@@ -811,6 +811,31 @@ async function startPeer(args) {
 }
 
 /************************************************************************************
+ * Prepare the Kubernetes environment for a new remote org:
+ *      Creates a new namespace in the EKS cluster for the org
+ *      Creates the necessary directory structure for the new org's MSP
+ *      Creates the EKS PV & PVCs (persistent volumes), mapping to the new org's MSP
+ ************************************************************************************/
+
+async function setupRemoteOrg(args) {
+
+    let org = args['org'];
+    logger.info('Preparing environment for remote org: ' + org);
+    let scriptName = 'copy-scripts.sh';
+    let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
+
+    await execCmd(cmd);
+    // Add the org to env.sh. In this case we will overwrite any other orgs in the file
+    await addOrgToEnv({"org": org, "override": true});
+
+    let scriptName = 'setup-remote-org.sh';
+    let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
+
+    await execCmd(cmd);
+    return {"status":200,"message":"Remote org setup. New org is: " + org}
+}
+
+/************************************************************************************
  * This will start a new peer in a remote AWS account, separate from the account that
  * hosts the main Fabric orderer.
  ************************************************************************************/
@@ -821,7 +846,6 @@ async function startRemotePeer(args) {
     logger.info('Starting the remote peers for org: ' + org);
     let scriptName = 'start-remote-peer.sh';
     let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
-    await addOrgToEnv({"org": org, "override": true});
 
     await execCmd(cmd);
     return {"status":200,"message":"Remote peer started "}
@@ -1086,6 +1110,7 @@ exports.listNetwork = listNetwork;
 exports.loadConfigtx = loadConfigtx;
 exports.addOrg = addOrg;
 exports.setupOrg = setupOrg;
+expprts.setupRemoteOrg = setupRemoteOrg;
 exports.getOrgsFromConfigtx = getOrgsFromConfigtx;
 exports.getOrgsFromEnv = getOrgsFromEnv;
 exports.getProfilesFromConfigtx = getProfilesFromConfigtx;

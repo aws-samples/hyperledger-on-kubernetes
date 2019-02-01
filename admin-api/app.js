@@ -462,6 +462,25 @@ app.post('/peers/start', awaitHandler(async (req, res) => {
  * hosts the main Fabric orderer.
  ************************************************************************************/
 
+app.post('/orgs/remote/setup', awaitHandler(async (req, res) => {
+	logger.info('================ POST on endpoint /orgs/remote/setup');
+	let args = req.body;
+	logger.info('##### POST on /orgs/remote/setup - args : ' + JSON.stringify(args));
+	let response = await gateway.setupRemoteOrg(args);
+	logger.info('##### POST on /orgs/remote/setup - response %s', util.inspect(response));
+    if (response && typeof response !== 'string') {
+		res.json(response);
+	} else {
+		logger.error('##### POST on /orgs/remote/setup failed: %s', response);
+		res.json({success: false, message: response});
+	}
+}));
+
+/************************************************************************************
+ * Start the remote peer in a remote AWS account, separate from the account that
+ * hosts the main Fabric orderer.
+ ************************************************************************************/
+
 app.post('/peers/remote/start', awaitHandler(async (req, res) => {
 	logger.info('================ POST on endpoint /peers/remote/start');
 	let args = req.body;
