@@ -30,7 +30,7 @@ function main {
     else
         copyScripts $HOME $REPO $DATADIR
     fi
-    sudo chmod ec2-user $SCRIPTS/env.sh
+    sudo chown ec2-user $SCRIPTS/env.sh
     echo "Copied scripts to $DATADIR"
 }
 
