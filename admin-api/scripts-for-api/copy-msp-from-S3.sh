@@ -33,6 +33,7 @@ function main {
         cd $DATADIR
         aws s3api get-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-msp.tar $DATADIR/${ORG}-msp.tar
         sudo tar -xvf ${ORG}-msp.tar -C /
+        sudo chown ec2-user $DATADIR/rca-data
         aws s3api get-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-ca-cert.pem $DATADIR/rca-data/${ORG}-ca-cert.pem
         aws s3api get-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}-ca-chain.pem $DATADIR/rca-data/${ORG}-ca-chain.pem
         aws s3api get-object --bucket $S3BUCKETNAME --key ${ORG}/${ORG}channel.block $DATADIR/rca-data/${ORG}channel.block
