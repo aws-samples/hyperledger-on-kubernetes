@@ -828,8 +828,8 @@ async function setupRemoteOrg(args) {
     // Add the org to env.sh. In this case we will overwrite any other orgs in the file
     await addOrgToEnv({"org": org, "override": true});
 
-    let scriptName = 'setup-remote-org.sh';
-    let cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
+    scriptName = 'setup-remote-org.sh';
+    cmd = path.resolve(__dirname + "/scripts-for-api", scriptName);
 
     await execCmd(cmd);
     return {"status":200,"message":"Remote org setup. New org is: " + org}
