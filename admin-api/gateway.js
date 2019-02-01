@@ -1097,6 +1097,7 @@ exports.startCA = startCA;
 exports.startRegisterOrg = startRegisterOrg;
 exports.startRegisterPeer = startRegisterPeer;
 exports.startPeer = startPeer;
+exports.startRemotePeer = startRemotePeer;
 exports.startFabricNetwork = startFabricNetwork;
 exports.stopFabricNetwork = stopFabricNetwork;
 exports.addOrgToConsortium = addOrgToConsortium;

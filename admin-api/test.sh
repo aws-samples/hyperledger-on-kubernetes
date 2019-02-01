@@ -283,7 +283,10 @@ S3BUCKETNAME=acn-bkt-s3;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs/msp/download -H 'content-type: application/json' -d '{"S3bucketname":"'"${S3BUCKETNAME}"'","org":"'"${ORG}"'"}')
 echo $response
 
-# start a CA for the new org, which points to the MSP just downloaded
+# start a CA and peer for the remote org, which points to the MSP just downloaded
+ORG=remoteorg1
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/peers/remote/start -H 'content-type: application/json' -d '{"org":"'"${ORG}"'"}')
+echo $response
 
 # Register a peer for new org - this will generate an identity
 ORG=remoteorg1
