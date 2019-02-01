@@ -47,7 +47,9 @@ function main {
             aws s3api head-bucket --bucket $S3BUCKETNAME --region $REGION || aws s3api create-bucket --bucket $S3BUCKETNAME --region $REGION --create-bucket-configuration LocationConstraint=$REGION
         fi
         # add the bucket policy to limit access to the other account
-        cd $HOME/$REPO/scripts-for-api
+        echo SDIR
+
+        cd $HOME/$REPO/admin-api/scripts-for-api
         sed -e "s/%account%/${ACCOUNT}/g" -e "s/%bucket%/${S3BUCKETNAME}/g" bucket-policy-template.json > bucket-policy.json
         aws s3api put-bucket-policy --bucket $S3BUCKETNAME --policy file://bucket-policy.json
 
