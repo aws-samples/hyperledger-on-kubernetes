@@ -355,21 +355,24 @@ async function addOrgToEnv(args) {
     try {
         let org = args['org'];
         let override;
+        let orgsInEnv;
         if (args.hasOwnProperty('override')) {
             override = args['override'];
         }
-        let orgsInEnv = await getOrgsFromEnv();
-        //Check that the new org to be added does not already exist in env.sh
-        if (orgsInEnv.indexOf(org) > -1) {
-            logger.error('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
-            return ('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
+        else {
+            orgsInEnv = await getOrgsFromEnv();
+            //Check that the new org to be added does not already exist in env.sh
+            if (orgsInEnv.indexOf(org) > -1) {
+                logger.error('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
+                return ('Org: ' + org + ' already exists in env.sh. These orgs are already present: ' + orgsInEnv);
+            }
+            orgsInEnv.push(org);
         }
         let envFilepath = path.join(scriptPath, envFilename);
         await backupFile(envFilepath);
 
         // Use the template to add a new org to env.sh
         let contents = "";
-        orgsInEnv.push(org);
         fs.readFileSync(envFilepath).toString().split('\n').forEach(function (line) {
             let ix = line.toString().indexOf("PEER_ORGS=");
             if (ix > -1 && ix < 2) {
