@@ -83,6 +83,7 @@ function copyScripts {
     local DATA=$3
     echo "Copying scripts folder from $REPO to $DATA"
     cd $HOME
+    mkdir -p $DATA/rca-scripts/
     sudo cp $HOME/$REPO/scripts/* $DATA/rca-scripts/
     sudo chmod 777 $DATA/rca-scripts/gen-channel-artifacts.sh
 }
