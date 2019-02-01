@@ -266,9 +266,22 @@ echo $response
 # Then run these steps in the new EKS cluster Fabric network
 ########################################################################################################################
 
+# Start the app in one Cloud9 session
+nvm use lts/carbon
+node app.js
+
+# In another Cloud9 session run the test cases
+export ENDPOINT=localhost
+export PORT=3000
+echo connecting to server: $ENDPOINT:$PORT
+
 ORG=remoteorg1
 
 # download and extract the MSP
+ORG=remoteorg1
+S3BUCKETNAME=acn-bkt-s3;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs/msp/download -H 'content-type: application/json' -d '{"S3bucketname":"'"${S3BUCKETNAME}"'","org":"'"${ORG}"'"}')
+echo $response
 
 # start a CA for the new org, which points to the MSP just downloaded
 

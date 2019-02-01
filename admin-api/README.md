@@ -72,7 +72,7 @@ sudo yum install gcc-c++ -y
 On the Fabric client node.
 
 ```
-cd ~/non-profit-blockchain/ngo-rest-api
+cd ~/hyperledger-on-kubernetes/admin-api
 npm install
 ```
 
