@@ -99,15 +99,27 @@ lost connection
 ```
 
 If you see this, execute the statements manually. Just copy and paste the following into your Cloud9 terminal to 
-copy across the related files. Change the `region` variable if necessary.
+copy across the related files. These are the final few lines in the script: create-eks.sh.
+
+Change the `region` variable if necessary.
 
 ```bash
 export region=us-east-1
 sudo yum -y install jq
+
 PublicDnsNameBastion=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=EFS FileSystem Mounted Instance" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
-PublicDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-0-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
 echo public DNS of EC2 bastion host: $PublicDnsNameBastion
-echo public DNS of EKS worker nodes: $PublicDnsNameEKSWorker
+
+if [ "$privateNodegroup" == "true" ]; then
+    PrivateDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-*-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PrivateDnsName' | tr -d '"')
+    echo private DNS of EKS worker nodes, accessible from Bastion only since they are in a private subnet: $PrivateDnsNameEKSWorker
+    cd ~
+    # we need the keypair on the bastion, since we can only access the K8s worker nodes from the bastion
+    scp -i eks-c9-keypair.pem -q ~/eks-c9-keypair.pem  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/eks-c9-keypair.pem
+else
+    PublicDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-*-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
+    echo public DNS of EKS worker nodes: $PublicDnsNameEKSWorker
+fi
 
 echo Prepare the EC2 bastion for use by copying the kubeconfig and aws config and credentials files from Cloud9
 cd ~

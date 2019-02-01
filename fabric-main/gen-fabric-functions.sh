@@ -103,7 +103,7 @@ function genRCA {
             for i in "${RCA_PORTS_IN_USE[@]}"
             do
                 if [ "$i" -eq "$rcaport" ] ; then
-                    rcaport=$((rcaport+100))
+                    rcaport=$((rcaport+5))
                     portInUse=true
                     break
                 fi
@@ -134,7 +134,7 @@ function genICA {
             for i in "${ICA_PORTS_IN_USE[@]}"
             do
                 if [ "$i" -eq "$icaport" ] ; then
-                    icaport=$((icaport+100))
+                    icaport=$((icaport+5))
                     portInUse=true
                     break
                 fi
@@ -277,7 +277,7 @@ function genOrderer {
                 for i in "${ORDERER_PORTS_IN_USE[@]}"
                 do
                     if [ "$i" -eq "$ordererport" ] ; then
-                        ordererport=$((ordererport+100))
+                        ordererport=$((ordererport+5))
                         portInUse=true
                         break
                     fi
@@ -321,7 +321,7 @@ function genPeers {
             for i in "${PEER_PORTS_IN_USE[@]}"
             do
                 if [ "$i" -eq "$peerport" ] ; then
-                    peerport=$((peerport+100))
+                    peerport=$((peerport+5))
                     portInUse=true
                     break
                 fi
@@ -363,7 +363,7 @@ function genRemotePeers {
             for i in "${PEER_PORTS_IN_USE[@]}"
             do
                 if [ "$i" -eq "$peerport" ] ; then
-                    peerport=$((peerport+100))
+                    peerport=$((peerport+5))
                     portInUse=true
                     break
                 fi
@@ -398,7 +398,7 @@ function genWorkshopRemotePeers {
             for i in "${PEER_PORTS_IN_USE[@]}"
             do
                 if [ "$i" -eq "$peerport" ] ; then
-                    peerport=$((peerport+100))
+                    peerport=$((peerport+5))
                     portInUse=true
                     break
                 fi
