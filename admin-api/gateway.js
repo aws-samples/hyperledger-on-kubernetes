@@ -354,8 +354,9 @@ async function addOrgToEnv(args) {
 
     try {
         let org = args['org'];
+        let override;
         if (args.hasOwnProperty('override')) {
-            let override = args['override'];
+            override = args['override'];
         }
         let orgsInEnv = await getOrgsFromEnv();
         //Check that the new org to be added does not already exist in env.sh
