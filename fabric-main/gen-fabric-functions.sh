@@ -34,10 +34,10 @@ DATA=/opt/share
 #ordererport=30340
 #peerport=30450
 
-rcaport=30700
-icaport=30720
-ordererport=30740
-peerport=30750
+rcaport=30100
+icaport=30200
+ordererport=30300
+peerport=30400
 
 #Ports should look something like this:
 #org0    rca     7054->30300
@@ -351,7 +351,7 @@ function genPeers {
 
 
 function genRemotePeers {
-    peerport=30750
+    peerport=30500
     log "Generating Remote Peer K8s YAML files"
     for ORG in $PEER_ORGS; do
         getDomain $ORG
@@ -393,7 +393,7 @@ function genRemotePeers {
 }
 
 function genWorkshopRemotePeers {
-    peerport=30750
+    peerport=30500
     log "Generating Workshop Remote Peer K8s YAML files"
     for ORG in $PEER_ORGS; do
         getDomain $ORG
