@@ -35,7 +35,6 @@ function main {
         getDomain $DELETE_ORG
         removeNamespaces $HOME $REPO $DOMAIN
     done
-    resetPorts
     kubectl delete pv --all
     removeDirs $DATA
     whatsRunning
