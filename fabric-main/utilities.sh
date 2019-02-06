@@ -38,6 +38,18 @@ function removeDirs {
     done
 }
 
+function resetPorts {
+    log "Resetting the ports stored in env.sh"
+    str="PEER_PORTS_IN_USE=()"
+    sed "/^PEER_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
+    str="ORDERER_PORTS_IN_USE=()"
+    sed "/^ORDERER_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
+    str="ICA_PORTS_IN_USE=()"
+    sed "/^ICA_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
+    str="RCA_PORTS_IN_USE=()"
+    sed "/^RCA_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
+}
+
 function makeDirsForOrg {
     if [ $# -ne 1 ]; then
         echo "Usage: makeDirs <data-dir - probably something like /opt/share>"

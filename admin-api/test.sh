@@ -8,6 +8,7 @@ export HFC_LOGGING='{"debug":"console","info":"console"}'
 
 # Start the app in one Cloud9 session
 nvm use lts/carbon
+cd ~/hyperledger-on-kubernetes/admin-api
 node app.js
 
 # In another Cloud9 session run the test cases

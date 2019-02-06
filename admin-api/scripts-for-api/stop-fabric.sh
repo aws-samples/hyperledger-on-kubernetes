@@ -44,8 +44,9 @@ function main {
         getDomain $DELETE_ORG
         removeNamespaces $HOME $REPO $DOMAIN
     done
-    removeDirs $DATA
+    resetPorts
     kubectl delete pv --all
+    removeDirs $DATA
     whatsRunning
     echo "Hyperledger Fabric on Kubernetes stopped"
 }

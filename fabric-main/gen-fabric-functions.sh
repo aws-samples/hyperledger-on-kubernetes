@@ -372,8 +372,8 @@ function genRemotePeers {
                 break
             fi
         done
-        PEER_PORTS_IN_USE+=($peerport)
-        log "Port assigned to peer: peer$COUNT-$ORG is $peerport"
+        log "Port assigned to remote peer: remote-peer$COUNT-$ORG is $peerport"
+
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
             PORTCHAIN=$((PORTCHAIN+2))
@@ -382,6 +382,13 @@ function genRemotePeers {
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" remote-peer/k8s/fabric-nlb-remote-peer.yaml > ${K8SYAML}/fabric-nlb-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             COUNT=$((COUNT+1))
         done
+        PEER_PORTS_IN_USE+=($peerport)
+        PEER_PORTS_IN_USE+=($PORTCHAIN)
+        PEER_PORTS_IN_USE+=($PORTEND)
+        # Update the ports used in env.sh. The admin-api will query the ports from env.sh
+        log "PEER Ports in use: ${PEER_PORTS_IN_USE[@]}"
+        str="PEER_PORTS_IN_USE=(${PEER_PORTS_IN_USE[@]})"
+        sed "/^PEER_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
    done
 }
 
@@ -407,8 +414,8 @@ function genWorkshopRemotePeers {
                 break
             fi
         done
-        PEER_PORTS_IN_USE+=($peerport)
-        log "Port assigned to peer: peer$COUNT-$ORG is $peerport"
+        log "Port assigned to remote peer: remote-peer$COUNT-$ORG is $peerport"
+
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
             PORTCHAIN=$((PORTCHAIN+2))
@@ -417,6 +424,13 @@ function genWorkshopRemotePeers {
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" workshop-remote-peer/k8s/fabric-nlb-workshop-remote-peer.yaml > ${K8SYAML}/fabric-nlb-workshop-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             COUNT=$((COUNT+1))
         done
+        PEER_PORTS_IN_USE+=($peerport)
+        PEER_PORTS_IN_USE+=($PORTCHAIN)
+        PEER_PORTS_IN_USE+=($PORTEND)
+        # Update the ports used in env.sh. The admin-api will query the ports from env.sh
+        log "PEER Ports in use: ${PEER_PORTS_IN_USE[@]}"
+        str="PEER_PORTS_IN_USE=(${PEER_PORTS_IN_USE[@]})"
+        sed "/^PEER_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
    done
 }
 
