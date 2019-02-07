@@ -94,9 +94,9 @@ function genPVC {
 
 function genRCA {
     log "Generating RCA K8s YAML files"
-    if [ -f rca-ports.sh ]; then
+    if [ -f $SCRIPTS/rca-ports.sh ]; then
         log "Loading the ports used by RCAs"
-        source rca-ports.sh
+        source $SCRIPTS/rca-ports.sh
     fi
     for ORG in $ORGS; do
         getDomain $ORG
@@ -133,14 +133,14 @@ function genRCA {
         log "Port assigned to rca: rca-$ORG is $rcaport"
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${rcaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-rca.yaml > ${K8SYAML}/fabric-deployment-rca-$ORG.yaml
     done
-    declare -p RCA_PORTS_IN_USE > rca-ports.sh
+    declare -p RCA_PORTS_IN_USE > $SCRIPTS/rca-ports.sh
 }
 
 function genICA {
     log "Generating ICA K8s YAML files"
-    if [ -f ica-ports.sh ]; then
+    if [ -f $SCRIPTS/ica-ports.sh ]; then
         log "Loading the ports used by ICAs"
-        source ica-ports.sh
+        source $SCRIPTS/ica-ports.sh
     fi
     for ORG in $ORGS; do
         getDomain $ORG
@@ -184,7 +184,7 @@ function genICA {
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-nlb-ca.yaml > ${K8SYAML}/fabric-nlb-ca-$ORG.yaml
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-elb-ca.yaml > ${K8SYAML}/fabric-elb-ca-$ORG.yaml
     done
-    declare -p ICA_PORTS_IN_USE > ica-ports.sh
+    declare -p ICA_PORTS_IN_USE > $SCRIPTS/ica-ports.sh
 }
 
 function genRegisterOrg {
@@ -293,9 +293,9 @@ function genChannelArtifacts {
 
 function genOrderer {
     log "Generating Orderer K8s YAML files"
-    if [ -f orderer-ports.sh ]; then
+    if [ -f $SCRIPTS/orderer-ports.sh ]; then
         log "Loading the ports used by Orderer"
-        source orderer-ports.sh
+        source $SCRIPTS/orderer-ports.sh
     fi
     for ORG in $ORDERER_ORGS; do
         getDomain $ORG
@@ -346,14 +346,14 @@ function genOrderer {
             COUNT=$((COUNT+1))
         done
     done
-    declare -p ORDERER_PORTS_IN_USE > orderer-ports.sh
+    declare -p ORDERER_PORTS_IN_USE > $SCRIPTS/orderer-ports.sh
 }
 
 function genPeers {
     log "Generating Peer K8s YAML files"
-    if [ -f peer-ports.sh ]; then
+    if [ -f $SCRIPTS/peer-ports.sh ]; then
         log "Loading the ports used by peers"
-        source peer-ports.sh
+        source $SCRIPTS/peer-ports.sh
     fi
     for ORG in $PEER_ORGS; do
         getDomain $ORG
@@ -401,16 +401,16 @@ function genPeers {
             COUNT=$((COUNT+1))
         done
     done
-    declare -p PEER_PORTS_IN_USE > peer-ports.sh
+    declare -p PEER_PORTS_IN_USE > $SCRIPTS/peer-ports.sh
 }
 
 
 function genRemotePeers {
     peerport=30500
     log "Generating Remote Peer K8s YAML files"
-    if [ -f peer-ports.sh ]; then
+    if [ -f $SCRIPTS/peer-ports.sh ]; then
         log "Loading the ports used by peers"
-        source peer-ports.sh
+        source $SCRIPTS/peer-ports.sh
     fi
     for ORG in $PEER_ORGS; do
         getDomain $ORG
@@ -455,15 +455,15 @@ function genRemotePeers {
             COUNT=$((COUNT+1))
         done
     done
-    declare -p PEER_PORTS_IN_USE > peer-ports.sh
+    declare -p PEER_PORTS_IN_USE > $SCRIPTS/peer-ports.sh
 }
 
 function genWorkshopRemotePeers {
     peerport=30500
     log "Generating Workshop Remote Peer K8s YAML files"
-    if [ -f peer-ports.sh ]; then
+    if [ -f $SCRIPTS/peer-ports.sh ]; then
         log "Loading the ports used by peers"
-        source peer-ports.sh
+        source $SCRIPTS/peer-ports.sh
     fi
     for ORG in $PEER_ORGS; do
         getDomain $ORG
@@ -508,7 +508,7 @@ function genWorkshopRemotePeers {
             COUNT=$((COUNT+1))
         done
     done
-    declare -p PEER_PORTS_IN_USE > peer-ports.sh
+    declare -p PEER_PORTS_IN_USE > $SCRIPTS/peer-ports.sh
 }
 
 function genPeerJoinChannel {

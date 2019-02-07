@@ -141,14 +141,14 @@ app.get('/env/orgs', awaitHandler(async (req, res) => {
 }));
 
 /************************************************************************************
- * Print the port numbers contained in env.sh
+ * Print the port numbers used by peers, orderers, CA's, etc.
  ************************************************************************************/
 
 app.get('/env/ports', awaitHandler(async (req, res) => {
 	logger.info('================ GET on endpoint /env/ports');
 	logger.info('GET on /env/ports. Params: ' + JSON.stringify(req.query));
 	let args = req.query;
-    let response = await gateway.getPortsFromEnv(args);
+    let response = await gateway.getPorts(args);
     res.json({success: true, message: response});
 	logger.info('##### GET on /env/ports - completed');
 }));

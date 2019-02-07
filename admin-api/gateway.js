@@ -915,8 +915,7 @@ async function loadConfigtx() {
 async function loadEnv() {
 
     try {
-    require('dotenv').config({ path: path.join(scriptPath, envFilename) })
-
+        require('dotenv').config({ path: path.join(scriptPath, envFilename) })
         logger.info('Loading the Fabric env.sh at path: ' + path.join(scriptPath, envFilename));
         envConfigContents = dotenv.parse(fs.readFileSync(path.join(scriptPath, envFilename)))
         logger.info('Env.sh loaded at path: ' + path.join(scriptPath, envFilename));
@@ -1002,31 +1001,38 @@ async function getProfilesFromConfigtx() {
 }
 
 /************************************************************************************
- * Get the list of ports that have been assigned to peers, orderers, ca's in env.sh
+ * Get the list of ports that have been assigned to peers, orderers, ca's. These are
+ * stored in files, in the SCRIPTS directory
  ************************************************************************************/
 
-async function getPortsFromEnv(args) {
+async function getPorts(args) {
 
     try {
         let portType = args['portType'];
-        await loadEnv();
-        let ports = [];
+        let portFile;
         switch (portType) {
           case "orderer":
-             ports = envConfigContents.ORDERER_PORTS_IN_USE;
+             portFile = path.join(scriptPath, "orderer-ports.sh"));
              break;
           case "peer":
-             ports = envConfigContents.PEER_PORTS_IN_USE;
+             portFile = path.join(scriptPath, "peer-ports.sh"));
              break;
           case "rca":
-             ports = envConfigContents.RCA_PORTS_IN_USE;
+             portFile = path.join(scriptPath, "rca-ports.sh"));
              break;
           case "ica":
-             ports = envConfigContents.ICA_PORTS_IN_USE;
+             portFile = path.join(scriptPath, "ica-ports.sh"));
              break;
         }
-        logger.info("Ports assigned to " + portType + " in env.sh for this network are: " + ports);
-        return ports;
+        if (fs.existsSync(portFile)) {
+            logger.info("Loading the ports used from file: " + portFile);
+            let data = fs.readFileSync (portFile, 'utf8');
+            logger.info("Ports assigned to " + portType + " for this network are: " + data);
+        }
+        else {
+            logger.info("No ports assigned to " + portType + " yet");
+        }
+        return data;
     } catch (error) {
         logger.error('Failed to getPortsFromEnv: ' + error);
         throw error;
@@ -1131,7 +1137,7 @@ exports.startFabricNetwork = startFabricNetwork;
 exports.stopFabricNetwork = stopFabricNetwork;
 exports.addOrgToConsortium = addOrgToConsortium;
 exports.addOrgToEnv = addOrgToEnv;
-exports.getPortsFromEnv = getPortsFromEnv;
+exports.getPorts = getPorts;
 exports.installChaincode = installChaincode;
 exports.instantiateChaincode = instantiateChaincode;
 exports.uploadMSPtoS3 = uploadMSPtoS3;
