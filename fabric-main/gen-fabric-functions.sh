@@ -100,9 +100,9 @@ function genRCA {
         while true
         do
             local portInUse=false
-            for i in "${RCA_PORTS_IN_USE[@]}"
+            for key in ${!RCA_PORTS_IN_USE[@]}
             do
-                if [ "$i" -eq "$rcaport" ] ; then
+                if [ "${RCA_PORTS_IN_USE[${key}]}" -eq "$rcaport" ] ; then
                     rcaport=$((rcaport+5))
                     portInUse=true
                     break
@@ -112,7 +112,7 @@ function genRCA {
                 break
             fi
         done
-        RCA_PORTS_IN_USE+=($rcaport)
+        RCA_PORTS_IN_USE+=( [rca-$ORG]=$rcaport )
         log "Port assigned to rca: rca-$ORG is $rcaport"
         # Update the ports used in env.sh. The admin-api will query the ports from env.sh
         log "RCA Ports in use: ${RCA_PORTS_IN_USE[@]}"

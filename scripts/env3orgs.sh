@@ -67,27 +67,12 @@ SETUP_TIMEOUT=120
 LOGDIR=$DATA/logs
 LOGPATH=/$LOGDIR
 
-# Name of a the file to create when setup is successful
-SETUP_SUCCESS_FILE=${LOGDIR}/setup.successful
-# The setup container's log file
-SETUP_LOGFILE=${LOGDIR}/setup.log
-
-# The run container's log file
-RUN_LOGFILE=${LOGDIR}/run.log
-# The run container's summary log file
-RUN_SUMFILE=${LOGDIR}/run.sum
-RUN_SUMPATH=/${RUN_SUMFILE}
-# Run success and failure files
-RUN_SUCCESS_FILE=${LOGDIR}/run.success
-RUN_FAIL_FILE=${LOGDIR}/run.fail
-
 # Affiliation is not used to limit users in this sample, so just put
 # all identities in the same affiliation.
 export FABRIC_CA_CLIENT_ID_AFFILIATION=org1
 
 # Set to true to enable use of intermediate CAs
 USE_INTERMEDIATE_CA=true
-
 
 # Config block file path
 CONFIG_BLOCK_FILE=/tmp/config_block.pb
@@ -389,10 +374,6 @@ function getDomain {
       fi
    done
    echo "getDomain could not find domain for '${1}'"
-}
-
-function awaitSetup {
-   dowait "the 'setup' container to finish registering identities, creating the genesis block and other artifacts" $SETUP_TIMEOUT $SETUP_LOGFILE /$SETUP_SUCCESS_FILE
 }
 
 # Wait for one or more files to exist

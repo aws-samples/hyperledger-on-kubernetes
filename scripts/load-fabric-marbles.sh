@@ -207,16 +207,6 @@ function makePolicy  {
    log "policy: $POLICY"
 }
 
-function finish {
-   if [ "$done" = true ]; then
-      log "See $RUN_LOGFILE for more details"
-      touch /$RUN_SUCCESS_FILE
-   else
-      log "Tests did not complete successfully; see $RUN_LOGFILE for more details"
-      touch /$RUN_FAIL_FILE
-   fi
-}
-
 function installFabricCA {
     # Install fabric-ca. Recent versions of Hyperledger Fabric Docker images do not include fabric-ca-tools, fabric-ca-peer, etc., where the
     # fabric-ca-client is included. So we will need to build fabric-ca-client ourselves.

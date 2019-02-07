@@ -126,16 +126,6 @@ function instantiateChaincode {
    peer chaincode instantiate -C $CHANNEL_NAME -n mycc -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "$POLICY" $ORDERER_CONN_ARGS
 }
 
-function finish {
-   if [ "$done" = true ]; then
-      log "See $RUN_LOGFILE for more details"
-      touch /$RUN_SUCCESS_FILE
-   else
-      log "Tests did not complete successfully; see $RUN_LOGFILE for more details"
-      touch /$RUN_FAIL_FILE
-   fi
-}
-
 function fatalr {
    log "FATAL: $*"
    exit 1

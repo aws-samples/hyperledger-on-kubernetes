@@ -224,7 +224,6 @@ function chaincodeQuery {
       echo -n "."
    done
    cat log.txt
-   cat log.txt >> $RUN_SUMFILE
    fatalr "Failed to query channel '$CHANNEL_NAME' on peer '$PEER_HOST'; expected value was $1 and found $VALUE"
 }
 
@@ -249,7 +248,6 @@ function queryAsRevokedUser {
    done
    set -e 
    cat log.txt
-   cat log.txt >> $RUN_SUMFILE
    return 1
 }
 
@@ -315,16 +313,6 @@ function createConfigUpdatePayloadWithCRL {
    kill $configtxlator_pid
 
    popd
-}
-
-function finish {
-   if [ "$done" = true ]; then
-      log "See $RUN_LOGFILE for more details"
-      touch /$RUN_SUCCESS_FILE
-   else
-      log "Tests did not complete successfully; see $RUN_LOGFILE for more details"
-      touch /$RUN_FAIL_FILE
-   fi
 }
 
 function fatalr {

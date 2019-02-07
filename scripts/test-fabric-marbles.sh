@@ -240,14 +240,4 @@ function makePolicy  {
    log "policy: $POLICY"
 }
 
-function finish {
-   if [ "$done" = true ]; then
-      log "See $RUN_LOGFILE for more details"
-      touch /$RUN_SUCCESS_FILE
-   else
-      log "Tests did not complete successfully; see $RUN_LOGFILE for more details"
-      touch /$RUN_FAIL_FILE
-   fi
-}
-
 main

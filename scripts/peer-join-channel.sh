@@ -89,15 +89,6 @@ function installChaincode {
    log "Installing chaincode on $PEER_HOST ..."
    peer chaincode install -n mycc -v 1.0 -p github.com/hyperledger/fabric-samples/chaincode/abac/go
 }
-function finish {
-   if [ "$done" = true ]; then
-      log "See $RUN_LOGFILE for more details"
-      touch /$RUN_SUCCESS_FILE
-   else
-      log "Tests did not complete successfully; see $RUN_LOGFILE for more details"
-      touch /$RUN_FAIL_FILE
-   fi
-}
 
 function fatalr {
    log "FATAL: $*"

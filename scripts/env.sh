@@ -94,27 +94,12 @@ SETUP_TIMEOUT=120
 LOGDIR=$DATA/logs
 LOGPATH=/$LOGDIR
 
-# Name of a the file to create when setup is successful
-SETUP_SUCCESS_FILE=${LOGDIR}/setup.successful
-# The setup container's log file
-SETUP_LOGFILE=${LOGDIR}/setup.log
-
-# The run container's log file
-RUN_LOGFILE=${LOGDIR}/run.log
-# The run container's summary log file
-RUN_SUMFILE=${LOGDIR}/run.sum
-RUN_SUMPATH=/${RUN_SUMFILE}
-# Run success and failure files
-RUN_SUCCESS_FILE=${LOGDIR}/run.success
-RUN_FAIL_FILE=${LOGDIR}/run.fail
-
 # Affiliation is not used to limit users in this sample, so just put
 # all identities in the same affiliation.
 export FABRIC_CA_CLIENT_ID_AFFILIATION=org1
 
 # Set to true to enable use of intermediate CAs
 USE_INTERMEDIATE_CA=true
-
 
 # Config block file path
 CONFIG_BLOCK_FILE=/tmp/config_block.pb
@@ -486,10 +471,6 @@ function getExternalAnchorPeer {
    done
 }
 
-function awaitSetup {
-   dowait "the 'setup' container to finish registering identities, creating the genesis block and other artifacts" $SETUP_TIMEOUT $SETUP_LOGFILE /$SETUP_SUCCESS_FILE
-}
-
 # Wait for one or more files to exist
 # Usage: dowait <what> <timeoutInSecs> <errorLogFile> <file> [<file> ...]
 function dowait {
@@ -554,10 +535,10 @@ function installFabricCA {
 #    sleep 5
     go get -u github.com/hyperledger/fabric-ca/cmd/...
     sleep 10
-    cd $HOME/go/src/github.com/hyperledger/fabric-ca
-    make fabric-ca-client
-    sleep 5
-    export PATH=$PATH:$HOME/go/src/github.com/hyperledger/fabric-ca/bin
+#    cd $HOME/go/src/github.com/hyperledger/fabric-ca
+#    make fabric-ca-client
+#    sleep 5
+#    export PATH=$PATH:$HOME/go/src/github.com/hyperledger/fabric-ca/bin
 
     log "Install complete - fabric-ca-client"
 }
