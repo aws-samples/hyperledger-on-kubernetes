@@ -104,7 +104,7 @@ function genRCA {
         local portAssigned=false
         for key in ${!RCA_PORTS_IN_USE[@]}
         do
-            if [ "${key}" -eq "rca-$ORG" ] ; then
+            if [ "${key}" == "rca-$ORG" ] ; then
                 log "RCA for Org ${key} already has port assigned: ${RCA_PORTS_IN_USE[${key}]} "
                 portAssigned=true
                 break
