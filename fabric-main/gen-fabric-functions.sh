@@ -312,6 +312,7 @@ function genOrderer {
                 fi
             done
             if [ "$portAssigned" = true ] ; then
+                COUNT=$((COUNT+1))
                 continue
             fi
             # Find a port number that hasn't been used
@@ -359,22 +360,23 @@ function genPeers {
         local COUNT=1
         #the first peer of an org defaults to the anchor peer
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" ${K8STEMPLATES}/fabric-nlb-anchor-peer.yaml > ${K8SYAML}/fabric-nlb-anchor-peer$COUNT-$ORG.yaml
-        # Check if the peer already has a port assigned
-        local portAssigned=false
-        for key in ${!PEER_PORTS_IN_USE[@]}
-        do
-            if [ "${key}" == "peer$COUNT-$ORG" ] ; then
-                log "Peer ${key} already has port assigned: ${PEER_PORTS_IN_USE[${key}]} "
-                portAssigned=true
-                break
-            fi
-        done
-        if [ "$portAssigned" = true ] ; then
-            continue
-        fi
 
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
+            # Check if the peer already has a port assigned
+            local portAssigned=false
+            for key in ${!PEER_PORTS_IN_USE[@]}
+            do
+                if [ "${key}" == "peer$COUNT-$ORG" ] ; then
+                    log "Peer ${key} already has port assigned: ${PEER_PORTS_IN_USE[${key}]} "
+                    portAssigned=true
+                    break
+                fi
+            done
+            if [ "$portAssigned" = true ] ; then
+                COUNT=$((COUNT+1))
+                continue
+            fi
             # Find a port number that hasn't been used
             PORTCHAIN=$((PORTCHAIN+2))
             while true
@@ -412,23 +414,22 @@ function genRemotePeers {
     fi
     for ORG in $PEER_ORGS; do
         getDomain $ORG
-        local COUNT=1
-        # Check if the peer already has a port assigned
-        local portAssigned=false
-        for key in ${!PEER_PORTS_IN_USE[@]}
-        do
-            if [ "${key}" == "remote-peer$COUNT-$ORG" ] ; then
-                log "Peer ${key} already has port assigned: ${PEER_PORTS_IN_USE[${key}]} "
-                portAssigned=true
-                break
-            fi
-        done
-        if [ "$portAssigned" = true ] ; then
-            continue
-        fi
-
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
+            # Check if the peer already has a port assigned
+            local portAssigned=false
+            for key in ${!PEER_PORTS_IN_USE[@]}
+            do
+                if [ "${key}" == "remote-peer$COUNT-$ORG" ] ; then
+                    log "Peer ${key} already has port assigned: ${PEER_PORTS_IN_USE[${key}]} "
+                    portAssigned=true
+                    break
+                fi
+            done
+            if [ "$portAssigned" = true ] ; then
+                COUNT=$((COUNT+1))
+                continue
+            fi
             # Find a port number that hasn't been used
             PORTCHAIN=$((PORTCHAIN+2))
             while true
@@ -466,23 +467,22 @@ function genWorkshopRemotePeers {
     fi
     for ORG in $PEER_ORGS; do
         getDomain $ORG
-        local COUNT=1
-        # Check if the peer already has a port assigned
-        local portAssigned=false
-        for key in ${!PEER_PORTS_IN_USE[@]}
-        do
-            if [ "${key}" == "workshop-remote-peer$COUNT-$ORG" ] ; then
-                log "Peer ${key} already has port assigned: ${PEER_PORTS_IN_USE[${key}]} "
-                portAssigned=true
-                break
-            fi
-        done
-        if [ "$portAssigned" = true ] ; then
-            continue
-        fi
-
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
+            # Check if the peer already has a port assigned
+            local portAssigned=false
+            for key in ${!PEER_PORTS_IN_USE[@]}
+            do
+                if [ "${key}" == "workshop-remote-peer$COUNT-$ORG" ] ; then
+                    log "Peer ${key} already has port assigned: ${PEER_PORTS_IN_USE[${key}]} "
+                    portAssigned=true
+                    break
+                fi
+            done
+            if [ "$portAssigned" = true ] ; then
+                COUNT=$((COUNT+1))
+                continue
+            fi
             # Find a port number that hasn't been used
             PORTCHAIN=$((PORTCHAIN+2))
             while true
