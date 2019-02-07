@@ -417,7 +417,7 @@ function genRemotePeers {
         local portAssigned=false
         for key in ${!PEER_PORTS_IN_USE[@]}
         do
-            if [ "${key}" == "peer$COUNT-$ORG" ] ; then
+            if [ "${key}" == "remote-peer$COUNT-$ORG" ] ; then
                 log "Peer ${key} already has port assigned: ${PEER_PORTS_IN_USE[${key}]} "
                 portAssigned=true
                 break
@@ -447,7 +447,7 @@ function genRemotePeers {
                 fi
             done
             PORTEND=$((PORTCHAIN-1))
-            PEER_PORTS_IN_USE+=( ["peer$COUNT-$ORG"]=$PORTCHAIN )
+            PEER_PORTS_IN_USE+=( ["remote-peer$COUNT-$ORG"]=$PORTCHAIN )
             log "Port assigned to peer: remote-peer$COUNT-$ORG is $PORTCHAIN"
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" remote-peer/k8s/fabric-deployment-remote-peer.yaml > ${K8SYAML}/fabric-deployment-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" remote-peer/k8s/fabric-nlb-remote-peer.yaml > ${K8SYAML}/fabric-nlb-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
@@ -471,7 +471,7 @@ function genWorkshopRemotePeers {
         local portAssigned=false
         for key in ${!PEER_PORTS_IN_USE[@]}
         do
-            if [ "${key}" == "peer$COUNT-$ORG" ] ; then
+            if [ "${key}" == "workshop-remote-peer$COUNT-$ORG" ] ; then
                 log "Peer ${key} already has port assigned: ${PEER_PORTS_IN_USE[${key}]} "
                 portAssigned=true
                 break
@@ -501,8 +501,8 @@ function genWorkshopRemotePeers {
                 fi
             done
             PORTEND=$((PORTCHAIN-1))
-            PEER_PORTS_IN_USE+=( ["peer$COUNT-$ORG"]=$PORTCHAIN )
-            log "Port assigned to peer: remote-peer$COUNT-$ORG is $PORTCHAIN"
+            PEER_PORTS_IN_USE+=( ["workshop-remote-peer$COUNT-$ORG"]=$PORTCHAIN )
+            log "Port assigned to peer: workshop-remote-peer$COUNT-$ORG is $PORTCHAIN"
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" workshop-remote-peer/k8s/fabric-deployment-workshop-remote-peer.yaml > ${K8SYAML}/fabric-deployment-workshop-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" workshop-remote-peer/k8s/fabric-nlb-workshop-remote-peer.yaml > ${K8SYAML}/fabric-nlb-workshop-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             COUNT=$((COUNT+1))
