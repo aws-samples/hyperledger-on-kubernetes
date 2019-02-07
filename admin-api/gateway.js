@@ -1012,16 +1012,16 @@ async function getPorts(args) {
         let portFile;
         switch (portType) {
           case "orderer":
-             portFile = path.join(scriptPath, "orderer-ports.sh"));
+             portFile = path.join(scriptPath, "orderer-ports.sh");
              break;
           case "peer":
-             portFile = path.join(scriptPath, "peer-ports.sh"));
+             portFile = path.join(scriptPath, "peer-ports.sh");
              break;
           case "rca":
-             portFile = path.join(scriptPath, "rca-ports.sh"));
+             portFile = path.join(scriptPath, "rca-ports.sh");
              break;
           case "ica":
-             portFile = path.join(scriptPath, "ica-ports.sh"));
+             portFile = path.join(scriptPath, "ica-ports.sh");
              break;
         }
         if (fs.existsSync(portFile)) {
