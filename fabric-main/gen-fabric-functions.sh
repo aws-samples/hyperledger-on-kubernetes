@@ -113,7 +113,6 @@ function genRCA {
         if [ "$portAssigned" = true ] ; then
             continue
         fi
-
         # Find a port number that hasn't been used
         while true
         do
@@ -132,8 +131,6 @@ function genRCA {
         done
         RCA_PORTS_IN_USE+=( ["rca-$ORG"]=$rcaport )
         log "Port assigned to rca: rca-$ORG is $rcaport"
-        # Update the ports used in env.sh. The admin-api will query the ports from env.sh
-
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${rcaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-rca.yaml > ${K8SYAML}/fabric-deployment-rca-$ORG.yaml
     done
     declare -p RCA_PORTS_IN_USE > rca-ports.sh
@@ -141,15 +138,32 @@ function genRCA {
 
 function genICA {
     log "Generating ICA K8s YAML files"
+    if [ -f ica-ports.sh ]; then
+        log "Loading the ports used by ICAs"
+        source ica-ports.sh
+    fi
     for ORG in $ORGS; do
         getDomain $ORG
+        # Check if the ICA already has a port assigned
+        local portAssigned=false
+        for key in ${!ICA_PORTS_IN_USE[@]}
+        do
+            if [ "${key}" == "ica-$ORG" ] ; then
+                log "ICA for Org ${key} already has port assigned: ${ICA_PORTS_IN_USE[${key}]} "
+                portAssigned=true
+                break
+            fi
+        done
+        if [ "$portAssigned" = true ] ; then
+            continue
+        fi
         # Find a port number that hasn't been used
         while true
         do
             local portInUse=false
-            for i in "${ICA_PORTS_IN_USE[@]}"
+            for key in ${!ICA_PORTS_IN_USE[@]}
             do
-                if [ "$i" -eq "$icaport" ] ; then
+                if [ "${ICA_PORTS_IN_USE[${key}]}" -eq "$icaport" ] ; then
                     icaport=$((icaport+5))
                     portInUse=true
                     break
@@ -159,21 +173,18 @@ function genICA {
                 break
             fi
         done
-        ICA_PORTS_IN_USE+=(${icaport})
+        ICA_PORTS_IN_USE+=( ["ica-$ORG"]=$icaport )
         log "Port assigned to ica: ica-$ORG is $icaport"
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${icaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-ica.yaml > ${K8SYAML}/fabric-deployment-ica-$ORG.yaml
         icaport=$((icaport+1))
-        ICA_PORTS_IN_USE+=(${icaport})
+        ICA_PORTS_IN_USE+=( ["ica-$ORG"]=$icaport )
         log "Port assigned to ica notls: ica-$ORG is $icaport"
-        # Update the ports used in env.sh. The admin-api will query the ports from env.sh
-        log "ICA Ports in use: ${ICA_PORTS_IN_USE[@]}"
-        str="ICA_PORTS_IN_USE=(${ICA_PORTS_IN_USE[@]})"
-        sed "/^ICA_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
 
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${icaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-ica-notls.yaml > ${K8SYAML}/fabric-deployment-ica-notls-$ORG.yaml
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-nlb-ca.yaml > ${K8SYAML}/fabric-nlb-ca-$ORG.yaml
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-elb-ca.yaml > ${K8SYAML}/fabric-elb-ca-$ORG.yaml
     done
+    declare -p ICA_PORTS_IN_USE > ica-ports.sh
 }
 
 function genRegisterOrg {
@@ -282,17 +293,34 @@ function genChannelArtifacts {
 
 function genOrderer {
     log "Generating Orderer K8s YAML files"
+    if [ -f orderer-ports.sh ]; then
+        log "Loading the ports used by Orderer"
+        source orderer-ports.sh
+    fi
     for ORG in $ORDERER_ORGS; do
         getDomain $ORG
         local COUNT=1
         while [[ "$COUNT" -le $NUM_ORDERERS ]]; do
+            # Check if the Orderer already has a port assigned
+            local portAssigned=false
+            for key in ${!ORDERER_PORTS_IN_USE[@]}
+            do
+                if [ "${key}" == "orderer$COUNT-$ORG" ] ; then
+                    log "Orderer ${key} already has port assigned: ${ORDERER_PORTS_IN_USE[${key}]} "
+                    portAssigned=true
+                    break
+                fi
+            done
+            if [ "$portAssigned" = true ] ; then
+                continue
+            fi
             # Find a port number that hasn't been used
             while true
             do
                 local portInUse=false
-                for i in "${ORDERER_PORTS_IN_USE[@]}"
+                for key in ${!ORDERER_PORTS_IN_USE[@]}
                 do
-                    if [ "$i" -eq "$ordererport" ] ; then
+                    if [ "${ORDERER_PORTS_IN_USE[${key}]}" -eq "$ordererport" ] ; then
                         ordererport=$((ordererport+5))
                         portInUse=true
                         break
@@ -302,12 +330,8 @@ function genOrderer {
                     break
                 fi
             done
-            ORDERER_PORTS_IN_USE+=($ordererport)
+            ORDERER_PORTS_IN_USE+=( ["orderer$COUNT-$ORG"]=$ordererport )
             log "Port assigned to orderer: orderer$COUNT-$ORG is $ordererport"
-            # Update the ports used in env.sh. The admin-api will query the ports from env.sh
-            log "ORDERER Ports in use: ${ORDERER_PORTS_IN_USE[@]}"
-            str="ORDERER_PORTS_IN_USE=(${ORDERER_PORTS_IN_USE[@]})"
-            sed "/^ORDERER_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
 
             # for the 3rd orderer we generate an orderer with no TLS. Use for client applications connections
             # during the workshop
@@ -321,133 +345,170 @@ function genOrderer {
             COUNT=$((COUNT+1))
         done
     done
+    declare -p ORDERER_PORTS_IN_USE > orderer-ports.sh
 }
 
 function genPeers {
     log "Generating Peer K8s YAML files"
+    if [ -f peer-ports.sh ]; then
+        log "Loading the ports used by peers"
+        source peer-ports.sh
+    fi
     for ORG in $PEER_ORGS; do
         getDomain $ORG
         local COUNT=1
         #the first peer of an org defaults to the anchor peer
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" ${K8STEMPLATES}/fabric-nlb-anchor-peer.yaml > ${K8SYAML}/fabric-nlb-anchor-peer$COUNT-$ORG.yaml
-        # Find a port number that hasn't been used
-        while true
+        # Check if the peer already has a port assigned
+        local portAssigned=false
+        for key in ${!PEER_PORTS_IN_USE[@]}
         do
-            local portInUse=false
-            for i in "${PEER_PORTS_IN_USE[@]}"
-            do
-                if [ "$i" -eq "$peerport" ] ; then
-                    peerport=$((peerport+5))
-                    portInUse=true
-                    break
-                fi
-            done
-            if [ "$portInUse" = false ] ; then
+            if [ "${key}" == "peer$COUNT-$ORG" ] ; then
+                log "Peer ${key} already has port assigned: ${PEER_PORTS_IN_USE[${key}]} "
+                portAssigned=true
                 break
             fi
         done
-        log "Port assigned to peer: peer$COUNT-$ORG is $peerport"
+        if [ "$portAssigned" = true ] ; then
+            continue
+        fi
 
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
+            # Find a port number that hasn't been used
             PORTCHAIN=$((PORTCHAIN+2))
+            while true
+            do
+                local portInUse=false
+                for key in ${!PEER_PORTS_IN_USE[@]}
+                do
+                    if [ "${PEER_PORTS_IN_USE[${key}]}" -eq "$PORTCHAIN" ] ; then
+                        PORTCHAIN=$((PORTCHAIN+5))
+                        portInUse=true
+                        break
+                    fi
+                done
+                if [ "$portInUse" = false ] ; then
+                    break
+                fi
+            done
             PORTEND=$((PORTCHAIN-1))
+            PEER_PORTS_IN_USE+=( ["peer$COUNT-$ORG"]=$PORTCHAIN )
+            log "Port assigned to peer: peer$COUNT-$ORG is $PORTCHAIN"
             sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-peer.yaml > ${K8SYAML}/fabric-deployment-peer$COUNT-$ORG.yaml
             COUNT=$((COUNT+1))
         done
-        PEER_PORTS_IN_USE+=($peerport)
-        PEER_PORTS_IN_USE+=($PORTCHAIN)
-        PEER_PORTS_IN_USE+=($PORTEND)
-        # Update the ports used in env.sh. The admin-api will query the ports from env.sh
-        log "PEER Ports in use: ${PEER_PORTS_IN_USE[@]}"
-        str="PEER_PORTS_IN_USE=(${PEER_PORTS_IN_USE[@]})"
-        sed "/^PEER_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
-   done
+    done
+    declare -p PEER_PORTS_IN_USE > peer-ports.sh
 }
 
 
 function genRemotePeers {
     peerport=30500
     log "Generating Remote Peer K8s YAML files"
+    if [ -f peer-ports.sh ]; then
+        log "Loading the ports used by peers"
+        source peer-ports.sh
+    fi
     for ORG in $PEER_ORGS; do
         getDomain $ORG
         local COUNT=1
-        # Find a port number that hasn't been used
-        while true
+        # Check if the peer already has a port assigned
+        local portAssigned=false
+        for key in ${!PEER_PORTS_IN_USE[@]}
         do
-            local portInUse=false
-            for i in "${PEER_PORTS_IN_USE[@]}"
-            do
-                if [ "$i" -eq "$peerport" ] ; then
-                    peerport=$((peerport+5))
-                    portInUse=true
-                    break
-                fi
-            done
-            if [ "$portInUse" = false ] ; then
+            if [ "${key}" == "peer$COUNT-$ORG" ] ; then
+                log "Peer ${key} already has port assigned: ${PEER_PORTS_IN_USE[${key}]} "
+                portAssigned=true
                 break
             fi
         done
-        log "Port assigned to remote peer: remote-peer$COUNT-$ORG is $peerport"
+        if [ "$portAssigned" = true ] ; then
+            continue
+        fi
 
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
+            # Find a port number that hasn't been used
             PORTCHAIN=$((PORTCHAIN+2))
+            while true
+            do
+                local portInUse=false
+                for key in ${!PEER_PORTS_IN_USE[@]}
+                do
+                    if [ "${PEER_PORTS_IN_USE[${key}]}" -eq "$PORTCHAIN" ] ; then
+                        PORTCHAIN=$((PORTCHAIN+5))
+                        portInUse=true
+                        break
+                    fi
+                done
+                if [ "$portInUse" = false ] ; then
+                    break
+                fi
+            done
             PORTEND=$((PORTCHAIN-1))
+            PEER_PORTS_IN_USE+=( ["peer$COUNT-$ORG"]=$PORTCHAIN )
+            log "Port assigned to peer: remote-peer$COUNT-$ORG is $PORTCHAIN"
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" remote-peer/k8s/fabric-deployment-remote-peer.yaml > ${K8SYAML}/fabric-deployment-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" remote-peer/k8s/fabric-nlb-remote-peer.yaml > ${K8SYAML}/fabric-nlb-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             COUNT=$((COUNT+1))
         done
-        PEER_PORTS_IN_USE+=($peerport)
-        PEER_PORTS_IN_USE+=($PORTCHAIN)
-        PEER_PORTS_IN_USE+=($PORTEND)
-        # Update the ports used in env.sh. The admin-api will query the ports from env.sh
-        log "PEER Ports in use: ${PEER_PORTS_IN_USE[@]}"
-        str="PEER_PORTS_IN_USE=(${PEER_PORTS_IN_USE[@]})"
-        sed "/^PEER_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
-   done
+    done
+    declare -p PEER_PORTS_IN_USE > peer-ports.sh
 }
 
 function genWorkshopRemotePeers {
     peerport=30500
     log "Generating Workshop Remote Peer K8s YAML files"
+    if [ -f peer-ports.sh ]; then
+        log "Loading the ports used by peers"
+        source peer-ports.sh
+    fi
     for ORG in $PEER_ORGS; do
         getDomain $ORG
         local COUNT=1
-        # Find a port number that hasn't been used
-        while true
+        # Check if the peer already has a port assigned
+        local portAssigned=false
+        for key in ${!PEER_PORTS_IN_USE[@]}
         do
-            local portInUse=false
-            for i in "${PEER_PORTS_IN_USE[@]}"
-            do
-                if [ "$i" -eq "$peerport" ] ; then
-                    peerport=$((peerport+5))
-                    portInUse=true
-                    break
-                fi
-            done
-            if [ "$portInUse" = false ] ; then
+            if [ "${key}" == "peer$COUNT-$ORG" ] ; then
+                log "Peer ${key} already has port assigned: ${PEER_PORTS_IN_USE[${key}]} "
+                portAssigned=true
                 break
             fi
         done
-        log "Port assigned to remote peer: remote-peer$COUNT-$ORG is $peerport"
+        if [ "$portAssigned" = true ] ; then
+            continue
+        fi
 
         PORTCHAIN=$peerport
         while [[ "$COUNT" -le $NUM_PEERS ]]; do
+            # Find a port number that hasn't been used
             PORTCHAIN=$((PORTCHAIN+2))
+            while true
+            do
+                local portInUse=false
+                for key in ${!PEER_PORTS_IN_USE[@]}
+                do
+                    if [ "${PEER_PORTS_IN_USE[${key}]}" -eq "$PORTCHAIN" ] ; then
+                        PORTCHAIN=$((PORTCHAIN+5))
+                        portInUse=true
+                        break
+                    fi
+                done
+                if [ "$portInUse" = false ] ; then
+                    break
+                fi
+            done
             PORTEND=$((PORTCHAIN-1))
+            PEER_PORTS_IN_USE+=( ["peer$COUNT-$ORG"]=$PORTCHAIN )
+            log "Port assigned to peer: remote-peer$COUNT-$ORG is $PORTCHAIN"
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" workshop-remote-peer/k8s/fabric-deployment-workshop-remote-peer.yaml > ${K8SYAML}/fabric-deployment-workshop-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             sed -e "s/%PEER_PREFIX%/${PEER_PREFIX}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" workshop-remote-peer/k8s/fabric-nlb-workshop-remote-peer.yaml > ${K8SYAML}/fabric-nlb-workshop-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
             COUNT=$((COUNT+1))
         done
-        PEER_PORTS_IN_USE+=($peerport)
-        PEER_PORTS_IN_USE+=($PORTCHAIN)
-        PEER_PORTS_IN_USE+=($PORTEND)
-        # Update the ports used in env.sh. The admin-api will query the ports from env.sh
-        log "PEER Ports in use: ${PEER_PORTS_IN_USE[@]}"
-        str="PEER_PORTS_IN_USE=(${PEER_PORTS_IN_USE[@]})"
-        sed "/^PEER_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
-   done
+    done
+    declare -p PEER_PORTS_IN_USE > peer-ports.sh
 }
 
 function genPeerJoinChannel {
