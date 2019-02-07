@@ -105,7 +105,7 @@ function genRCA {
         for key in ${!RCA_PORTS_IN_USE[@]}
         do
             if [ "${key}" == "rca-$ORG" ] ; then
-                log "RCA for Org ${key} already has port assigned: ${RCA_PORTS_IN_USE[${key}]} "
+                log "RCA ${key} already has port assigned: ${RCA_PORTS_IN_USE[${key}]} "
                 portAssigned=true
                 break
             fi
@@ -149,7 +149,7 @@ function genICA {
         for key in ${!ICA_PORTS_IN_USE[@]}
         do
             if [ "${key}" == "ica-$ORG" ] ; then
-                log "ICA for Org ${key} already has port assigned: ${ICA_PORTS_IN_USE[${key}]} "
+                log "ICA ${key} already has port assigned: ${ICA_PORTS_IN_USE[${key}]} "
                 portAssigned=true
                 break
             fi
@@ -177,8 +177,8 @@ function genICA {
         log "Port assigned to ica: ica-$ORG is $icaport"
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${icaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-ica.yaml > ${K8SYAML}/fabric-deployment-ica-$ORG.yaml
         icaport=$((icaport+1))
-        ICA_PORTS_IN_USE+=( ["ica-$ORG"]=$icaport )
-        log "Port assigned to ica notls: ica-$ORG is $icaport"
+        ICA_PORTS_IN_USE+=( ["ica-notls-$ORG"]=$icaport )
+        log "Port assigned to ica notls: ica-notls-$ORG is $icaport"
 
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${icaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-ica-notls.yaml > ${K8SYAML}/fabric-deployment-ica-notls-$ORG.yaml
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-nlb-ca.yaml > ${K8SYAML}/fabric-nlb-ca-$ORG.yaml
