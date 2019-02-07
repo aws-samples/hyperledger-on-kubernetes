@@ -13,7 +13,7 @@ node app.js
 
 # In another Cloud9 session run the test cases
 export ENDPOINT=localhost
-export PORT=4000
+export PORT=3000
 echo connecting to server: $ENDPOINT:$PORT
 
 # Get the admin user

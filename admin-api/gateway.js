@@ -1010,6 +1010,7 @@ async function getPorts(args) {
     try {
         let portType = args['portType'];
         let portFile;
+        let data = {};
         switch (portType) {
           case "orderer":
              portFile = path.join(scriptPath, "orderer-ports.sh");
@@ -1026,7 +1027,7 @@ async function getPorts(args) {
         }
         if (fs.existsSync(portFile)) {
             logger.info("Loading the ports used from file: " + portFile);
-            let data = fs.readFileSync (portFile, 'utf8');
+            data = fs.readFileSync (portFile, 'utf8');
             logger.info("Ports assigned to " + portType + " for this network are: " + data);
         }
         else {
@@ -1034,7 +1035,7 @@ async function getPorts(args) {
         }
         return data;
     } catch (error) {
-        logger.error('Failed to getPortsFromEnv: ' + error);
+        logger.error('Failed to getPorts: ' + error);
         throw error;
     }
 }
