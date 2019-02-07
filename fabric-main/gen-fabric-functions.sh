@@ -112,11 +112,11 @@ function genRCA {
                 break
             fi
         done
-        RCA_PORTS_IN_USE+=( [rca-$ORG]=$rcaport )
+        RCA_PORTS_IN_USE+=( ["rca-$ORG"]=$rcaport )
         log "Port assigned to rca: rca-$ORG is $rcaport"
         # Update the ports used in env.sh. The admin-api will query the ports from env.sh
-        log "RCA Ports in use: ${RCA_PORTS_IN_USE[@]}"
-        str="RCA_PORTS_IN_USE=(${RCA_PORTS_IN_USE[@]})"
+        log "RCA Ports in use: ${RCA_PORTS_IN_USE[*]}"
+        str="RCA_PORTS_IN_USE=(${RCA_PORTS_IN_USE[*]})"
         sed "/^RCA_PORTS_IN_USE/c $str" -i $SCRIPTS/env.sh
 
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${rcaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-rca.yaml > ${K8SYAML}/fabric-deployment-rca-$ORG.yaml
