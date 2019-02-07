@@ -100,6 +100,20 @@ function genRCA {
     fi
     for ORG in $ORGS; do
         getDomain $ORG
+        # Check if the RCA already has a port assigned
+        local portAssigned=false
+        for key in ${!RCA_PORTS_IN_USE[@]}
+        do
+            if [ "${key}" -eq "rca-$ORG" ] ; then
+                log "RCA for Org ${key} already has port assigned: ${RCA_PORTS_IN_USE[${key}]} "
+                portAssigned=true
+                break
+            fi
+        done
+        if [ "$portAssigned" = true ] ; then
+            continue
+        fi
+
         # Find a port number that hasn't been used
         while true
         do
