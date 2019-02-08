@@ -154,11 +154,24 @@ response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-
 echo $response
 
 # install chaincode on all peers belonging to an org
+# Before running this command, copy the chaincode into this directory: /opt/share/rca-scripts/chaincode/,
+# e.g. if you are copying marbles chaincode, copy here: /opt/share/rca-scripts/chaincode/marblescc
+#
+# Example of how to do this for marbles. On bastion host:
+#
+# mkdir -p /opt/share/rca-scripts/chaincode/marblescc
+# cd /opt/share/rca-scripts/chaincode/marblescc
+# git clone https://github.com/IBM-Blockchain/marbles.git
+# cp marbles/chaincode/src/marbles/* .
+# rm -rf marbles
+#
+# The end result is the marbles chaincode in the chaincode directory
+#
 CHANNELNAME=org3channel;
 CHAINCODENAME=marblescc;
 CHAINCODEVERSION=1.0;
 CHAINCODELANGUAGE=golang;
-ORG=org3
+ORG=org1
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodelanguage":"'"${CHAINCODELANGUAGE}"'","org":"'"${ORG}"'"}')
 echo $response
 
