@@ -23,7 +23,7 @@ DATA=/opt/share
 function main {
     log "Beginning creation of Hyperledger Fabric Kubernetes YAML files..."
     cd $HOME/$REPO
-    rm -rf $K8SYAML
+#    rm -rf $K8SYAML
     mkdir -p $K8SYAML
     file=${DATA}/rca-data/updateorg
     if [ -f "$file" ]; then
