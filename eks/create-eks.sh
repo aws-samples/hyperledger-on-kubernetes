@@ -59,6 +59,7 @@ echo Getting VPC and Subnets from eksctl
 VPCID=$(eksctl get cluster --name=eks-fabric --region $region --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.VpcId' | tr -d '"')
 echo -e "VPCID: $VPCID"
 
+# hmmm, this part needs a fix. SUBNETS is not a bash array, so NUMSUBNETS will not represent the correct number of subnets
 SUBNETS=$(eksctl get cluster --name=eks-fabric --region $region --verbose=0 --output=json | jq  '.[0].ResourcesVpcConfig.SubnetIds')
 NUMSUBNETS=${#SUBNETS[@]}
 echo -e "Checking that 6 subnets have been created. eksctl created ${NUMSUBNETS} subnets"

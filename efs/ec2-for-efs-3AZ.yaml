@@ -232,6 +232,8 @@ Mappings:
       PV64: ami-27f90e27
       HVM64: ami-cbf90ecb
       HVMG2: ami-6318e863
+    ap-northeast-2:
+      HVM64: ami-4d1fd123
     ap-southeast-1:
       PV64: ami-acd9e8fe
       HVM64: ami-68d8e93a
