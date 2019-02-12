@@ -169,7 +169,7 @@ echo $response
 #
 CHANNELNAME=org3channel;
 CHAINCODENAME=marblescc;
-CHAINCODEVERSION=4;
+CHAINCODEVERSION=5;
 CHAINCODELANGUAGE=golang;
 ORG=org1
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodelanguage":"'"${CHAINCODELANGUAGE}"'","org":"'"${ORG}"'"}')
@@ -178,7 +178,7 @@ echo $response
 # instantiate chaincode on a peer
 CHANNELNAME=org3channel;
 CHAINCODENAME=marblescc;
-CHAINCODEVERSION=4;
+CHAINCODEVERSION=5;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/instantiate -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodeinit":["'"init"'"],"orgs":["org1","org3"]}')
 echo $response
 
@@ -360,7 +360,45 @@ response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/instant
 echo $response
 
 
+########################################################################################################################
+# Execute a few transactions
+########################################################################################################################
 
+# Enter into the CLI container from the bastion host
+# kubectl exec -it cli-65db594f56-xkr2c -n org0 bash
+
+# Set the context to the MSP for one of the orgs that belong to the channel you specify below
+export ORG=org3
+export CORE_PEER_TLS_CLIENTCERT_FILE=/data/tls/peer2-${ORG}-client.crt
+export CORE_PEER_TLS_CLIENTKEY_FILE=/data/tls/peer2-${ORG}-client.key
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_TLS_CLIENTAUTHREQUIRED=true
+export CORE_PEER_TLS_CLIENTROOTCAS_FILES=/data/${ORG}-ca-chain.pem
+export CORE_PEER_TLS_ROOTCERT_FILE=/data/${ORG}-ca-chain.pem
+export CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+export CORE_PEER_ID=peer2-${ORG}
+export CORE_PEER_ADDRESS=peer2-${ORG}.${ORG}:7051
+export CORE_PEER_LOCALMSPID=${ORG}MSP
+export CORE_PEER_MSPCONFIGPATH=/data/orgs/${ORG}/admin/msp
+
+# Set the channel/chaincode
+export CHANNELNAME=org3channel;
+export CHAINCODENAME=marblescc;
+export ORDERER_CONN_ARGS="-o orderer3-org0.org0:7050 --cafile /data/org0-ca-chain.pem"
+
+# Invoke
+peer chaincode invoke -C $CHANNELNAME -n $CHAINCODENAME -c '{"Args":["init_owner","o8888888888888888880","edge", "United Marbles"]}' $ORDERER_CONN_ARGS
+peer chaincode invoke -C $CHANNELNAME -n $CHAINCODENAME -c '{"Args":["init_owner","o8888888888888888881","braendle", "United Marbles"]}' $ORDERER_CONN_ARGS
+peer chaincode invoke -C $CHANNELNAME -n $CHAINCODENAME -c '{"Args":["init_marble","m888888888880", "blue", "50", "o8888888888888888880", "United Marbles"]}' $ORDERER_CONN_ARGS
+peer chaincode invoke -C $CHANNELNAME -n $CHAINCODENAME -c '{"Args":["init_marble","m888888888881", "red", "35", "o8888888888888888881", "United Marbles"]}' $ORDERER_CONN_ARGS
+
+# Query
+peer chaincode query -C $CHANNELNAME -n $CHAINCODENAME -c '{"Args":["read_everything"]}'
+
+# Transfer a marble
+peer chaincode invoke -C $CHANNELNAME -n $CHAINCODENAME -c '{"Args":["set_owner","m888888888881","o8888888888888888880", "United Marbles"]}' $ORDERER_CONN_ARGS
+
+# Check the logs of the peer nodes joined to the channel to see the blocks being processed
 
 
 

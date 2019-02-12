@@ -15,7 +15,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-set -e
+set +e
 
 function main {
 
@@ -26,12 +26,19 @@ function main {
     initOrdererVars ${OORGS[0]} 3
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --cafile $CA_CHAINFILE"
 
+    local COUNT=1
+    while [[ "$COUNT" -le $NUM_PEERS ]]; do
+        initPeerVars $NEW_ORG $COUNT
+        joinChannel
+        COUNT=$((COUNT+1))
+    done
+
     # Join the second peer to the channel. You could loop through all peers in the org and add them here, if necessary.
     # I chose peer 2 as in some cases peer 1 is exposed via NLB.
-    initPeerVars $NEW_ORG 2
+#    initPeerVars $NEW_ORG 2
 
-    # Create the channel
-    joinChannel
+    # Join the channel
+#    joinChannel
 
     log "Congratulations! Peer 2 for org ${NEW_ORG} joined channel ${CHANNEL_NAME}"
 }

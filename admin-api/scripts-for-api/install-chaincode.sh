@@ -108,7 +108,7 @@ function getChaincodeInstantiatedVersion {
    done < <(peer chaincode list -C $CHANNEL_NAME --instantiated | grep ${CHAINCODE_NAME})
    log "MAXCCVERSION currently instantiated: '$MAXCCVERSION'"
    if [[ $MAXCCVERSION -ge $CHAINCODE_VERSION ]]; then
-        log "Instantiated chaincode version is '$MAXCCVERSION', and we need '$CHAINCODE_VERSION'. This version cannot be instantiated"
+        log "Instantiated chaincode version is '$MAXCCVERSION', and we need '$CHAINCODE_VERSION'. This version cannot be installed or instantiated"
         exit 1
    fi
 }
