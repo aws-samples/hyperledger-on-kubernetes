@@ -50,7 +50,8 @@ function main {
 
     # Convert CHAINCODE_INIT to an array named CINIT
     IFS=',' read -r -a CINIT <<< "$CHAINCODE_INIT"
-    log "Chaincode init arguments passed to script are ${CINIT[@]}"
+    CINITSTRING=$(printf ",\"%s\"" "${CINIT[@]}")
+    log "Chaincode init arguments passed to script are $CINITSTRING"
 
     makePolicy
     initPeerVars ${PORGS[0]} 1
@@ -62,8 +63,8 @@ function main {
 function instantiateChaincode {
    switchToAdminIdentity
    log "instantiating chaincode on '$PEER_HOST'"
-   log "instantiate command is: peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c '{\"Args\":[${CINIT}]}' -P \"${POLICY}\" $ORDERER_CONN_ARGS"
-   peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c "'"{"Args":[${CINIT}]}"'" -P \"${POLICY}\" $ORDERER_PORT_ARGS
+   log "instantiate command is: peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c '{\"Args\":[${CINITSTRING}]}' -P \"${POLICY}\" $ORDERER_CONN_ARGS"
+   peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c "'"{"Args":[${CINITSTRING}]}"'" -P \"${POLICY}\" $ORDERER_PORT_ARGS
 }
 
 function makePolicy  {
