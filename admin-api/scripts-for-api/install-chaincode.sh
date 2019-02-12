@@ -46,8 +46,6 @@ function main {
 
     initPeerVars $CHAINCODE_ORG 2
     getChaincodeInstantiatedVersion
-    MAXCCVERSION=$((MAXCCVERSION+1))
-   log "Chaincode version No. to install: '$MAXCCVERSION'"
 
     local COUNT=1
     while [[ "$COUNT" -le $NUM_PEERS ]]; do
