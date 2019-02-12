@@ -45,7 +45,8 @@ function main {
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --cafile $CA_CHAINFILE"
 
     # Convert CHAINCODE_ORGS to an array named PORGS
-    IFS=', ' read -r -a PORGS <<< "$CHAINCODE_ORGS"
+    IFS=',' read -r -a PORGS <<< "$CHAINCODE_ORGS"
+    log "ORGS passed to script are ${PORGS[@]}"
 
     makePolicy
     initPeerVars ${PORGS[0]} 1
