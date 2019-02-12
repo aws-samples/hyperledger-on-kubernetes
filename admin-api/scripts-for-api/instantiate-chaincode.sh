@@ -65,10 +65,21 @@ function instantiateChaincode {
    log "Channel $CHANNEL_NAME has the following chaincode instantiated: "
    peer chaincode list -C $CHANNEL_NAME --instantiated
 
-   log "instantiating chaincode on '$PEER_HOST'"
-   log "instantiate command is: peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {"Args":[${CINITSTRING:1}]} -P \"${POLICY}\" $ORDERER_CONN_ARGS"
+   # check if already instantiated
+   CCCOUNT=0
+   while read -r line ; do
+        CCCOUNT=$((CCCOUNT+1))
+   done < <(peer chaincode list -C $CHANNEL_NAME --instantiated | grep ${CHAINCODE_NAME})
+
    set -x
-   peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {\"Args\":[${CINITSTRING:1}]} -P "${POLICY}" $ORDERER_PORT_ARGS
+   if [ CCCOUNT -ne 0 ]; then
+        log "Chaincode ${CHAINCODE_NAME} already instantiated. Will be upgraded"
+        log "upgrading chaincode on '$PEER_HOST'"
+        peer chaincode upgrade -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {\"Args\":[${CINITSTRING:1}]} -P "${POLICY}" $ORDERER_PORT_ARGS
+   else
+        log "instantiating chaincode on '$PEER_HOST'"
+        peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {\"Args\":[${CINITSTRING:1}]} -P "${POLICY}" $ORDERER_PORT_ARGS
+   fi
    sleep 3
    peer chaincode list -C $CHANNEL_NAME --instantiated
 }
