@@ -59,7 +59,7 @@ function instantiateChaincode {
    switchToAdminIdentity
    log "instantiating chaincode on '$PEER_HOST'"
    log "instantiate command is: peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c \'${CHAINCODE_INIT}\' -P \"${POLICY}\" $ORDERER_CONN_ARGS"
-   peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c \'${CHAINCODE_INIT}\' -P \"${POLICY}\" $ORDERER_PORT_ARGS
+   peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c "'"${CHAINCODE_INIT}"'" -P \"${POLICY}\" $ORDERER_PORT_ARGS
 }
 
 function makePolicy  {

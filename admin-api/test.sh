@@ -179,7 +179,7 @@ echo $response
 CHANNELNAME=org3channel;
 CHAINCODENAME=marblescc;
 CHAINCODEVERSION=1.0;
-CHAINCODEINIT={"Args":["init"]};
+CHAINCODEINIT='{"Args":["init"]}';
 ORG=org3
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/instantiate -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodeinit":"'"${CHAINCODEINIT}"'","orgs":["org1","org3"]}')
 echo $response
