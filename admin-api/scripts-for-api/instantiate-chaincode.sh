@@ -44,8 +44,11 @@ function main {
     initOrdererVars ${OORGS[0]} 3
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --cafile $CA_CHAINFILE"
 
+    # Convert CHAINCODE_ORGS to an array named PORGS
+    IFS=', ' read -r -a PORGS <<< "$CHAINCODE_ORGS"
+
     makePolicy
-    initPeerVars ${CHAINCODE_ORGS[0]} 1
+    initPeerVars ${PORGS[0]} 1
     instantiateChaincode
 
     log "instantiated chaincode. Name: ${CHAINCODE_NAME}, version ${CHAINCODE_VERSION} on peer: ${PEER_NAME}"
@@ -61,7 +64,8 @@ function instantiateChaincode {
 function makePolicy  {
    POLICY="OR("
    local COUNT=0
-   for ORG in $CHAINCODE_ORGS; do
+   for ORG in $PORGS; do
+      log "ORG in makePolicy: $ORG"
       if [ $COUNT -ne 0 ]; then
          POLICY="${POLICY},"
       fi
