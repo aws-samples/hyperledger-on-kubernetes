@@ -65,7 +65,7 @@ function instantiateChaincode {
 function makePolicy  {
    POLICY="OR("
    local COUNT=0
-   for ORG in $PORGS; do
+   for ORG in ${PORGS[@]}; do
       log "ORG in makePolicy: $ORG"
       if [ $COUNT -ne 0 ]; then
          POLICY="${POLICY},"
