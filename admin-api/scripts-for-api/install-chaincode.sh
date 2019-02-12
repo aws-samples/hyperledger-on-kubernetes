@@ -62,7 +62,6 @@ function main {
 function installChaincode {
    getChaincodeInstalledVersion
    switchToAdminIdentity
-   env
    if [[ $MAXINSTALLEDCCVERSION -ge $MAXCCVERSION ]]; then
         log "Installed chaincode version is '$MAXINSTALLEDCCVERSION', and we need '$MAXCCVERSION' on '$PEER_HOST', so no need to install"
    else
