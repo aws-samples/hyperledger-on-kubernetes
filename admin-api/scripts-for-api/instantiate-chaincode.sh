@@ -81,6 +81,7 @@ function instantiateChaincode {
         set -x
         peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {\"Args\":[${CINITSTRING:1}]} -P "${POLICY}" $ORDERER_PORT_ARGS
    fi
+   set +x
    sleep 3
    peer chaincode list -C $CHANNEL_NAME --instantiated
 }
