@@ -30,6 +30,7 @@ function main {
     while [[ "$COUNT" -le $NUM_PEERS ]]; do
         initPeerVars $NEW_ORG $COUNT
         joinChannel
+        sleep 5
         COUNT=$((COUNT+1))
     done
 
