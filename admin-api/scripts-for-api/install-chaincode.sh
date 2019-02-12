@@ -46,6 +46,8 @@ function main {
 
     initPeerVars $CHAINCODE_ORG 2
     getChaincodeInstantiatedVersion
+    MAXCCVERSION=$((MAXCCVERSION+1))
+   log "Chaincode version No. to install: '$MAXCCVERSION'"
 
     local COUNT=1
     while [[ "$COUNT" -le $NUM_PEERS ]]; do
@@ -60,8 +62,6 @@ function main {
 function installChaincode {
    getChaincodeInstalledVersion
    switchToAdminIdentity
-   MAXCCVERSION=$((MAXCCVERSION+1))
-   log "VERSION No. to install: '$MAXCCVERSION'"
    env
    if [[ $MAXINSTALLEDCCVERSION -ge $MAXCCVERSION ]]; then
         log "Installed chaincode version is '$MAXINSTALLEDCCVERSION', and we need '$MAXCCVERSION' on '$PEER_HOST', so no need to install"
