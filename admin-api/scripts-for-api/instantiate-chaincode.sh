@@ -54,7 +54,7 @@ function main {
     log "Chaincode init arguments passed to script are ${CINITSTRING:1}"
 
     makePolicy
-    initPeerVars ${PORGS[0]} 1
+    initPeerVars ${PORGS[0]} 2
     instantiateChaincode
 
     log "instantiated chaincode. Name: ${CHAINCODE_NAME}, version ${CHAINCODE_VERSION} on peer: ${PEER_NAME}"
@@ -63,7 +63,7 @@ function main {
 function instantiateChaincode {
    switchToAdminIdentity
    log "instantiating chaincode on '$PEER_HOST'"
-   log "instantiate command is: peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c \'{"Args":[${CINITSTRING:1}]}\' -P \"${POLICY}\" $ORDERER_CONN_ARGS"
+   log "instantiate command is: peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {"Args":[${CINITSTRING:1}]} -P \"${POLICY}\" $ORDERER_CONN_ARGS"
    set -x
    peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {\"Args\":[${CINITSTRING:1}]} -P "${POLICY}" $ORDERER_PORT_ARGS
 }
