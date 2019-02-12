@@ -71,13 +71,14 @@ function instantiateChaincode {
         CCCOUNT=$((CCCOUNT+1))
    done < <(peer chaincode list -C $CHANNEL_NAME --instantiated | grep ${CHAINCODE_NAME})
 
-   set -x
-   if [ CCCOUNT -ne 0 ]; then
+   if [ $CCCOUNT -ne 0 ]; then
         log "Chaincode ${CHAINCODE_NAME} already instantiated. Will be upgraded"
         log "upgrading chaincode on '$PEER_HOST'"
+        set -x
         peer chaincode upgrade -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {\"Args\":[${CINITSTRING:1}]} -P "${POLICY}" $ORDERER_PORT_ARGS
    else
         log "instantiating chaincode on '$PEER_HOST'"
+        set -x
         peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {\"Args\":[${CINITSTRING:1}]} -P "${POLICY}" $ORDERER_PORT_ARGS
    fi
    sleep 3
