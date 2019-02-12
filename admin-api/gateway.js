@@ -191,8 +191,8 @@ async function instantiateChaincode(args) {
         let chaincodeName = args['chaincodename'];
         let chaincodeVersion = args['chaincodeversion'];
         let chaincodeInit = args['chaincodeinit'];
-        let org = args['org'];
-        logger.info('Instantiating chaincode name: ' + chaincodeName + ' version: ' + chaincodeVersion + ' on peer in org: ' + org);
+        let orgs = args['orgs'];
+        logger.info('Instantiating chaincode name: ' + chaincodeName + ' version: ' + chaincodeVersion + ' on peer in orgs: ' + orgs);
         let scriptName = 'instantiate-chaincode.sh';
         let localScriptPath = path.resolve(__dirname + "/scripts-for-api", scriptName);
         // Copy the file to the /opt/share/rca-scripts directory. This will make it available to the /scripts directory
@@ -204,10 +204,10 @@ async function instantiateChaincode(args) {
             logger.error('Failed to copy the script file: ' + error);
             throw error;
         }
-        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + chaincodeName + " " + chaincodeVersion + " " + chaincodeInit + " " + org + " " + channelName + "\"";
+        let cmd = cliCommand + "\"bash /scripts/" + scriptName + " " + chaincodeName + " " + chaincodeVersion + " " + chaincodeInit + " " + orgs + " " + channelName + "\"";
 
         await execCmd(cmd);
-        return {"status":200,"message":"Instantiated chaincode name: " + chaincodeName + ' version: ' + chaincodeVersion + ' on peer in org: ' + org};
+        return {"status":200,"message":"Instantiated chaincode name: " + chaincodeName + ' version: ' + chaincodeVersion + ' on peer in orgs: ' + orgs};
     } catch (error) {
         logger.error('Failed to instantiate chaincode: ' + error);
         throw error;

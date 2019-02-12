@@ -60,8 +60,15 @@ function instantiateChaincode {
 
 function makePolicy  {
    POLICY="OR("
-   initOrgVars $CHAINCODE_ORG
-   POLICY="${POLICY}'${ORG_MSP_ID}.member'"
+   local COUNT=0
+   for ORG in $CHAINCODE_ORGS; do
+      if [ $COUNT -ne 0 ]; then
+         POLICY="${POLICY},"
+      fi
+      initOrgVars $ORG
+      POLICY="${POLICY}'${ORG_MSP_ID}.member'"
+      COUNT=$((COUNT+1))
+   done
    POLICY="${POLICY})"
    log "policy: $POLICY"
 }
@@ -71,10 +78,11 @@ SCRIPTS=/scripts
 REPO=hyperledger-on-kubernetes
 source $SCRIPTS/env.sh
 echo "Args are: " $*
+echo "Make sure to call this script with an array of orgs, as the orgs will form the endorsement policy when chaincode is instantiated"
 CHAINCODE_NAME=$1
 CHAINCODE_VERSION=$2
 CHAINCODE_INIT=$3
-CHAINCODE_ORG=$4
+CHAINCODE_ORGS=$4
 CHANNEL_NAME=$5
 main
 

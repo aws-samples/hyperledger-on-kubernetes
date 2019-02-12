@@ -134,7 +134,7 @@ echo $response
 sleep 300
 
 ####
-#### Wait 5 minutes before starting this. See comment above
+#### Wait 5 minutes before starting the next command. See comment above
 #### Do a 'kubectl logs' on the peer pod started above to check whether fabric-ca has been built, and has generated the identities required
 ####
 #### Look for this log entry:
@@ -181,7 +181,7 @@ CHAINCODENAME=marblescc;
 CHAINCODEVERSION=1.0;
 CHAINCODEINIT={"Args":["init"]};
 ORG=org3
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/instantiate -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodeinit":"'"${CHAINCODEINIT}"'","org":"'"${ORG}"'"}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/instantiate -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodeinit":"'"${CHAINCODEINIT}"'","orgs":["org1","org3"]}')
 echo $response
 
 ########################################################################################################################
