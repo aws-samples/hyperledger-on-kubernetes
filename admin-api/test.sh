@@ -169,7 +169,7 @@ echo $response
 #
 CHANNELNAME=org3channel;
 CHAINCODENAME=marblescc;
-CHAINCODEVERSION=3;
+CHAINCODEVERSION=4;
 CHAINCODELANGUAGE=golang;
 ORG=org1
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodelanguage":"'"${CHAINCODELANGUAGE}"'","org":"'"${ORG}"'"}')
@@ -178,8 +178,7 @@ echo $response
 # instantiate chaincode on a peer
 CHANNELNAME=org3channel;
 CHAINCODENAME=marblescc;
-CHAINCODEVERSION=1;
-ORG=org3
+CHAINCODEVERSION=4;
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/instantiate -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodeinit":["'"init"'"],"orgs":["org1","org3"]}')
 echo $response
 

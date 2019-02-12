@@ -66,6 +66,8 @@ function instantiateChaincode {
    log "instantiate command is: peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {"Args":[${CINITSTRING:1}]} -P \"${POLICY}\" $ORDERER_CONN_ARGS"
    set -x
    peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {\"Args\":[${CINITSTRING:1}]} -P "${POLICY}" $ORDERER_PORT_ARGS
+   sleep 3
+   peer chaincode list -C $CHANNEL_NAME --instantiated
 }
 
 function makePolicy  {
