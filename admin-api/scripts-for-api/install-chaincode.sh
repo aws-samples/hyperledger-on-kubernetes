@@ -62,12 +62,12 @@ function main {
 function installChaincode {
    getChaincodeInstalledVersion
    switchToAdminIdentity
-   if [[ $MAXINSTALLEDCCVERSION -ge $MAXCCVERSION ]]; then
-        log "Installed chaincode version is '$MAXINSTALLEDCCVERSION', and we need '$MAXCCVERSION' on '$PEER_HOST', so no need to install"
+   if [[ $MAXINSTALLEDCCVERSION -ge $CHAINCODE_VERSION ]]; then
+        log "Installed chaincode version is '$MAXINSTALLEDCCVERSION', and we need '$CHAINCODE_VERSION' on '$PEER_HOST', so no need to install"
    else
-        log "Installing chaincode version '$MAXCCVERSION' on '$PEER_NAME' with DNS '$PEER_HOST'; currently at version '$MAXINSTALLEDCCVERSION'"
-        log "Install command is: peer chaincode install -n $CHAINCODE_NAME -v $MAXCCVERSION -l $CHAINCODE_LANGUAGE -p $CHAINCODE_DIR"
-        peer chaincode install -n $CHAINCODE_NAME -v $MAXCCVERSION -l $CHAINCODE_LANGUAGE -p $CHAINCODE_DIR
+        log "Installing chaincode version '$CHAINCODE_VERSION' on '$PEER_NAME' with DNS '$PEER_HOST'; currently at version '$MAXINSTALLEDCCVERSION'"
+        log "Install command is: peer chaincode install -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -l $CHAINCODE_LANGUAGE -p $CHAINCODE_DIR"
+        peer chaincode install -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -l $CHAINCODE_LANGUAGE -p $CHAINCODE_DIR
    fi
 }
 
@@ -105,6 +105,10 @@ function getChaincodeInstantiatedVersion {
         fi
    done < <(peer chaincode list -C $CHANNEL_NAME --instantiated | grep ${CHAINCODE_NAME})
    log "MAXCCVERSION currently instantiated: '$MAXCCVERSION'"
+   if [[ $MAXCCVERSION -ge $CHAINCODE_VERSION ]]; then
+        log "Instantiated chaincode version is '$MAXCCVERSION', and we need '$CHAINCODE_VERSION'. This version cannot be instantiated"
+        exit 1
+   fi
 }
 
 DATADIR=/data
