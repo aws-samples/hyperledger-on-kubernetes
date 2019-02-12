@@ -66,6 +66,7 @@ function installChaincode {
         log "Installing chaincode version '$CHAINCODE_VERSION' on '$PEER_NAME' with DNS '$PEER_HOST'; currently at version '$MAXINSTALLEDCCVERSION'"
         log "Install command is: peer chaincode install -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -l $CHAINCODE_LANGUAGE -p $CHAINCODE_DIR"
         peer chaincode install -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -l $CHAINCODE_LANGUAGE -p $CHAINCODE_DIR
+        peer chaincode list --installed
    fi
 }
 
