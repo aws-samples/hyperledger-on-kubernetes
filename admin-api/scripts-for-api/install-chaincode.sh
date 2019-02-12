@@ -44,6 +44,9 @@ function main {
     initOrdererVars ${OORGS[0]} 3
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --cafile $CA_CHAINFILE"
 
+    initPeerVars $CHAINCODE_ORG 2
+    getChaincodeInstantiatedVersion
+
     local COUNT=1
     while [[ "$COUNT" -le $NUM_PEERS ]]; do
         initPeerVars $CHAINCODE_ORG $COUNT
@@ -55,10 +58,10 @@ function main {
 }
 
 function installChaincode {
-   getChaincodeVersion
+   getChaincodeInstalledVersion
    switchToAdminIdentity
    MAXCCVERSION=$((MAXCCVERSION+1))
-   log "MAXCCVERSION '$MAXCCVERSION'"
+   log "VERSION No. to install: '$MAXCCVERSION'"
    env
    if [[ $MAXINSTALLEDCCVERSION -ge $MAXCCVERSION ]]; then
         log "Installed chaincode version is '$MAXINSTALLEDCCVERSION', and we need '$MAXCCVERSION' on '$PEER_HOST', so no need to install"
@@ -69,9 +72,9 @@ function installChaincode {
    fi
 }
 
-function getChaincodeVersion {
+function getChaincodeInstalledVersion {
    switchToAdminIdentity
-   log "Getting chaincode version on $PEER_HOST ..."
+   log "Getting chaincode installed version on $PEER_HOST ..."
    #find the max version number
    MAXINSTALLEDCCVERSION=0
    #We get the installed versions to prevent us from reinstalling if we've previously installed the latest version.
@@ -84,6 +87,11 @@ function getChaincodeVersion {
         fi
    done < <(peer chaincode list --installed | grep ${CHAINCODE_NAME})
    log "MAXINSTALLEDCCVERSION '$MAXINSTALLEDCCVERSION'"
+}
+
+function getChaincodeInstantiatedVersion {
+   switchToAdminIdentity
+   log "Getting chaincode instantiated version on $PEER_HOST ..."
 
    #find the max version number
    MAXCCVERSION=0
@@ -97,9 +105,8 @@ function getChaincodeVersion {
             MAXCCVERSION=$CCVERSION
         fi
    done < <(peer chaincode list -C $CHANNEL_NAME --instantiated | grep ${CHAINCODE_NAME})
-   log "MAXCCVERSION '$MAXCCVERSION'"
- }
-
+   log "MAXCCVERSION currently instantiated: '$MAXCCVERSION'"
+}
 
 DATADIR=/data
 SCRIPTS=/scripts
