@@ -97,7 +97,15 @@ function genRCA {
     if [ -f $SCRIPTS/rca-ports.sh ]; then
         log "Loading the ports used by RCAs"
         source $SCRIPTS/rca-ports.sh
+        for portValue in "${RCA_PORTS_IN_USE[@]}"
+        do
+          if [[ portValue -gt rcaport ]]; then
+            rcaport=$((portValue+0))
+          fi
+        done
+        rcaport=$((rcaport+5))
     fi
+    log "The starting RCA port is: ${rcaport}"
     for ORG in $ORGS; do
         getDomain $ORG
         # Check if the RCA already has a port assigned
@@ -141,7 +149,15 @@ function genICA {
     if [ -f $SCRIPTS/ica-ports.sh ]; then
         log "Loading the ports used by ICAs"
         source $SCRIPTS/ica-ports.sh
+        for portValue in "${ICA_PORTS_IN_USE[@]}"
+        do
+          if [[ portValue -gt icaport ]]; then
+            icaport=$((portValue+0))
+          fi
+        done
+        icaport=$((icaport+5))
     fi
+    log "The starting ICA port is: ${icaport}"
     for ORG in $ORGS; do
         getDomain $ORG
         # Check if the ICA already has a port assigned
@@ -296,7 +312,15 @@ function genOrderer {
     if [ -f $SCRIPTS/orderer-ports.sh ]; then
         log "Loading the ports used by Orderer"
         source $SCRIPTS/orderer-ports.sh
+        for portValue in "${ORDERER_PORTS_IN_USE[@]}"
+        do
+          if [[ portValue -gt ordererport ]]; then
+            ordererport=$((portValue+0))
+          fi
+        done
+        ordererport=$((ordererport+5))
     fi
+    log "The starting ORDERER port is: ${ordererport}"
     for ORG in $ORDERER_ORGS; do
         getDomain $ORG
         local COUNT=1
@@ -354,7 +378,15 @@ function genPeers {
     if [ -f $SCRIPTS/peer-ports.sh ]; then
         log "Loading the ports used by peers"
         source $SCRIPTS/peer-ports.sh
+        for portValue in "${PEER_PORTS_IN_USE[@]}"
+        do
+          if [[ portValue -gt peerport ]]; then
+            peerport=$((portValue+0))
+          fi
+        done
+        peerport=$((peerport+5))
     fi
+    log "The starting PEER port is: ${peerport}"
     for ORG in $PEER_ORGS; do
         getDomain $ORG
         local COUNT=1
@@ -411,7 +443,15 @@ function genRemotePeers {
     if [ -f $SCRIPTS/peer-ports.sh ]; then
         log "Loading the ports used by peers"
         source $SCRIPTS/peer-ports.sh
+        for portValue in "${PEER_PORTS_IN_USE[@]}"
+        do
+          if [[ portValue -gt peerport ]]; then
+            peerport=$((portValue+0))
+          fi
+        done
+        peerport=$((peerport+5))
     fi
+    log "The starting PEER port is: ${peerport}"
     for ORG in $PEER_ORGS; do
         getDomain $ORG
         PORTCHAIN=$peerport
@@ -464,7 +504,15 @@ function genWorkshopRemotePeers {
     if [ -f $SCRIPTS/peer-ports.sh ]; then
         log "Loading the ports used by peers"
         source $SCRIPTS/peer-ports.sh
+        for portValue in "${PEER_PORTS_IN_USE[@]}"
+        do
+          if [[ portValue -gt peerport ]]; then
+            peerport=$((portValue+0))
+          fi
+        done
+        peerport=$((peerport+5))
     fi
+    log "The starting PEER port is: ${peerport}"
     for ORG in $PEER_ORGS; do
         getDomain $ORG
         PORTCHAIN=$peerport
