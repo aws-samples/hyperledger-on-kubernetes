@@ -62,6 +62,9 @@ function main {
 
 function instantiateChaincode {
    switchToAdminIdentity
+   log "Channel $CHANNEL_NAME has the following chaincode instantiated: "
+   peer chaincode list -C $CHANNEL_NAME --instantiated
+
    log "instantiating chaincode on '$PEER_HOST'"
    log "instantiate command is: peer chaincode instantiate -C $CHANNEL_NAME -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -c {"Args":[${CINITSTRING:1}]} -P \"${POLICY}\" $ORDERER_CONN_ARGS"
    set -x

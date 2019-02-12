@@ -60,14 +60,17 @@ function main {
 function installChaincode {
    getChaincodeInstalledVersion
    switchToAdminIdentity
+   log "Peer $PEER_NAME has the following chaincode installed: "
+   peer chaincode list --installed
+
    if [[ $MAXINSTALLEDCCVERSION -ge $CHAINCODE_VERSION ]]; then
         log "Installed chaincode version is '$MAXINSTALLEDCCVERSION', and we need '$CHAINCODE_VERSION' on '$PEER_HOST', so no need to install"
    else
         log "Installing chaincode version '$CHAINCODE_VERSION' on '$PEER_NAME' with DNS '$PEER_HOST'; currently at version '$MAXINSTALLEDCCVERSION'"
         log "Install command is: peer chaincode install -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -l $CHAINCODE_LANGUAGE -p $CHAINCODE_DIR"
         peer chaincode install -n $CHAINCODE_NAME -v $CHAINCODE_VERSION -l $CHAINCODE_LANGUAGE -p $CHAINCODE_DIR
-        peer chaincode list --installed
    fi
+   peer chaincode list --installed
 }
 
 function getChaincodeInstalledVersion {
