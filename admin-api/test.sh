@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# This file will be backed up for you, but if you want the extra security, you can back it up manually
-cp /opt/share/rca-data/configtx.yaml /opt/share/rca-data/configtx-orig.yaml
-
 # To see debug logs
 export HFC_LOGGING='{"debug":"console","info":"console"}'
 
@@ -78,12 +75,12 @@ echo $response
 ########################################################################################################################
 
 # Set the variables
-ORG=org3
-PROFILENAME=org3profile;
-CHANNELNAME=org3channel;
+ORG=org4
+PROFILENAME=org4profile;
+CHANNELNAME=org4channel;
 
 # Try and add a channel profile for an org that does not exist. This should fail as the new org does not exist
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org3"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org4"]}')
 echo $response
 
 # add the new org to the Fabric config file, env.sh
@@ -107,7 +104,7 @@ response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/orgs -H 'content-type: app
 echo $response
 
 # add the new channel profile that includes the new org
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org3"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/configtx/profiles -H 'content-type: application/json' -d '{"profilename":"'"${PROFILENAME}"'","orgs":["org1","org4"]}')
 echo $response
 
 # create the channel configuration transaction file
@@ -138,19 +135,19 @@ sleep 300
 #### Do a 'kubectl logs' on the peer pod started above to check whether fabric-ca has been built, and has generated the identities required
 ####
 #### Look for this log entry:
-#### $ kubectl logs peer2-org3-6c744b54d-txxt4 -n org3 -c peer2-org3 --tail=20
-#### 2019-01-28 03:35:39.458 UTC [nodeCmd] serve -> INFO 020 Started peer with ID=[name:"peer2-org3" ], network ID=[dev], address=[192.168.188.57:7051]
+#### $ kubectl logs peer2-org4-6c744b54d-txxt4 -n org4 -c peer2-org4 --tail=20
+#### 2019-01-28 03:35:39.458 UTC [nodeCmd] serve -> INFO 020 Started peer with ID=[name:"peer2-org4" ], network ID=[dev], address=[192.168.188.57:7051]
 ####
 
 # join the channel. After joining the channel you should see something like this in the peer logs:
-# $ kubectl logs peer2-org3-59988dbdf-f29dm  -n org3 -c peer2-org3 | grep org3channel
-# 2019-01-28 03:37:32.993 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org3channel] with genesis block
+# $ kubectl logs peer2-org4-59988dbdf-f29dm  -n org4 -c peer2-org4 | grep org4channel
+# 2019-01-28 03:37:32.993 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org4channel] with genesis block
 #
 # and something similar in the logs for the other org:
-# $ kubectl logs peer2-org1-65c97bb4b7-l7cnl -n org1 -c peer2-org1 | grep org3channel
-# 2019-01-28 03:37:31.923 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org3channel] with genesis block
+# $ kubectl logs peer2-org1-65c97bb4b7-l7cnl -n org1 -c peer2-org1 | grep org4channel
+# 2019-01-28 03:37:31.923 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org4channel] with genesis block
 
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org3"]}')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1","org4"]}')
 echo $response
 
 # install chaincode on all peers belonging to an org
@@ -166,20 +163,20 @@ echo $response
 # rm -rf marbles
 #
 # The end result is the marbles chaincode in the chaincode directory
-#
-CHANNELNAME=org3channel;
+
+CHANNELNAME=org4channel;
 CHAINCODENAME=marblescc;
-CHAINCODEVERSION=5;
+CHAINCODEVERSION=1;
 CHAINCODELANGUAGE=golang;
 ORG=org1
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodelanguage":"'"${CHAINCODELANGUAGE}"'","org":"'"${ORG}"'"}')
 echo $response
 
 # instantiate chaincode on a peer
-CHANNELNAME=org3channel;
+CHANNELNAME=org4channel;
 CHAINCODENAME=marblescc;
-CHAINCODEVERSION=5;
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/instantiate -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodeinit":["'"init"'"],"orgs":["org1","org3"]}')
+CHAINCODEVERSION=1;
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/instantiate -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodeinit":["'"init"'"],"orgs":["org1","org4"]}')
 echo $response
 
 ########################################################################################################################
@@ -246,12 +243,12 @@ response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels -H 'content-type:
 echo $response
 
 # org1 joins the channel. After joining the channel you should see something like this in the peer logs:
-# $ kubectl logs peer2-org3-59988dbdf-f29dm  -n org3 -c peer2-org3 | grep org3channel
-# 2019-01-28 03:37:32.993 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org3channel] with genesis block
+# $ kubectl logs peer2-org4-59988dbdf-f29dm  -n org4 -c peer2-org4 | grep org4channel
+# 2019-01-28 03:37:32.993 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org4channel] with genesis block
 #
 # and something similar in the logs for the other org:
-# $ kubectl logs peer2-org1-65c97bb4b7-l7cnl -n org1 -c peer2-org1 | grep org3channel
-# 2019-01-28 03:37:31.923 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org3channel] with genesis block
+# $ kubectl logs peer2-org1-65c97bb4b7-l7cnl -n org1 -c peer2-org1 | grep org4channel
+# 2019-01-28 03:37:31.923 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org4channel] with genesis block
 
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["org1"]}')
 echo $response
@@ -326,17 +323,17 @@ sleep 300
 #### Do a 'kubectl logs' on the peer pod started above to check whether fabric-ca has been built, and has generated the identities required
 ####
 #### Look for this log entry:
-#### $ kubectl logs peer2-org3-6c744b54d-txxt4 -n org3 -c peer2-org3 --tail=20
-#### 2019-01-28 03:35:39.458 UTC [nodeCmd] serve -> INFO 020 Started peer with ID=[name:"peer2-org3" ], network ID=[dev], address=[192.168.188.57:7051]
+#### $ kubectl logs peer2-org4-6c744b54d-txxt4 -n org4 -c peer2-org4 --tail=20
+#### 2019-01-28 03:35:39.458 UTC [nodeCmd] serve -> INFO 020 Started peer with ID=[name:"peer2-org4" ], network ID=[dev], address=[192.168.188.57:7051]
 ####
 
 # join the channel. After joining the channel you should see something like this in the peer logs:
-# $ kubectl logs peer2-org3-59988dbdf-f29dm  -n org3 -c peer2-org3 | grep org3channel
-# 2019-01-28 03:37:32.993 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org3channel] with genesis block
+# $ kubectl logs peer2-org4-59988dbdf-f29dm  -n org4 -c peer2-org4 | grep org4channel
+# 2019-01-28 03:37:32.993 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org4channel] with genesis block
 #
 # and something similar in the logs for the other org:
-# $ kubectl logs peer2-org1-65c97bb4b7-l7cnl -n org1 -c peer2-org1 | grep org3channel
-# 2019-01-28 03:37:31.923 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org3channel] with genesis block
+# $ kubectl logs peer2-org1-65c97bb4b7-l7cnl -n org1 -c peer2-org1 | grep org4channel
+# 2019-01-28 03:37:31.923 UTC [ledgermgmt] CreateLedger -> INFO 022 Creating ledger [org4channel] with genesis block
 
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/join -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","orgs":["remoteorg1"]}')
 echo $response
@@ -368,7 +365,7 @@ echo $response
 # kubectl exec -it cli-65db594f56-xkr2c -n org0 bash
 
 # Set the context to the MSP for one of the orgs that belong to the channel you specify below
-export ORG=org3
+export ORG=org1
 export CORE_PEER_TLS_CLIENTCERT_FILE=/data/tls/peer2-${ORG}-client.crt
 export CORE_PEER_TLS_CLIENTKEY_FILE=/data/tls/peer2-${ORG}-client.key
 export CORE_PEER_TLS_ENABLED=true
@@ -382,7 +379,7 @@ export CORE_PEER_LOCALMSPID=${ORG}MSP
 export CORE_PEER_MSPCONFIGPATH=/data/orgs/${ORG}/admin/msp
 
 # Set the channel/chaincode
-export CHANNELNAME=org3channel;
+export CHANNELNAME=org4channel;
 export CHAINCODENAME=marblescc;
 export ORDERER_CONN_ARGS="-o orderer3-org0.org0:7050 --cafile /data/org0-ca-chain.pem"
 
@@ -397,6 +394,9 @@ peer chaincode query -C $CHANNELNAME -n $CHAINCODENAME -c '{"Args":["read_everyt
 
 # Transfer a marble
 peer chaincode invoke -C $CHANNELNAME -n $CHAINCODENAME -c '{"Args":["set_owner","m888888888881","o8888888888888888880", "United Marbles"]}' $ORDERER_CONN_ARGS
+
+# Add some load
+while [ true ] ; do peer chaincode invoke -C $CHANNELNAME -n $CHAINCODENAME -c '{"Args":["set_owner","m888888888881","o8888888888888888880", "United Marbles"]}' $ORDERER_CONN_ARGS; done
 
 # Check the logs of the peer nodes joined to the channel to see the blocks being processed
 

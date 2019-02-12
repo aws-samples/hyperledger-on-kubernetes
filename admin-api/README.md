@@ -139,6 +139,10 @@ kubectl apply -f k8s/fabric-deployment-cli-org0.yaml
 ```
 
 ### Expose the Fabric CA so the RESTful API can access it
+This step isn't strictly necessary. The only functions in the API server that use the Fabric SDK are those that create
+new identity, so if you don't need to do this, you don't need the API server to access the Fabric CA. All the other
+API functions execute via scripts inside the CLI container and do not depend on the SDK.
+
 The API server accesses the Fabric network based on the information provided in the connection-profile folder.
 
 Connection profiles are a construct supported by the Fabric Node SDK. The profile points to a CA (an ICA in our case), 
