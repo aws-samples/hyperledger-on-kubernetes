@@ -44,8 +44,8 @@ function main {
     initOrdererVars ${OORGS[0]} 3
     export ORDERER_PORT_ARGS="-o $ORDERER_HOST:$ORDERER_PORT --cafile $CA_CHAINFILE"
 
-    initPeerVars $CHAINCODE_ORG 1
     makePolicy
+    initPeerVars ${CHAINCODE_ORGS[0]} 1
     instantiateChaincode
 
     log "instantiated chaincode. Name: ${CHAINCODE_NAME}, version ${CHAINCODE_VERSION} on peer: ${PEER_NAME}"
