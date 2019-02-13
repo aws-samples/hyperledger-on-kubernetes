@@ -35,28 +35,28 @@ organizations:
 
 orderers:
   orderer3-org0.org0:
-    url: grpc://a7ad12e90243c11e9b99c0a474a321b2-a24057be5bd7e023.elb.ap-northeast-1.amazonaws.com:7050
+    url: grpc://a0eebf95f2c5611e9a64d021317b5dae-69f8a50dc211a97d.elb.ap-northeast-2.amazonaws.com:7050
     grpcOptions:
       ssl-target-name-override: orderer3-org0.org0
       verify: false
 
 peers:
   peer1-org1.org1:
-    url: grpc://a88810772243c11e9b99c0a474a321b2-f65a421b0b03a7b6.elb.ap-northeast-1.amazonaws.com:7051
-    eventUrl: grpc://a88810772243c11e9b99c0a474a321b2-f65a421b0b03a7b6.elb.ap-northeast-1.amazonaws.com:7052
+    url: grpc://a1bb96b882c5611e98aff0a4dfa905cc-b9da78e84c88d35f.elb.ap-northeast-2.amazonaws.com:7051
+    eventUrl: grpc://a1bb96b882c5611e98aff0a4dfa905cc-b9da78e84c88d35f.elb.ap-northeast-2.amazonaws.com:7052
     grpcOptions:
       ssl-target-name-override: peer1-org1.org1
       verify: false
   peer1-org2.org2:
-    url: grpc://a88ae492c243c11e9b056065bcb9591f-34910a629c328c05.elb.ap-northeast-1.amazonaws.com:7051
-    eventUrl: grpc://a88ae492c243c11e9b056065bcb9591f-34910a629c328c05.elb.ap-northeast-1.amazonaws.com:7052
+    url: grpc://a1bdc56882c5611e9a64d021317b5dae-b51ee6b4b1f7c0ef.elb.ap-northeast-2.amazonaws.com:7051
+    eventUrl: grpc://a1bdc56882c5611e9a64d021317b5dae-b51ee6b4b1f7c0ef.elb.ap-northeast-2.amazonaws.com:7052
     grpcOptions:
       ssl-target-name-override: peer1-org2.org2
       verify: false
 
 certificateAuthorities:
   ca-org1:
-    url: http://aaa4a35fb246511e9b056065bcb9591f-471f5627be7b393c.elb.ap-northeast-1.amazonaws.com:7054
+    url: http://a9c6878e42e7611e98aff0a4dfa905cc-149eccc3da37b809.elb.ap-northeast-2.amazonaws.com:7054
     httpOptions:
       verify: false
     registrar:
@@ -64,7 +64,7 @@ certificateAuthorities:
         enrollSecret: admin-org1pw
     caName: ica-notls-org1.org1
   ca-org2:
-    url: http://a8a049a151af911e9b056065bcb9591f-dde809bafb20e2df.elb.ap-northeast-1.amazonaws.com:7054
+    url: http://a9cb26e692e7611e98aff0a4dfa905cc-beb9a04e041c486c.elb.ap-northeast-2.amazonaws.com:7054
     httpOptions:
       verify: false
     registrar:

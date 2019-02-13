@@ -14,7 +14,7 @@ export PORT=3000
 echo connecting to server: $ENDPOINT:$PORT
 
 # Get the admin user
-response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/users/admin)
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/users/admin?org=org1)
 echo $response
 
 # Get a list of all enrolled users for an org
