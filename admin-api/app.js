@@ -123,10 +123,25 @@ app.get('/health', awaitHandler(async (req, res) => {
 
 app.get('/users/admin', awaitHandler(async (req, res) => {
 	logger.info('================ GET on endpoint /users/admin');
-    let response = await gateway.enrollAdmin();
+	logger.info('GET on /users/admin. Params: ' + JSON.stringify(req.query));
+	let args = req.query;
+    let response = await gateway.enrollAdminForOrg(args);
     await gateway.adminGateway();
     res.json({success: true, message: response});
 	logger.info('##### GET on /users/admin - completed');
+}));
+
+/************************************************************************************
+ * List all users enrolled with the CA for a specific org
+ ************************************************************************************/
+
+app.get('/users/enrolled', awaitHandler(async (req, res) => {
+	logger.info('================ GET on endpoint /users/enrolled');
+	logger.info('GET on /users/enrolled. Params: ' + JSON.stringify(req.query));
+	let args = req.query;
+    let response = await gateway.getUsersForOrg(args);
+    res.json({success: true, message: response});
+	logger.info('##### GET on /users/enrolled - completed');
 }));
 
 /************************************************************************************

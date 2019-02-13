@@ -17,6 +17,10 @@ echo connecting to server: $ENDPOINT:$PORT
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/users/admin)
 echo $response
 
+# Get a list of all enrolled users for an org
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/users/enrolled?org=org1)
+echo $response
+
 # Register and enroll a new user within a specific org
 USERID=michael
 ORG=org1

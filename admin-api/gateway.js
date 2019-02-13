@@ -10,8 +10,6 @@ const path = require('path');
 const yaml = require('js-yaml');
 //const yaml = require('yaml');
 const connection = require('./connection.js');
-const walletPath = path.join(process.cwd(), 'wallet');
-const wallet = new FileSystemWallet(walletPath);
 const gateway = new Gateway();
 const { exec } = require('child_process');
 const { execSync } = require('child_process');
@@ -43,30 +41,64 @@ let cliCommand = "kubectl exec -i $(kubectl get pod -l name=cli -o jsonpath=\"{.
  * or from the CA for this organisation
  ************************************************************************************/
 
-async function enrollAdmin() {
+async function enrollAdminForOrg(args) {
     try {
+        let org = args['org'];
+        logger.info('Enrolling admin for org: ' + org);
+        const walletPath = path.join(process.cwd(), 'wallet-' + org);
+        const wallet = new FileSystemWallet(walletPath);
         // Check to see if we've already enrolled the admin user.
         const adminExists = await wallet.exists('admin');
         if (adminExists) {
-            logger.info('An identity for the admin user "admin" already exists in the wallet');
+            logger.info('An identity for the admin user "admin" already exists in the wallet for org: ' + org);
             logger.info('Wallet identities: ' + util.inspect(wallet.list()));
             logger.info('Wallet admin exists: ' + util.inspect(wallet.exists('admin')));
             return {"status":200,"message":"Admin user enrolled and set to the current user"};
         }
 
         // Create a new CA client for interacting with the CA.
-        const caURL = ccp.certificateAuthorities['ca-org1'].url;
+        const caURL = ccp.certificateAuthorities['ca-' + org].url;
         logger.info('CA URL: ' + caURL);
         const ca = new FabricCAServices(caURL);
 
         // Enroll the admin user, and import the new identity into the wallet.
-        const enrollment = await ca.enroll({ enrollmentID: ccp.certificateAuthorities['ca-org1'].registrar[0].enrollId, enrollmentSecret: ccp.certificateAuthorities['ca-org1'].registrar[0].enrollSecret });
-        const identity = X509WalletMixin.createIdentity('org1MSP', enrollment.certificate, enrollment.key.toBytes());
+        const enrollment = await ca.enroll({ enrollmentID: ccp.certificateAuthorities['ca-' + org].registrar[0].enrollId, enrollmentSecret: ccp.certificateAuthorities['ca-' + org].registrar[0].enrollSecret });
+        const identity = X509WalletMixin.createIdentity(org + 'MSP', enrollment.certificate, enrollment.key.toBytes());
         logger.info(`Wallet path: ${walletPath}`);
         await wallet.import('admin', identity);
         logger.info('Successfully enrolled admin user "admin" and imported it into the wallet');
         logger.info('Wallet identities: ' + util.inspect(wallet.list()));
         logger.info('Wallet admin exists: ' + util.inspect(wallet.exists('admin')));
+        return {"status":200,"message":"Admin user enrolled and set to the current user for org: " + org};
+    } catch (error) {
+        logger.error(`Failed to enroll admin user "admin": ${error}`);
+        throw error;
+    }
+}
+
+/************************************************************************************
+ * Get the list of users enrolled with the CA for the provided org
+ ************************************************************************************/
+
+async function getUsersForOrg() {
+    try {
+        let org = args['org'];
+        logger.info('Getting the users enrolled for org: ' + org);
+        await enrollAdminForOrg(args);
+
+        const walletPath = path.join(process.cwd(), 'wallet-' + org);
+        const wallet = new FileSystemWallet(walletPath);
+        const walletList = await wallet.list();
+        logger.info('Wallet at path: ' +  path.join(process.cwd(), 'wallet-' + org) + ' contains: ' + util.inspect(walletList));
+
+        // Create a new CA client for interacting with the CA.
+        const caURL = ccp.certificateAuthorities['ca-' + org].url;
+        logger.info('CA URL: ' + caURL);
+        const ca = new FabricCAServices(caURL);
+
+        // Get the list of users
+        let users = await ca.newIdentityService().getAll(new User('admin'));
+        logger.info('Users enrolled with CA are: ' + util.inspect(users));
         return {"status":200,"message":"Admin user enrolled and set to the current user"};
     } catch (error) {
         logger.error(`Failed to enroll admin user "admin": ${error}`);
@@ -1115,7 +1147,8 @@ async function execCmd(cmd) {
     return response;
 }
 
-exports.enrollAdmin = enrollAdmin;
+exports.enrollAdminForOrg = enrollAdminForOrg;
+exports.getUsersForOrg = getUsersForOrg;
 exports.adminGateway = adminGateway;
 exports.listNetwork = listNetwork;
 exports.loadConfigtx = loadConfigtx;
