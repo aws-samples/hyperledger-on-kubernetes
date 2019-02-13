@@ -87,7 +87,9 @@ async function getUsersForOrg(args) {
 
         let client = await connection.getClientForOrg(org, "admin-org1");
         logger.info('Fabric getUserContext: ' + util.inspect(client.getUserContext()));
-        logger.info('Fabric getClientConfig: ' + util.inspect(client.getClientConfig()));
+        // Get the list of users
+        let users = await ca.newIdentityService().getAll(new User(client.getUserContext()));
+        logger.info('Users enrolled with CA are: ' + util.inspect(users));
 
         await enrollAdminForOrg(args);
 
@@ -102,9 +104,6 @@ async function getUsersForOrg(args) {
         const ca = new FabricCAServices(caURL);
         logger.info('Fabric CA Name: ' + util.inspect(ca.getCaName()));
 
-        // Get the list of users
-        let users = await ca.newIdentityService().getAll(new User('admin-org1'));
-        logger.info('Users enrolled with CA are: ' + util.inspect(users));
         return {"status":200,"message":"Admin user enrolled and set to the current user"};
     } catch (error) {
         logger.error(`Failed to get users for org: ${error}`);
