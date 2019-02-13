@@ -97,11 +97,11 @@ async function getUsersForOrg(args) {
         const ca = new FabricCAServices(caURL);
 
         // Get the list of users
-        let users = await ca.newIdentityService().getAll(new User('admin'));
+        let users = await ca.newIdentityService().getAll(new User('michael'));
         logger.info('Users enrolled with CA are: ' + util.inspect(users));
         return {"status":200,"message":"Admin user enrolled and set to the current user"};
     } catch (error) {
-        logger.error(`Failed to enroll admin user "admin": ${error}`);
+        logger.error(`Failed to get users for org: ${error}`);
         throw error;
     }
 }
