@@ -51,8 +51,8 @@ async function enrollAdminForOrg(args) {
         const adminExists = await wallet.exists('admin');
         if (adminExists) {
             logger.info('An identity for the admin user "admin" already exists in the wallet for org: ' + org);
-            logger.info('Wallet identities: ' + util.inspect(wallet.list()));
-            logger.info('Wallet admin exists: ' + util.inspect(wallet.exists('admin')));
+            logger.info('Wallet identities: ' + util.inspect(await wallet.list()));
+            logger.info('Wallet admin exists: ' + util.inspect(await wallet.exists('admin')));
             return {"status":200,"message":"Admin user enrolled and set to the current user"};
         }
 
@@ -85,7 +85,7 @@ async function getUsersForOrg(args) {
         let org = args['org'];
         logger.info('Getting the users enrolled for org: ' + org);
 
-        let client = await connection.getClientForOrg(org, "admin");
+        let client = await connection.getClientForOrg(org, "admin-org1");
         logger.info('Fabric getUserContext: ' + util.inspect(client.getUserContext()));
         logger.info('Fabric getClientConfig: ' + util.inspect(client.getClientConfig()));
 
@@ -103,7 +103,7 @@ async function getUsersForOrg(args) {
         logger.info('Fabric CA Name: ' + util.inspect(ca.getCaName()));
 
         // Get the list of users
-        let users = await ca.newIdentityService().getAll(new User('michael'));
+        let users = await ca.newIdentityService().getAll(new User('admin-org1'));
         logger.info('Users enrolled with CA are: ' + util.inspect(users));
         return {"status":200,"message":"Admin user enrolled and set to the current user"};
     } catch (error) {
