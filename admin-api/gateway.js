@@ -87,6 +87,13 @@ async function getUsersForOrg(args) {
 
         let client = await connection.getClientForOrg(org, "admin-org1");
         logger.info('Fabric getUserContext: ' + util.inspect(client.getUserContext()));
+
+        // Create a new CA client for interacting with the CA.
+        const caURL = ccp.certificateAuthorities['ca-' + org].url;
+        logger.info('CA URL: ' + caURL);
+        const ca = new FabricCAServices(caURL);
+        logger.info('Fabric CA Name: ' + util.inspect(ca.getCaName()));
+
         // Get the list of users
         let users = await ca.newIdentityService().getAll(new User(client.getUserContext()));
         logger.info('Users enrolled with CA are: ' + util.inspect(users));
@@ -97,12 +104,6 @@ async function getUsersForOrg(args) {
         const wallet = new FileSystemWallet(walletPath);
         const walletList = await wallet.list();
         logger.info('Wallet at path: ' +  path.join(process.cwd(), 'wallet-' + org) + ' contains: ' + util.inspect(walletList));
-
-        // Create a new CA client for interacting with the CA.
-        const caURL = ccp.certificateAuthorities['ca-' + org].url;
-        logger.info('CA URL: ' + caURL);
-        const ca = new FabricCAServices(caURL);
-        logger.info('Fabric CA Name: ' + util.inspect(ca.getCaName()));
 
         return {"status":200,"message":"Admin user enrolled and set to the current user"};
     } catch (error) {
