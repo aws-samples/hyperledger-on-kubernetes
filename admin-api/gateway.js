@@ -95,7 +95,7 @@ async function getUsersForOrg(args) {
         logger.info('Fabric CA Name: ' + util.inspect(ca.getCaName()));
 
         // Get the list of users
-        let users = await ca.newIdentityService().getAll(new User(client.getUserContext()));
+        let users = await ca.newIdentityService().getAll(new User("admin-org1"));
         logger.info('Users enrolled with CA are: ' + util.inspect(users));
 
         await enrollAdminForOrg(args);
