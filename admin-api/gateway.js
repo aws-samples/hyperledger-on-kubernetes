@@ -67,8 +67,8 @@ async function enrollAdminForOrg(args) {
         logger.info(`Wallet path: ${walletPath}`);
         await wallet.import('admin', identity);
         logger.info('Successfully enrolled admin user "admin" and imported it into the wallet');
-        logger.info('Wallet identities: ' + util.inspect(wallet.list()));
-        logger.info('Wallet admin exists: ' + util.inspect(wallet.exists('admin')));
+        logger.info('Wallet identities: ' + util.inspect(await wallet.list()));
+        logger.info('Wallet admin exists: ' + util.inspect(await wallet.exists('admin')));
         return {"status":200,"message":"Admin user enrolled and set to the current user for org: " + org};
     } catch (error) {
         logger.error(`Failed to enroll admin user "admin": ${error}`);
@@ -80,7 +80,7 @@ async function enrollAdminForOrg(args) {
  * Get the list of users enrolled with the CA for the provided org
  ************************************************************************************/
 
-async function getUsersForOrg() {
+async function getUsersForOrg(args) {
     try {
         let org = args['org'];
         logger.info('Getting the users enrolled for org: ' + org);
