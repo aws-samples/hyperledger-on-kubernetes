@@ -84,6 +84,11 @@ async function getUsersForOrg(args) {
     try {
         let org = args['org'];
         logger.info('Getting the users enrolled for org: ' + org);
+
+        let client = await connection.getClientForOrg(org, "admin");
+        logger.info('Fabric getUserContext: ' + util.inspect(client.getUserContext()));
+        logger.info('Fabric getClientConfig: ' + util.inspect(client.getClientConfig()));
+
         await enrollAdminForOrg(args);
 
         const walletPath = path.join(process.cwd(), 'wallet-' + org);
@@ -95,6 +100,7 @@ async function getUsersForOrg(args) {
         const caURL = ccp.certificateAuthorities['ca-' + org].url;
         logger.info('CA URL: ' + caURL);
         const ca = new FabricCAServices(caURL);
+        logger.info('Fabric CA Name: ' + util.inspect(ca.getCaName()));
 
         // Get the list of users
         let users = await ca.newIdentityService().getAll(new User('michael'));
