@@ -151,9 +151,7 @@ which is exposed via an AWS NLB. To start the NLBs, run these commands:
 ```bash
 cd ~
 cd hyperledger-on-kubernetes
-kubectl apply -f k8s/fabric-deployment-ica-notls-org1.yaml 
 kubectl apply -f k8s/fabric-nlb-ca-org1.yaml
-kubectl apply -f k8s/fabric-deployment-ica-notls-org2.yaml 
 kubectl apply -f k8s/fabric-nlb-ca-org2.yaml
 ```
 
@@ -161,7 +159,7 @@ kubectl apply -f k8s/fabric-nlb-ca-org2.yaml
 On the bastion, in the $REPO folder where the repo is cloned, update the connection profile to point to your Fabric network. You'll need to
 update the URLs for the peers, orderers and CA's. Point them to the NLB endpoints, which you can obtain as follows:
 
-Orderer. Use the NLB endpoint for orderer3-org0-nlb:
+Orderer. If you want to use a server-side TLS connection, point to orderer2-org0-nlb. If you prefer no TLS, point to the NLB endpoint for orderer3-org0-nlb:
 
 ```bash
 kubectl get svc -n org0
@@ -178,7 +176,7 @@ orderer3-org0-nlb   LoadBalancer   10.100.240.233   a9a824b3b29ed11e9b056065bcb9
 rca-org0            NodePort       10.100.10.43     <none>                                                                               7054:30100/TCP   9m
 ```
 
-CA and Peer for org1. Use the NLB endpoint for ica-notls-org1-nlb and peer1-org1-nlb:
+CA and Peer for org1. Use the NLB endpoint for ica-org1-nlb and peer1-org1-nlb (both of these use server-side TLS):
 
 ```bash
 kubectl get svc -n org1
@@ -195,7 +193,7 @@ peer2-org1           NodePort       10.100.232.164   <none>                     
 rca-org1             NodePort       10.100.219.125   <none>                                                                               7054:30105/TCP                  11m
 ```
 
-CA and Peer for org2. Use the NLB endpoint for ica-notls-org2-nlb and peer1-org2-nlb:
+CA and Peer for org2. Use the NLB endpoint for ica-org2-nlb and peer1-org2-nlb:
 
 ```bash
 kubectl get svc -n org2

@@ -72,11 +72,14 @@ This script can be run multiple times. For example, if there is an error with on
 stop the script, fix the error and rerun. Since it standard Kubernetes commands to deploy resources there is no impact
 if the resource is already deployment.
 
-### Step 5: Confirm the test cases ran successfully
-NOTE: the test cases now take quite a few minutes to run - somewhere between 5-10 minutes. This is because with the more
-recent versions of Fabric, the fabric-ca is not included in the peer, tools or orderer Docker images. This means we need
-to 'make' fabric-ca from source, which takes a few minutes. We need fabric-ca to enroll the identities used during testing.
+Note that as part of this script, AWS network load balancers are created. The script waits for the NLBs to become active
+before calling the test script, otherwise the test scripts would fail. The NLBs go through a state of 
+initial->unhealthy->healthy. I suspect the reason they go to 'unhealthy' first is because the underlying peer node
+is not ready to accept requests. This is because with the more recent versions of Fabric, the fabric-ca is not included 
+in the peer, tools or orderer Docker images. This means we need to 'make' fabric-ca from source, which takes a few 
+minutes. We need fabric-ca to enroll the identities used during testing.
 
+### Step 5: Confirm the test cases ran successfully
 The test cases are run automatically by the `./start-fabric.sh` script above. The test cases work by deploying the 
 following Kubernetes pods:
 

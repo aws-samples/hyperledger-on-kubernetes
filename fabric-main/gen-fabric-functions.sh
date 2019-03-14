@@ -198,6 +198,7 @@ function genICA {
 
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRICORGS%/${FABRICORGS}/g" -e "s/%PORT%/${icaport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-ica-notls.yaml > ${K8SYAML}/fabric-deployment-ica-notls-$ORG.yaml
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-nlb-ca.yaml > ${K8SYAML}/fabric-nlb-ca-$ORG.yaml
+        sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-nlb-notls-ca.yaml > ${K8SYAML}/fabric-nlb-notls-ca-$ORG.yaml
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/fabric-elb-ca.yaml > ${K8SYAML}/fabric-elb-ca-$ORG.yaml
     done
     declare -p ICA_PORTS_IN_USE > $SCRIPTS/ica-ports.sh
@@ -358,10 +359,13 @@ function genOrderer {
             ORDERER_PORTS_IN_USE+=( ["orderer$COUNT-$ORG"]=$ordererport )
             log "Port assigned to orderer: orderer$COUNT-$ORG is $ordererport"
 
-            # for the 3rd orderer we generate an orderer with no TLS. Use for client applications connections
-            # during the workshop
-            if [ $COUNT -eq 3 ]; then
-                sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORT%/${ordererport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-orderer-notls.yaml > ${K8SYAML}/fabric-deployment-orderer$COUNT-$ORG.yaml
+            # for the 2nd orderer we generate an orderer with no server-side TLS
+            # for the 3rd orderer we generate an orderer with no client-side TLS, i.e. no mutual TLS
+            if [ $COUNT -eq 2 ]; then
+                sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORT%/${ordererport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-orderer-noservertls.yaml > ${K8SYAML}/fabric-deployment-orderer$COUNT-$ORG.yaml
+                sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" ${K8STEMPLATES}/fabric-nlb-orderer.yaml > ${K8SYAML}/fabric-nlb-orderer$COUNT-$ORG.yaml
+            elif [ $COUNT -eq 3 ]; then
+                sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORT%/${ordererport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-orderer-noclienttls.yaml > ${K8SYAML}/fabric-deployment-orderer$COUNT-$ORG.yaml
                 sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" ${K8STEMPLATES}/fabric-nlb-orderer.yaml > ${K8SYAML}/fabric-nlb-orderer$COUNT-$ORG.yaml
             else
                 sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORT%/${ordererport}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-orderer.yaml > ${K8SYAML}/fabric-deployment-orderer$COUNT-$ORG.yaml
@@ -429,7 +433,12 @@ function genPeers {
             PORTEND=$((PORTCHAIN-1))
             PEER_PORTS_IN_USE+=( ["peer$COUNT-$ORG"]=$PORTCHAIN )
             log "Port assigned to peer: peer$COUNT-$ORG is $PORTCHAIN"
-            sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-peer.yaml > ${K8SYAML}/fabric-deployment-peer$COUNT-$ORG.yaml
+            # for the 1st peer we generate a peer with no client-side TLS, i.e. no mutual TLS
+            if [ $COUNT -eq 1 ]; then
+                sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-peer-noclienttls.yaml > ${K8SYAML}/fabric-deployment-peer$COUNT-$ORG.yaml
+            else
+                sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-peer.yaml > ${K8SYAML}/fabric-deployment-peer$COUNT-$ORG.yaml
+            fi
             COUNT=$((COUNT+1))
         done
     done

@@ -214,8 +214,8 @@ function chaincodeQuery {
    # Continue to poll until we get a successful response or reach QUERY_TIMEOUT
    while test "$(($(date +%s)-starttime))" -lt "$QUERY_TIMEOUT"; do
       sleep 1
-      peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["query","a"]}' >& log.txt
-      VALUE=$(cat log.txt | awk '/Query Result/ {print $NF}')
+      peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["query","a"]}' >& log-abac.txt
+      VALUE=$(cat log-abac.txt | awk '/Query Result/ {print $NF}')
       if [ $? -eq 0 -a "$VALUE" = "$1" ]; then
          log "Query of channel '$CHANNEL_NAME' on peer '$PEER_HOST' was successful"
          set -e
@@ -223,7 +223,7 @@ function chaincodeQuery {
       fi
       echo -n "."
    done
-   cat log.txt
+   cat log-abac.txt
    fatalr "Failed to query channel '$CHANNEL_NAME' on peer '$PEER_HOST'; expected value was $1 and found $VALUE"
 }
 
@@ -235,9 +235,9 @@ function queryAsRevokedUser {
    # Continue to poll until we get an expected response or reach QUERY_TIMEOUT
    while test "$(($(date +%s)-starttime))" -lt "$QUERY_TIMEOUT"; do
       sleep 1
-      peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["query","a"]}' >& log.txt
+      peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["query","a"]}' >& log-abac.txt
       if [ $? -ne 0 ]; then
-        err=$(cat log.txt | grep "access denied")
+        err=$(cat log-abac.txt | grep "access denied")
         if [ "$err" != "" ]; then
            log "Expected error occurred when the revoked user '$USER_NAME' queried the chaincode in the channel '$CHANNEL_NAME'"
            set -e
@@ -247,7 +247,7 @@ function queryAsRevokedUser {
       echo -n "."
    done
    set -e 
-   cat log.txt
+   cat log-abac.txt
    return 1
 }
 

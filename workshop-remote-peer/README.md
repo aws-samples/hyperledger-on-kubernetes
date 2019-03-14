@@ -638,7 +638,7 @@ These files should already exist in the k8s/ directory:
 ```bash
 cd
 cd hyperledger-on-kubernetes
-kubectl apply -f k8s/fabric-nlb-ca-org1.yaml
+kubectl apply -f k8s/fabric-nlb-notls-ca-org1.yaml
 kubectl apply -f k8s/fabric-nlb-workshop-remote-peer-michaelpeer1-org1.yaml
 ```
 

@@ -1,5 +1,13 @@
 # Troubleshooting
 
+## TLS
+To check the host name (common name) associated with your TLS cert, use openssl:
+
+```bash
+$ openssl x509 -noout -subject -in /opt/share/rca-data/tls/peer1-org1-client.crt
+subject= /C=US/ST=North Carolina/O=Hyperledger/OU=peer/OU=org1/CN=peer1-org1
+```
+
 ## Temp commands to use during troubleshooting
 
 switching to user
@@ -172,7 +180,11 @@ kubectl apply -f hyperledger-on-kubernetes/k8s/fabric-deployment-peer2-org2.yaml
 sleep 30
 kubectl get po -n org1
 kubectl get po -n org2
-kubectl apply -f hyperledger-on-kubernetes/k8s/fabric-deployment-test-fabric.yaml
+kubectl apply -f hyperledger-on-kubernetes/k8s/fabric-deployment-test-fabric-abac.yaml
+sleep 5
+kubectl apply -f hyperledger-on-kubernetes/k8s/fabric-deployment-test-fabric-marbles.yaml
+sleep 5
+kubectl apply -f hyperledger-on-kubernetes/k8s/fabric-deployment-test-fabric-marbles-workshop.yaml
 
 ## Start the individual steps
 
@@ -190,7 +202,9 @@ kubectl get po -n org1
 ## Cleanup
 cd /opt/share
 
-kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-test-fabric.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-test-fabric-marbles.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-test-fabric-marbles-workshop.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-test-fabric-abac.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-peer2-org2.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-peer1-org2.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-peer2-org1.yaml

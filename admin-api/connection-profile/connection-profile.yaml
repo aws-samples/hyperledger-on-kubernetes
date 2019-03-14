@@ -6,7 +6,7 @@ version: "1.0"
 channels:
   mychannel:
     orderers:
-      - orderer3-org0.org0
+      - orderer2-org0.org0
     peers:
       peer1-org1.org1:
         endorsingPeer: true
@@ -34,40 +34,40 @@ organizations:
       - ca-org2
 
 orderers:
-  orderer3-org0.org0:
-    url: grpc://a0eebf95f2c5611e9a64d021317b5dae-69f8a50dc211a97d.elb.ap-northeast-2.amazonaws.com:7050
+  orderer2-org0.org0:
+    url: grpcs://a9dff716c449411e98a5912c3d83c32b-514f2a8921318fea.elb.us-east-1.amazonaws.com:7050
     grpcOptions:
-      ssl-target-name-override: orderer3-org0.org0
+      ssl-target-name-override: orderer2-org0.org0
       verify: false
 
 peers:
   peer1-org1.org1:
-    url: grpc://a1bb96b882c5611e98aff0a4dfa905cc-b9da78e84c88d35f.elb.ap-northeast-2.amazonaws.com:7051
-    eventUrl: grpc://a1bb96b882c5611e98aff0a4dfa905cc-b9da78e84c88d35f.elb.ap-northeast-2.amazonaws.com:7052
+    url: grpcs://aaaf95968449411e98a5912c3d83c32b-8119d8db9f0e7a75.elb.us-east-1.amazonaws.com:7051
+    eventUrl: grpcs://aaaf95968449411e98a5912c3d83c32b-8119d8db9f0e7a75.elb.us-east-1.amazonaws.com:7052
     grpcOptions:
       ssl-target-name-override: peer1-org1.org1
       verify: false
   peer1-org2.org2:
-    url: grpc://a1bdc56882c5611e9a64d021317b5dae-b51ee6b4b1f7c0ef.elb.ap-northeast-2.amazonaws.com:7051
-    eventUrl: grpc://a1bdc56882c5611e9a64d021317b5dae-b51ee6b4b1f7c0ef.elb.ap-northeast-2.amazonaws.com:7052
+    url: grpcs://a9e20dfb8449411e9970d0a8c01b4fef-01329d1256e0c2d7.elb.us-east-1.amazonaws.com:7051
+    eventUrl: grpcs://a9e20dfb8449411e9970d0a8c01b4fef-01329d1256e0c2d7.elb.us-east-1.amazonaws.com:7052
     grpcOptions:
       ssl-target-name-override: peer1-org2.org2
       verify: false
 
 certificateAuthorities:
   ca-org1:
-    url: http://a9c6878e42e7611e98aff0a4dfa905cc-149eccc3da37b809.elb.ap-northeast-2.amazonaws.com:7054
+    url: https://aba3ed1b4460111e98a5912c3d83c32b-a7a3c74092ff6071.elb.us-east-1.amazonaws.com:7054
     httpOptions:
       verify: false
     registrar:
       - enrollId: admin-org1
         enrollSecret: admin-org1pw
-    caName: ica-notls-org1.org1
+    caName: ica-org1.org1
   ca-org2:
-    url: http://a9cb26e692e7611e98aff0a4dfa905cc-beb9a04e041c486c.elb.ap-northeast-2.amazonaws.com:7054
+    url: https://aac6dcc94449b11e9970d0a8c01b4fef-45111686d8f2dc4f.elb.us-east-1.amazonaws.com:7054
     httpOptions:
       verify: false
     registrar:
       - enrollId: admin-org2
         enrollSecret: admin-org2pw
-    caName: ica-notls-org2.org2
+    caName: ica-org2.org2

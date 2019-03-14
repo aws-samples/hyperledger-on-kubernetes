@@ -206,8 +206,8 @@ function chaincodeQuery {
    set +e
    log "Querying marbles chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_NAME' ..."
    cd /$DATA
-   peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["read_everything"]}' >& log.txt
-   cat log.txt
+   peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["read_everything"]}' >& log-marbles.txt
+   cat log-marbles.txt
    log "Successfully queried marbles chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_NAME' ..."
 }
 

@@ -42,3 +42,24 @@ orderer endpoint, and `kubectl describe` to see the details of a specific servic
 kubectl get svc -n org0
 kubectl describe svc orderer3-org0-nlb -n org0
 ```
+
+## Fabric CA Issues
+If you see the following error, make sure the Fabric CA name specified in the connection profile is equal to the name
+of the FABRIC_CA_SERVER_CA_NAME ENV variable in the K8s deployment yaml. This could be set to ica-notls-%ORG%.%DOMAIN% or
+ica-%ORG%.%DOMAIN% (this will be ica-notls-org1.org1 once updated).
+
+In this example, I am calling Fabric CA from the REST API using the details provided in the connection profile. The
+NLB is connecting to the Fabric CA that is NOT running TLS, and the name of this CA is different (ica-notls-org1.org1).
+
+```bash
+$ curl -s -X POST http://localhost:3000/users -H "content-type: application/x-www-form-urlencoded" -d 'username=michael&orgName=Org1'                                                                                         
+{"success":false,"message":"failed Error: Enrollment failed with errors [[{\"code\":19,\"message\":\"CA 'ica-org1.org1' does not exist\"}]]"}
+```
+
+One way to find the CA Name is to cURL the endpoint:
+
+```bash
+$ curl http://aac6dcc94449b11e9970d0a8c01b4fef-45111686d8f2dc4f.elb.us-east-1.amazonaws.com:7054/api/v1/cainfo
+{"result":{"CAName":"ica-notls-org1.org1","CAChain":"LS0tLS1CRUdJTiBDRVJUSUZJt...VktLS0tLQo=","Version":"1.4.0-rc1"}
+,"errors":[],"messages":[],"success":true}[ec2-user@ip-192-168-43-124 ~]$ 
+```
