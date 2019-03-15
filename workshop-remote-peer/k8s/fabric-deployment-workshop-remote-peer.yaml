@@ -72,7 +72,7 @@ spec:
           - name: CORE_VM_DOCKER_ATTACHSTDOUT
             value: "true"
           - name: FABRIC_LOGGING_SPEC
-            value: "peer=DEBUG"
+            value: "peer=INFO"
           - name: CORE_PEER_TLS_ENABLED
             value: "false"
           - name: CORE_PEER_TLS_CERT_FILE

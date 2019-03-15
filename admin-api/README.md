@@ -112,7 +112,7 @@ In the ENV variables below, ENDPOINT and PORT point to the API server:
 
 ```bash
 export ENDPOINT=localhost
-export PORT=4000
+export PORT=3000
 echo connecting to server: $ENDPOINT:$PORT
 
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/fabric/start -H 'content-type: application/json')
@@ -157,7 +157,13 @@ kubectl apply -f k8s/fabric-nlb-ca-org2.yaml
 
 ### Update the connection profile
 On the bastion, in the $REPO folder where the repo is cloned, update the connection profile to point to your Fabric network. You'll need to
-update the URLs for the peers, orderers and CA's. Point them to the NLB endpoints, which you can obtain as follows:
+update the URLs for the peers, orderers and CA's. Point them to the NLB endpoints, which you can obtain as follows.
+
+```bash
+cd ~
+cd hyperledger-on-kubernetes/admin-api/connection-profile
+vi connection-profile.yaml
+```
 
 Orderer. If you want to use a server-side TLS connection, point to orderer2-org0-nlb. If you prefer no TLS, point to the NLB endpoint for orderer3-org0-nlb:
 
@@ -212,3 +218,152 @@ rca-org2             NodePort       10.100.75.203    <none>                     
 
 ## Step 6 - using the API
 For information on how to run the API server and use the API, see the sample commands in the script [test.sh](./test.sh).
+
+## Step 7 - using the API to run an app
+In this step we will deploy chaincode using the API, then connect a REST API that invokes the chaincode to the Fabric network.
+This shows how to use an application against the Fabric network.
+
+We will deploy the Non-profit chaincode using the Admin API on the bastion host, then we will run the associated REST API 
+on the Cloud9 server.
+
+The non-profit chaincode can be found in this repo: https://github.com/aws-samples/non-profit-blockchain
+
+On the bastion host, with the admin API running:
+
+```bash
+cd ~
+git clone https://github.com/aws-samples/non-profit-blockchain.git
+mkdir -p /opt/share/rca-scripts/chaincode/ngo
+cp non-profit-blockchain/ngo-chaincode/src/* /opt/share/rca-scripts/chaincode/ngo/
+```
+
+Install the chaincode:
+
+```bash
+export ENDPOINT=localhost
+export PORT=3000
+echo connecting to server: $ENDPOINT:$PORT
+ORG=org1
+CHAINCODEVERSION=1;
+CHAINCODELANGUAGE=node
+CHAINCODENAME=ngo
+CHANNELNAME=mychannel
+curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodelanguage":"'"${CHAINCODELANGUAGE}"'","org":"'"${ORG}"'"}'
+```
+
+Instantiate the chaincode:
+
+```bash
+curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/instantiate -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodeinit":["'"init"'"],"orgs":["org1"]}'
+```
+
+### Start the REST API on the Cloud9 instance.
+On the Cloud9 instance.
+
+To run the REST API, follow the instructions here: 
+
+https://github.com/aws-samples/non-profit-blockchain/tree/master/ngo-rest-api
+
+Ignore the following instructions, under pre-requisites:
+
+* You will be on Cloud9, so no need to SSH anywhere.
+* No need to 'source fabric-exports.sh'
+
+#### Updating the connection profile - step 3
+The connection profile will not be populated as described in step 3. Populate it using the template below - just copy and paste the contents:
+
+```bash
+vi ~/non-profit-blockchain/tmp/connection-profile/ngo-connection-profile.yaml
+```
+
+Update the peer, orderer and CA endpoints following the same steps as Step 5 above. The main difference between this 
+profile and the one used by Admin API, is that Admin API runs on the bastion so the paths to the TLS certs are different:
+
+```bash
+name: "ngo"
+x-type: "hlfv1"
+description: "NGO Network"
+version: "1.0"
+
+channels:
+  mychannel:
+    orderers:
+      - orderer.com
+    peers:
+      peer1:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+    chaincodes:
+      - marbles-workshop:v1
+
+organizations:
+  Org1:
+    mspid: org1MSP
+    peers:
+      - peer1
+    certificateAuthorities:
+      - ica-org1.org1
+
+orderers:
+  orderer.com:
+    url: grpcs://a973694bc461111e98a5912c3d83c32b-90772da9551b2646.elb.us-east-1.amazonaws.com:7050
+    tlsCACerts:
+      path: /home/ec2-user/tls/orderer.pem
+
+peers:
+  peer1:
+    url: grpcs://aa430c021461111e98a5912c3d83c32b-d3323727d2efe7de.elb.us-east-1.amazonaws.com:7051
+    eventUrl: grpcs://aa430c021461111e98a5912c3d83c32b-d3323727d2efe7de.elb.us-east-1.amazonaws.com:7052
+    tlsCACerts:
+      path: /home/ec2-user/tls/peer.pem
+
+certificateAuthorities:
+  ica-org1.org1:
+    url: https://a1f2605a346d111e98a5912c3d83c32b-64e4ffbc4b786081.elb.us-east-1.amazonaws.com:7054
+    httpOptions:
+      verify: false
+    caName: ica-org1.org1
+    tlsCACerts:
+      path: /home/ec2-user/tls/peer.pem
+
+```
+
+#### Populating the certs
+Since you are running on Cloud9, you will need the TLS certificates in order to connect to the orderer, CA and peer endpoints.
+
+```bash
+mkdir ~/tls
+```
+
+Copy and paste the contents of the TLS certs from the bastion host as follows:
+
+* For the orderer, copy contents of `/opt/share/rca-data/org0-ca-chain.pem` and paste to `/home/ec2-user/tls/orderer.pem`
+* For the peer, copy contents `/opt/share/rca-data/org1-ca-chain.pem` and paste to `/home/ec2-user/tls/peer.pem`
+* For the CA, use the same cert as the peer node (they are in the same org)
+
+If you are adding additional peers or CA's, copy the appropriate TLS cert based on the org they belong to.
+
+#### Editing the admin username/password
+
+Update the admin username & password in this file. This should be the admin for org1, which is defined in /scripts/env.sh, and
+should default to `admin-org1/admin-org1pw`
+
+```bash
+cd ~/non-profit-blockchain/ngo-rest-api
+vi config.json
+```
+
+#### Continue with steps 4 & 5
+
+## Troubleshooting
+
+`Error: 2 UNKNOWN: access denied: channel [mychannel] creator org [org1MSP]`
+
+The identities used by the REST API are being cached. Remove the cache directories:
+
+```
+rm -rf fabric-client-kv-org1/
+rm -rf /tmp/fabric-client-kv-org1/
+```

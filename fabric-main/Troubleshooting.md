@@ -562,3 +562,37 @@ orderer2-org0-nlb   LoadBalancer   10.100.150.227   af8594074a85f11e891780a7ea23
 orderer3-org0       NodePort       10.100.162.95    <none>                                                                          7050:30742/TCP   44s
 orderer3-org0-nlb   LoadBalancer   10.100.132.158   af87e392da85f11e8a7b906745db4638-24491bef4ea44fdd.elb.us-west-2.amazonaws.com   7050:32712/TCP   1m
 rca-org0            NodePort       10.100.69.226    <none>                                                                          7054:30700/TCP   3m
+
+
+##### 
+The script gen-channel-artifacts was unable to generate the genesis block. The error was cryptic. I debugged this by
+removing lines from configtx.yaml until I found the offender was org2. It turned out that the admin cert for org2 
+had not been generated, i.e. it did not exist in directory: /data/orgs/org1/admin/msp/admincerts. This led me back
+to the register-org.sh script, which showed an error when trying to generate the admin cert. I re-ran the script and
+it worked fine. Can't explain why it failed the first time and succeeded the second time.
+
+```bash
+2019-03-14 06:56:23.254 UTC [common.tools.configtxgen] main -> WARN 001 Omitting the channel ID for configtxgen for output operations is deprecated.  Explicitly passing the channel ID will be required in the future, defaulting to 'testchainid'.
+2019-03-14 06:56:23.254 UTC [common.tools.configtxgen] main -> INFO 002 Loading configuration
+2019-03-14 06:56:23.264 UTC [common.tools.configtxgen.localconfig] completeInitialization -> INFO 003 orderer type: kafka
+2019-03-14 06:56:23.264 UTC [common.tools.configtxgen.localconfig] Load -> INFO 004 Loaded configuration: /etc/hyperledger/fabric/configtx.yaml
+2019-03-14 06:56:23.275 UTC [common.tools.configtxgen.localconfig] completeInitialization -> INFO 005 orderer type: kafka
+2019-03-14 06:56:23.275 UTC [common.tools.configtxgen.localconfig] LoadTopLevel -> INFO 006 Loaded configuration: /etc/hyperledger/fabric/configtx.yaml
+2019-03-14 06:56:23.373 UTC [common.tools.configtxgen] func1 -> PANI 007 proto: Marshal called with nil
+panic: proto: Marshal called with nil [recovered]
+        panic: proto: Marshal called with nil
+
+goroutine 1 [running]:
+github.com/hyperledger/fabric/vendor/go.uber.org/zap/zapcore.(*CheckedEntry).Write(0xc0000f5a20, 0x0, 0x0, 0x0)
+        /opt/gopath/src/github.com/hyperledger/fabric/vendor/go.uber.org/zap/zapcore/entry.go:229 +0x515
+github.com/hyperledger/fabric/vendor/go.uber.org/zap.(*SugaredLogger).log(0xc00000e248, 0xc00021f704, 0xc0003008a0, 0x1e, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0)
+        /opt/gopath/src/github.com/hyperledger/fabric/vendor/go.uber.org/zap/sugar.go:234 +0xf6
+github.com/hyperledger/fabric/vendor/go.uber.org/zap.(*SugaredLogger).Panicf(0xc00000e248, 0xc0003008a0, 0x1e, 0x0, 0x0, 0x0)
+        /opt/gopath/src/github.com/hyperledger/fabric/vendor/go.uber.org/zap/sugar.go:159 +0x79
+github.com/hyperledger/fabric/common/flogging.(*FabricLogger).Panic(0xc00000e250, 0xc00021f818, 0x1, 0x1)
+        /opt/gopath/src/github.com/hyperledger/fabric/common/flogging/zap.go:73 +0x75
+main.main.func1()
+        /opt/gopath/src/github.com/hyperledger/fabric/common/tools/configtxgen/main.go:250 +0x1a9
+panic(0xd8c500, 0xc0000670f0)
+        /opt/go/src/runtime/panic.go:513 +0x1b9
+```

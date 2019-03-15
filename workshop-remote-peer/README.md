@@ -994,6 +994,21 @@ To describe a pod and see its associated details:
 kubectl describe po <pod name> -n org1
 ```
 
+### Debugging marbles errors
+If you see something like the error below, it could be that marbles is using a previously cached identity:
+
+```bash
+error: [client-utils.js]: sendPeersProposal - Promise is rejected: Error: 2 UNKNOWN: access denied: channel [mychannel] creator org [org1MSP]
+    at new createStatusError (/home/ec2-user/marbles/node_modules/grpc/src/client.js:64:15)
+    at /home/ec2-user/marbles/node_modules/grpc/src/client.js:590:15
+```
+
+You can remove the cached identities as follows:
+
+```bash
+ls /home/ec2-user/.hfc-key-store
+rm -rf /home/ec2-user/.hfc-key-store
+```
 
 
 

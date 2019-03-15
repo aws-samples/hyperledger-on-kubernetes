@@ -35,38 +35,39 @@ organizations:
 
 orderers:
   orderer2-org0.org0:
-    url: grpcs://a9dff716c449411e98a5912c3d83c32b-514f2a8921318fea.elb.us-east-1.amazonaws.com:7050
-    grpcOptions:
-      ssl-target-name-override: orderer2-org0.org0
-      verify: false
+    url: grpcs://a973694bc461111e98a5912c3d83c32b-90772da9551b2646.elb.us-east-1.amazonaws.com:7050
+    tlsCACerts:
+      path: /opt/share/rca-data/org0-ca-chain.pem
 
 peers:
   peer1-org1.org1:
-    url: grpcs://aaaf95968449411e98a5912c3d83c32b-8119d8db9f0e7a75.elb.us-east-1.amazonaws.com:7051
-    eventUrl: grpcs://aaaf95968449411e98a5912c3d83c32b-8119d8db9f0e7a75.elb.us-east-1.amazonaws.com:7052
-    grpcOptions:
-      ssl-target-name-override: peer1-org1.org1
-      verify: false
+    url: grpcs://aa430c021461111e98a5912c3d83c32b-d3323727d2efe7de.elb.us-east-1.amazonaws.com:7051
+    eventUrl: grpcs://aa430c021461111e98a5912c3d83c32b-d3323727d2efe7de.elb.us-east-1.amazonaws.com:7052
+    tlsCACerts:
+      path: /opt/share/rca-data/org1-ca-chain.pem
   peer1-org2.org2:
-    url: grpcs://a9e20dfb8449411e9970d0a8c01b4fef-01329d1256e0c2d7.elb.us-east-1.amazonaws.com:7051
-    eventUrl: grpcs://a9e20dfb8449411e9970d0a8c01b4fef-01329d1256e0c2d7.elb.us-east-1.amazonaws.com:7052
-    grpcOptions:
-      ssl-target-name-override: peer1-org2.org2
-      verify: false
+    url: grpcs://aa4548d2e461111e9970d0a8c01b4fef-c698ed15f31fe234.elb.us-east-1.amazonaws.com:7051
+    eventUrl: grpcs://aa4548d2e461111e9970d0a8c01b4fef-c698ed15f31fe234.elb.us-east-1.amazonaws.com:7052
+    tlsCACerts:
+      path: /opt/share/rca-data/org2-ca-chain.pem
 
 certificateAuthorities:
   ca-org1:
-    url: https://aba3ed1b4460111e98a5912c3d83c32b-a7a3c74092ff6071.elb.us-east-1.amazonaws.com:7054
+    url: https://a1f2605a346d111e98a5912c3d83c32b-64e4ffbc4b786081.elb.us-east-1.amazonaws.com:7054
     httpOptions:
       verify: false
+    tlsCACerts:
+      path: /opt/share/rca-data/org1-ca-chain.pem
     registrar:
       - enrollId: admin-org1
         enrollSecret: admin-org1pw
     caName: ica-org1.org1
   ca-org2:
-    url: https://aac6dcc94449b11e9970d0a8c01b4fef-45111686d8f2dc4f.elb.us-east-1.amazonaws.com:7054
+    url: https://a1f4c24dd46d111e9970d0a8c01b4fef-42cc3bf7ea503e0b.elb.us-east-1.amazonaws.com:7054
     httpOptions:
       verify: false
+    tlsCACerts:
+      path: /opt/share/rca-data/org2-ca-chain.pem
     registrar:
       - enrollId: admin-org2
         enrollSecret: admin-org2pw

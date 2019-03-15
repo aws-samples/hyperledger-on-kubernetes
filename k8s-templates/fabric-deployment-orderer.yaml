@@ -43,6 +43,8 @@ spec:
             value: /etc/hyperledger/orderer
           - name: FABRIC_CA_CLIENT_TLS_CERTFILES
             value: /data/%ORG%-ca-chain.pem
+          - name: FABRIC_LOGGING_SPEC
+            value: "peer=INFO"
           - name: ENROLLMENT_URL
             value: https://orderer%NUM%-%ORG%:orderer%NUM%-%ORG%pw@ica-%ORG%.%DOMAIN%:7054
           - name: ORDERER_HOME
