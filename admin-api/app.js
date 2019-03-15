@@ -126,7 +126,7 @@ app.get('/users/admin', awaitHandler(async (req, res) => {
 	logger.info('GET on /users/admin. Params: ' + JSON.stringify(req.query));
 	let args = req.query;
     let response = await gateway.enrollAdminForOrg(args);
-    await gateway.adminGateway();
+    //await gateway.adminGateway();
     res.json({success: true, message: response});
 	logger.info('##### GET on /users/admin - completed');
 }));

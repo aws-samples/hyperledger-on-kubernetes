@@ -13,6 +13,8 @@ export ENDPOINT=localhost
 export PORT=3000
 echo connecting to server: $ENDPOINT:$PORT
 
+# Note, for these /users based calls to work, you must have updated the connection-profile. The Admin API needs to
+# connect to the Fabric network to carry out these function calls
 # Get the admin user
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/users/admin?org=org1)
 echo $response

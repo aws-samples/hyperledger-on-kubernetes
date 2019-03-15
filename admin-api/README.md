@@ -100,7 +100,7 @@ Start the Node.js API server in a Cloud9 terminal session. From Cloud9 SSH into 
 ```bash
 nvm use lts/carbon
 cd ~/hyperledger-on-kubernetes/admin-api
-node app.js
+./start.sh
 ```
 
 ## Step 4 - start the Fabric network

@@ -564,7 +564,7 @@ orderer3-org0-nlb   LoadBalancer   10.100.132.158   af87e392da85f11e8a7b906745db
 rca-org0            NodePort       10.100.69.226    <none>                                                                          7054:30700/TCP   3m
 
 
-##### 
+##### Could not generate genesis block
 The script gen-channel-artifacts was unable to generate the genesis block. The error was cryptic. I debugged this by
 removing lines from configtx.yaml until I found the offender was org2. It turned out that the admin cert for org2 
 had not been generated, i.e. it did not exist in directory: /data/orgs/org1/admin/msp/admincerts. This led me back
@@ -595,4 +595,35 @@ main.main.func1()
         /opt/gopath/src/github.com/hyperledger/fabric/common/tools/configtxgen/main.go:250 +0x1a9
 panic(0xd8c500, 0xc0000670f0)
         /opt/go/src/runtime/panic.go:513 +0x1b9
+```
+
+
+#### Pods being evicted
+On occasion the peer pods are evicted. When I investigated I noticed this:
+
+```bash
+$ kubectl describe po peer1-org1-547b5799b5-wsdlw  -n org1                                                                                                                                              
+Name:           peer1-org1-547b5799b5-wsdlw
+.
+.
+Events:
+  Type     Reason   Age   From                                   Message
+  ----     ------   ----  ----                                   -------
+  Warning  Evicted  27m   kubelet, ip-192-168-78-7.ec2.internal  The node was low on resource: imagefs.
+  Normal   Killing  27m   kubelet, ip-192-168-78-7.ec2.internal  Killing container with id docker://couchdb:Need to kill Pod
+  Normal   Killing  27m   kubelet, ip-192-168-78-7.ec2.internal  Killing container with id docker://peer1-org1:Need to kill Pod
+
+```
+
+Turns out the Fabric log files, which are written to stderr, were becoming huge and causing the pod to run low on resources.
+I changed the log entries to INFO instead of DEBUG.
+
+This manifested itself as what seemed like a completely unrelated error. Fabric loves to use this error message for all 
+sorts of things. In this case it was because the peer had been evicted, a new peer started in its place, the NLB was now 
+routing traffic to the new peer, but the new peer did not belong to any channels, nor have any chaincode installed.
+
+```bash
+[2019-03-15T08:31:50.026] [ERROR] Invoke - ##### invokeChaincode - received unsuccessful proposal response
+[2019-03-15T08:31:50.027] [INFO] Invoke - ##### invokeChaincode - Failed to send Proposal and receive all good ProposalResponse. Status code: undefined, 2 UNKNOWN: access denied: channel [mychannel] creator org [org1MSP]
+Error: 2 UNKNOWN: access denied: channel [mychannel] creator org [org1MSP]
 ```

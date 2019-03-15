@@ -69,7 +69,7 @@ async function enrollAdminForOrg(args) {
         logger.info('Successfully enrolled admin user "admin" and imported it into the wallet');
         logger.info('Wallet identities: ' + util.inspect(await wallet.list()));
         logger.info('Wallet admin exists: ' + util.inspect(await wallet.exists('admin')));
-        return {"status":200,"message":"Admin user enrolled and set to the current user for org: " + org};
+        return {"status":200,"message":"Admin user created, enrolled and set to the current user for org: " + org};
     } catch (error) {
         logger.error(`Failed to enroll admin user "admin": ${error}`);
         throw error;
