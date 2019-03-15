@@ -44,16 +44,17 @@ let cliCommand = "kubectl exec -i $(kubectl get pod -l name=cli -o jsonpath=\"{.
 async function enrollAdminForOrg(args) {
     try {
         let org = args['org'];
-        logger.info('Enrolling admin for org: ' + org);
+        let username = 'admin-' + org;
+        logger.info('Enrolling username: ' + username + ' for org: ' + org);
         const walletPath = path.join(process.cwd(), 'wallet-' + org);
         const wallet = new FileSystemWallet(walletPath);
         // Check to see if we've already enrolled the admin user.
-        const adminExists = await wallet.exists('admin');
+        const adminExists = await wallet.exists(username);
         if (adminExists) {
-            logger.info('An identity for the admin user "admin" already exists in the wallet for org: ' + org);
+            logger.info('An identity for the admin user ' + username + ' already exists in the wallet for org: ' + org);
             logger.info('Wallet identities: ' + util.inspect(await wallet.list()));
-            logger.info('Wallet admin exists: ' + util.inspect(await wallet.exists('admin')));
-            return {"status":200,"message":"Admin user enrolled and set to the current user"};
+            logger.info('Wallet admin exists: ' + util.inspect(await wallet.exists(username)));
+            return {"status":200,"message":"Admin user " + username + " enrolled and set to the current user"};
         }
 
         // Create a new CA client for interacting with the CA.
@@ -65,13 +66,13 @@ async function enrollAdminForOrg(args) {
         const enrollment = await ca.enroll({ enrollmentID: ccp.certificateAuthorities['ca-' + org].registrar[0].enrollId, enrollmentSecret: ccp.certificateAuthorities['ca-' + org].registrar[0].enrollSecret });
         const identity = X509WalletMixin.createIdentity(org + 'MSP', enrollment.certificate, enrollment.key.toBytes());
         logger.info(`Wallet path: ${walletPath}`);
-        await wallet.import('admin', identity);
-        logger.info('Successfully enrolled admin user "admin" and imported it into the wallet');
+        await wallet.import(username, identity);
+        logger.info('Successfully enrolled admin user ' + username + ' and imported it into the wallet');
         logger.info('Wallet identities: ' + util.inspect(await wallet.list()));
-        logger.info('Wallet admin exists: ' + util.inspect(await wallet.exists('admin')));
-        return {"status":200,"message":"Admin user created, enrolled and set to the current user for org: " + org};
+        logger.info('Wallet admin exists: ' + util.inspect(await wallet.exists(username)));
+        return {"status":200,"message":"Admin user " + username + ", enrolled and set to the current user for org: " + org};
     } catch (error) {
-        logger.error(`Failed to enroll admin user "admin": ${error}`);
+        logger.error(`Failed to enroll admin user ${username}: ${error}`);
         throw error;
     }
 }
