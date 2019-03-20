@@ -6,15 +6,19 @@ export HFC_LOGGING='{"debug":"console","info":"console"}'
 # Start the app. SSH into the bastion host in one Cloud9 session
 nvm use lts/carbon
 cd ~/hyperledger-on-kubernetes/admin-api
-node app.js
+./start.sh
 
 # In another Cloud9 session, SSH into the bastion host and run the test cases
 export ENDPOINT=localhost
 export PORT=3000
 echo connecting to server: $ENDPOINT:$PORT
 
+########################################################################################################################
+# Optional commands - the /users functions are optional, and require a connection profile to be configured
+#
 # Note, for these /users based calls to work, you must have updated the connection-profile. The Admin API needs to
-# connect to the Fabric network to carry out these function calls
+# connect to the Fabric network to carry out these function calls. See the README for details.
+#
 # Get the admin user
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/users/admin?org=org1)
 echo $response
@@ -29,6 +33,7 @@ ORG=org1
 echo
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/users -H 'content-type: application/json' -d '{"username":"'"${USERID}"'","org":"'"${ORG}"'"}')
 echo $response
+########################################################################################################################
 
 # Print out the orgs and profiles contained in configtx.yaml and env.sh
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/env/orgs)
@@ -77,6 +82,11 @@ echo $response
 # Add a new org
 #
 # To add a new org the steps should be carried out in this order
+# It is possible that the port numbers used by the new org overlap ports already in use. This should be rare, as I've
+# added code in genPeers in fabric-main/gen-fabric-functions.sh to handle this, but in some cases an NLB will be created
+# with an overlapping port number. I could fix this by scanning the ports used by K8s, but haven't had time to do so.
+# If you encounter a 'port in use' issue, just manually edit the associated K8s yaml file and change the port number
+# manually.
 ########################################################################################################################
 ########################################################################################################################
 
@@ -175,6 +185,8 @@ CHAINCODENAME=marblescc;
 CHAINCODEVERSION=1;
 CHAINCODELANGUAGE=golang;
 ORG=org1
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodelanguage":"'"${CHAINCODELANGUAGE}"'","org":"'"${ORG}"'"}')
+ORG=org4
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/channels/chaincode/install -H 'content-type: application/json' -d '{"channelname":"'"${CHANNELNAME}"'","chaincodename":"'"${CHAINCODENAME}"'","chaincodeversion":"'"${CHAINCODEVERSION}"'","chaincodelanguage":"'"${CHAINCODELANGUAGE}"'","org":"'"${ORG}"'"}')
 echo $response
 

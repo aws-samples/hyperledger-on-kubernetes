@@ -357,13 +357,21 @@ vi config.json
 
 #### Continue with steps 4 & 5
 
-## Troubleshooting
+# Troubleshooting
 
+## access denied
 `Error: 2 UNKNOWN: access denied: channel [mychannel] creator org [org1MSP]`
 
-The identities used by the REST API are being cached. Remove the cache directories:
+Check that the peer pods are not being evicted. I had issues where the peer pods were evicted. See fabric-main/Troubleshooting.md
 
-```
-rm -rf fabric-client-kv-org1/
-rm -rf /tmp/fabric-client-kv-org1/
+## Authentication failure
+
+[2019-03-18T03:19:18.079] [ERROR] Connection - ##### getRegisteredUser - Failed to get registered user: michael with error: Error: fabric-ca request register failed with errors [[{"code":20,"message":"Authentication failure"}]]
+
+Use the start script to start the REST API server. The start script removes the cached keys:
+
+```bash
+cd ~/non-profit-blockchain/ngo-rest-api
+nvm use lts/carbon
+./start.sh
 ```

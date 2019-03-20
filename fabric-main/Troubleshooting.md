@@ -616,7 +616,8 @@ Events:
 ```
 
 Turns out the Fabric log files, which are written to stderr, were becoming huge and causing the pod to run low on resources.
-I changed the log entries to INFO instead of DEBUG.
+I changed the log entries to INFO instead of DEBUG. I also increased the size of the volume attached to the peer nodes,
+from 20G to 200G.
 
 This manifested itself as what seemed like a completely unrelated error. Fabric loves to use this error message for all 
 sorts of things. In this case it was because the peer had been evicted, a new peer started in its place, the NLB was now 
