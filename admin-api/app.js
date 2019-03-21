@@ -266,9 +266,7 @@ app.post('/users', awaitHandler(async (req, res) => {
 
 app.post('/marbles', awaitHandler(async (req, res) => {
 	logger.info('================ POST on Marbles');
-	logger.info('##### POST on Marbles - body : ' + util.inspect(req.body));
-	logger.info('##### POST on Marbles - params : ' + util.inspect(req.params));
-	var args = req.body;
+	var args = ["m777777777771", "red", "35", "o8888888888888888881", "United Marbles"];
 	var fcn = "init_marble";
 
     logger.info('##### POST on Marbles - username : ' + username);
