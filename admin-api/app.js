@@ -42,7 +42,7 @@ const uuidv4 = require('uuid/v4');
 var connection = require('./connection.js');
 var gateway = require('./gateway.js');
 var query = require('./query.js');
-//var invoke = require('./invoke.js');
+var invoke = require('./invoke.js');
 //var blockListener = require('./blocklistener.js');
 
 hfc.addConfigFile('config.json');
@@ -204,6 +204,8 @@ app.get('/networks', awaitHandler(async (req, res) => {
 /************************************************************************************
  * Chaincode methods. These are here to test the connection profile, to make sure
  * the REST API is able to interact with the chaincode
+ *
+ * The /users method below must be called before this /marbles function
  ************************************************************************************/
 
 // Query the chaincode
@@ -253,6 +255,30 @@ app.post('/users', awaitHandler(async (req, res) => {
 		logger.error('##### POST on Users - Failed to register the username %s for organization %s with::%s', username, orgName, response);
 		res.json({success: false, message: response});
 	}
+}));
+
+/************************************************************************************
+ * Chaincode methods. These are here to test the connection profile, to make sure
+ * the REST API is able to interact with the chaincode
+ *
+ * The /users method below must be called before this /marbles function
+ ************************************************************************************/
+
+app.post('/marbles', awaitHandler(async (req, res) => {
+	logger.info('================ POST on Marbles');
+	var args = req.body;
+	var fcn = "init_marble";
+
+    logger.info('##### POST on Marbles - username : ' + username);
+	logger.info('##### POST on Marbles - userOrg : ' + orgName);
+	logger.info('##### POST on Marbles - channelName : ' + channelName);
+	logger.info('##### POST on Marbles - chaincodeName : ' + chaincodeName);
+	logger.info('##### POST on Marbles - fcn : ' + fcn);
+	logger.info('##### POST on Marbles - args : ' + JSON.stringify(args));
+	logger.info('##### POST on Marbles - peers : ' + peers);
+
+	let message = await invoke.invokeChaincode(peers, channelName, chaincodeName, args, fcn, username, orgName);
+	res.send(message);
 }));
 
 /************************************************************************************

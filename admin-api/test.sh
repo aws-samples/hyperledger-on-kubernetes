@@ -20,7 +20,8 @@ echo connecting to server: $ENDPOINT:$PORT
 #
 # Note, for these /users based calls to work, you must have updated the connection-profile. The Admin API needs to
 # connect to the Fabric network to carry out these function calls. See the README for details.
-#
+########################################################################################################################
+
 # Get the admin user
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/users/admin?org=org1)
 echo $response
@@ -36,8 +37,14 @@ echo
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/users -H 'content-type: application/json' -d '{"username":"'"${USERID}"'","org":"'"${ORG}"'"}')
 echo $response
 
-# Query the chaincode. Uses the connection profile to connect to the Fabric network.
+# Query the chaincode. Uses the connection profile to connect to the Fabric network. You must call /users above to register
+# a Fabric user before calling this function. This function queries the marbles chaincode
 response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/marbles)
+echo $response
+
+# Invoke the chaincode. Uses the connection profile to connect to the Fabric network. You must call /users above to register
+# a Fabric user before calling this function. This function invokes the chaincode to add a marble
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/marbles -H 'content-type: application/json' -d '{"Args":["init_marble","m777777777771", "red", "35", "o7777777777777777771", "United Marbles"]}')
 echo $response
 
 ########################################################################################################################
