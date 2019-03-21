@@ -274,7 +274,7 @@ app.post('/marbles', awaitHandler(async (req, res) => {
 	logger.info('##### POST on Marbles - channelName : ' + channelName);
 	logger.info('##### POST on Marbles - chaincodeName : ' + chaincodeName);
 	logger.info('##### POST on Marbles - fcn : ' + fcn);
-	logger.info('##### POST on Marbles - args : ' + JSON.stringify(args));
+	logger.info('##### POST on Marbles - args : ' + args);
 	logger.info('##### POST on Marbles - peers : ' + peers);
 
 	let message = await invoke.invokeChaincode(peers, channelName, chaincodeName, args, fcn, username, orgName);
