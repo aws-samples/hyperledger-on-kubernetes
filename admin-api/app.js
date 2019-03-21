@@ -237,7 +237,7 @@ app.post('/users', awaitHandler(async (req, res) => {
 	logger.info('================ POST on endpoint /users');
 	let args = req.body;
 	username = req.body.username;
-	orgName = req.body.orgName;
+	orgName = req.body.org;
 	logger.info('##### POST on Users- args : ' + JSON.stringify(args));
 	let response = await connection.getRegisteredUser(args, true);
 	logger.info('##### POST on Users - returned from registering the username %s for organization %s', username, orgName);
