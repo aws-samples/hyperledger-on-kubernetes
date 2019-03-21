@@ -23,6 +23,7 @@ const logger = Client.getLogger('invoke');
 var invokeChaincode = async function(peerNames, channelName, chaincodeName, args, fcn, username, orgName) {
 	logger.info(util.format('\n============ invokeChaincode - chaincode %s, function %s, on the channel \'%s\' for org: %s\n',
 		chaincodeName, fcn, channelName, orgName));
+	logger.info('##### invokeChaincode - arguments %s', util.inspect(args));
 	var error_message = null;
 	var txIdAsString = null;
 	try {
