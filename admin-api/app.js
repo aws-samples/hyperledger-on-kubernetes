@@ -41,7 +41,7 @@ const uuidv4 = require('uuid/v4');
 
 var connection = require('./connection.js');
 var gateway = require('./gateway.js');
-//var query = require('./query.js');
+var query = require('./query.js');
 //var invoke = require('./invoke.js');
 //var blockListener = require('./blocklistener.js');
 
@@ -199,6 +199,29 @@ app.get('/networks', awaitHandler(async (req, res) => {
     let response = await gateway.listNetwork();
     res.json({success: true, message: response});
 	logger.info('##### GET on networks - completed');
+}));
+
+/************************************************************************************
+ * Chaincode methods. These are here to test the connection profile, to make sure
+ * the REST API is able to interact with the chaincode
+ ************************************************************************************/
+
+// Query the chaincode
+app.get('/marbles', awaitHandler(async (req, res) => {
+	logger.info('================ GET on Marbles');
+	let args = {};
+	let fcn = "read_everything";
+
+    logger.info('##### GET on Donor - username : ' + username);
+	logger.info('##### GET on Donor - userOrg : ' + orgName);
+	logger.info('##### GET on Donor - channelName : ' + channelName);
+	logger.info('##### GET on Donor - chaincodeName : ' + chaincodeName);
+	logger.info('##### GET on Donor - fcn : ' + fcn);
+	logger.info('##### GET on Donor - args : ' + JSON.stringify(args));
+	logger.info('##### GET on Donor - peers : ' + peers);
+
+    let message = await query.queryChaincode(peers, channelName, chaincodeName, args, fcn, username, orgName);
+ 	res.send(message);
 }));
 
 ///////////////////////////////////////////////////////////////////////////////

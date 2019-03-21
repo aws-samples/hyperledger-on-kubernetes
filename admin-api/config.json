@@ -2,7 +2,7 @@
     "host":"localhost",
     "port":"3000",
     "channelName":"mychannel",
-    "chaincodeName":"abaccc",
+    "chaincodeName":"marblescc",
     "eventWaitTime":"30000",
     "hfc-logging": "{'debug':'console', 'info':'console'}",
     "datapath": "/opt/share/rca-data/",

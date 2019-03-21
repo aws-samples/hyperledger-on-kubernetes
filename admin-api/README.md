@@ -220,6 +220,8 @@ rca-org2             NodePort       10.100.75.203    <none>                     
 For information on how to run the API server and use the API, see the sample commands in the script [test.sh](./test.sh).
 
 ## Step 7 - using the API to run an app
+NOTE: this will NOT work if you are running the EKS worker nodes in private subnets.
+
 In this step we will deploy chaincode using the API, then connect a REST API that invokes the chaincode to the Fabric network.
 This shows how to use an application against the Fabric network.
 

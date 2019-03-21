@@ -210,9 +210,14 @@ kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-peer1-org2.yam
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-peer2-org1.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-peer1-org1.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-orderer1-org0.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-orderer2-org0.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-orderer3-org0.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-register-orderer-org0.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-register-peer-org1.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-register-peer-org2.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-register-org-org0.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-register-org-org1.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-register-org-org2.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-channel-artifacts.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-ica-org0.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-ica-org1.yaml
@@ -222,6 +227,17 @@ kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-rca-org0.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-rca-org1.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-rca-org2.yaml
 sleep 5
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-nlb-anchor-peer1-org1.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-nlb-anchor-peer1-org2.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-nlb-ca-org0.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-nlb-ca-org1.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-nlb-ca-org2.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-nlb-notls-ca-org0.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-nlb-notls-ca-org1.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-nlb-notls-ca-org2.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-nlb-orderer1-org0.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-nlb-orderer2-org0.yaml
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-nlb-orderer3-org0.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-pvc-rca-scripts-org0.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-pvc-rca-scripts-org1.yaml
 kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-pvc-rca-scripts-org2.yaml
@@ -597,6 +613,41 @@ panic(0xd8c500, 0xc0000670f0)
         /opt/go/src/runtime/panic.go:513 +0x1b9
 ```
 
+To recreate the certs for an org, you'll need to delete the existing cert directory before running the register pod:
+
+```bash
+sudo rm -rf /opt/share/rca-data/orgs/org0
+```
+I delete the register deployment and run ./start-fabric.sh again.
+
+```bash
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-register-org-org0.yaml 
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-register-orderer-org0.yaml 
+```
+
+Then rerun fabric-start.sh:
+
+```bash
+cd ~
+cd hyperledger-on-kubernetes/fabric-main
+./start-fabric.sh
+```
+##### Orderer pods not starting
+
+A 'kubectl logs' on the orderer shows this:
+
+```bash
+##### 2019-03-20 09:43:24 copyAdminCert - copying '/data/orgs/org0/msp/admincerts/cert.pem' to '/etc/hyperledger/orderer/msp/admincerts'
+cp: cannot stat '/data/orgs/org0/msp/admincerts/cert.pem': No such file or directory
+```
+I follow the same steps as the issue above (it's the same issue). except I also delete and restart the orderers:
+
+```bash
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-orderer1-org0.yaml 
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-orderer2-org0.yaml 
+kubectl delete -f hyperledger-on-kubernetes/k8s/fabric-deployment-orderer3-org0.yaml 
+```
+
 
 #### Pods being evicted
 On occasion the peer pods are evicted. When I investigated I noticed this:
@@ -615,9 +666,9 @@ Events:
 
 ```
 
-Turns out the Fabric log files, which are written to stderr, were becoming huge and causing the pod to run low on resources.
-I changed the log entries to INFO instead of DEBUG. I also increased the size of the volume attached to the peer nodes,
-from 20G to 200G.
+imagefs is where the Docker images and read-only filesystem is stored. Downloading too many images will cause this to exceed
+capacity. I  increased the size of the volume attached to the peer nodes, from 20G to 200G. Another alternative is to
+configure the eviction policy in K8s.
 
 This manifested itself as what seemed like a completely unrelated error. Fabric loves to use this error message for all 
 sorts of things. In this case it was because the peer had been evicted, a new peer started in its place, the NLB was now 
