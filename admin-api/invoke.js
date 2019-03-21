@@ -49,7 +49,7 @@ var invokeChaincode = async function(peerNames, channelName, chaincodeName, args
 			targets: peerNames,
 			chaincodeId: chaincodeName,
 			fcn: fcn,
-			args: args,
+			args: ["init_marbles", "m777777777771", "red", "35", "o7777777777777777771", "United Marbles"],
 			chainId: channelName,
 			txId: txId
 		};
