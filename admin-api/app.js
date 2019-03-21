@@ -212,13 +212,13 @@ app.get('/marbles', awaitHandler(async (req, res) => {
 	let args = {};
 	let fcn = "read_everything";
 
-    logger.info('##### GET on Donor - username : ' + username);
-	logger.info('##### GET on Donor - userOrg : ' + orgName);
-	logger.info('##### GET on Donor - channelName : ' + channelName);
-	logger.info('##### GET on Donor - chaincodeName : ' + chaincodeName);
-	logger.info('##### GET on Donor - fcn : ' + fcn);
-	logger.info('##### GET on Donor - args : ' + JSON.stringify(args));
-	logger.info('##### GET on Donor - peers : ' + peers);
+    logger.info('##### GET on Marbles - username : ' + username);
+	logger.info('##### GET on Marbles - userOrg : ' + orgName);
+	logger.info('##### GET on Marbles - channelName : ' + channelName);
+	logger.info('##### GET on Marbles - chaincodeName : ' + chaincodeName);
+	logger.info('##### GET on Marbles - fcn : ' + fcn);
+	logger.info('##### GET on Marbles - args : ' + JSON.stringify(args));
+	logger.info('##### GET on Marbles - peers : ' + peers);
 
     let message = await query.queryChaincode(peers, channelName, chaincodeName, args, fcn, username, orgName);
  	res.send(message);
@@ -236,19 +236,21 @@ app.get('/marbles', awaitHandler(async (req, res) => {
 app.post('/users', awaitHandler(async (req, res) => {
 	logger.info('================ POST on endpoint /users');
 	let args = req.body;
+	username = req.body.username;
+	orgName = req.body.orgName;
 	logger.info('##### POST on Users- args : ' + JSON.stringify(args));
 	let response = await connection.getRegisteredUser(args, true);
-	logger.info('##### POST on Users - returned from registering the username %s for organization %s', args);
+	logger.info('##### POST on Users - returned from registering the username %s for organization %s', username, orgName);
     logger.info('##### POST on Users - getRegisteredUser response secret %s', response.secret);
     logger.info('##### POST on Users - getRegisteredUser response message %s', response.message);
     if (response && typeof response !== 'string') {
-        logger.info('##### POST on Users - Successfully registered the username %s for organization %s', args);
+        logger.info('##### POST on Users - Successfully registered the username %s for organization %s', username, orgName);
 		logger.info('##### POST on Users - getRegisteredUser response %s', response);
 		// Now that we have a username & org, we can start the block listener
 		//await blockListener.startBlockListener(channelName, username, orgName, wss);
 		res.json(response);
 	} else {
-		logger.error('##### POST on Users - Failed to register the username %s for organization %s with::%s', args, response);
+		logger.error('##### POST on Users - Failed to register the username %s for organization %s with::%s', username, orgName, response);
 		res.json({success: false, message: response});
 	}
 }));

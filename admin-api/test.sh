@@ -14,7 +14,9 @@ export PORT=3000
 echo connecting to server: $ENDPOINT:$PORT
 
 ########################################################################################################################
-# Optional commands - the /users functions are optional, and require a connection profile to be configured
+# Optional commands - the /users functions are optional, and require a connection profile to be configured.
+# The Query function below will test that the connection profile has been correctly configured, and the REST API
+# is able to communicate with the Fabric network.
 #
 # Note, for these /users based calls to work, you must have updated the connection-profile. The Admin API needs to
 # connect to the Fabric network to carry out these function calls. See the README for details.
@@ -33,6 +35,11 @@ ORG=org1
 echo
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/users -H 'content-type: application/json' -d '{"username":"'"${USERID}"'","org":"'"${ORG}"'"}')
 echo $response
+
+# Query the chaincode. Uses the connection profile to connect to the Fabric network.
+response=$(curl -s -X GET http://${ENDPOINT}:${PORT}/marbles)
+echo $response
+
 ########################################################################################################################
 
 # Print out the orgs and profiles contained in configtx.yaml and env.sh

@@ -275,6 +275,7 @@ Ignore the following instructions, under pre-requisites:
 The connection profile will not be populated as described in step 3. Populate it using the template below - just copy and paste the contents:
 
 ```bash
+mkdir -p ~/non-profit-blockchain/tmp/connection-profile
 vi ~/non-profit-blockchain/tmp/connection-profile/ngo-connection-profile.yaml
 ```
 
@@ -284,7 +285,7 @@ profile and the one used by Admin API, is that Admin API runs on the bastion so 
 ```bash
 name: "ngo"
 x-type: "hlfv1"
-description: "NGO Network"
+description: "Fabric Network"
 version: "1.0"
 
 channels:
@@ -298,7 +299,7 @@ channels:
         ledgerQuery: true
         eventSource: true
     chaincodes:
-      - marbles-workshop:v1
+      - marblescc:v1
 
 organizations:
   Org1:
