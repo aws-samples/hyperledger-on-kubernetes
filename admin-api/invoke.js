@@ -1,5 +1,5 @@
 /*
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License").
 # You may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ var invokeChaincode = async function(peerNames, channelName, chaincodeName, args
 			targets: peerNames,
 			chaincodeId: chaincodeName,
 			fcn: fcn,
-			args: ["m777777777771", "red", "35", "o7777777777777777771", "United Marbles"],
+			args: ["m777777777771", "red", "35", "o8888888888888888881", "United Marbles"],
 			chainId: channelName,
 			txId: txId
 		};
