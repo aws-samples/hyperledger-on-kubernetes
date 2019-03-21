@@ -44,7 +44,7 @@ echo $response
 
 # Invoke the chaincode. Uses the connection profile to connect to the Fabric network. You must call /users above to register
 # a Fabric user before calling this function. This function invokes the chaincode to add a marble
-response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/marbles -H 'content-type: application/json' -d '"init_marble","m777777777771", "red", "35", "o7777777777777777771", "United Marbles"')
+response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/marbles -H 'content-type: application/json' -d '')
 echo $response
 
 ########################################################################################################################

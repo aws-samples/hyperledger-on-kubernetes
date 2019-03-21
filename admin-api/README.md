@@ -156,6 +156,9 @@ kubectl apply -f k8s/fabric-nlb-ca-org2.yaml
 ```
 
 ### Update the connection profile
+The connection profile is used by a small number of functions in the REST API, notably /users and the test functions, /marbles.
+It shows how to use a connection profile with the Fabric SDK.
+
 On the bastion, in the $REPO folder where the repo is cloned, update the connection profile to point to your Fabric network. You'll need to
 update the URLs for the peers, orderers and CA's. Point them to the NLB endpoints, which you can obtain as follows.
 
