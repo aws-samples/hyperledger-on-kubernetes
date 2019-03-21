@@ -266,6 +266,8 @@ app.post('/users', awaitHandler(async (req, res) => {
 
 app.post('/marbles', awaitHandler(async (req, res) => {
 	logger.info('================ POST on Marbles');
+	logger.info('##### POST on Marbles - body : ' + util.inspect(req.body));
+	logger.info('##### POST on Marbles - params : ' + util.inspect(req.params));
 	var args = req.body;
 	var fcn = "init_marble";
 
