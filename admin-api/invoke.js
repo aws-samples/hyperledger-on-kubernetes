@@ -43,7 +43,7 @@ var invokeChaincode = async function(peerNames, channelName, chaincodeName, args
 			targets: peerNames,
 			chaincodeId: chaincodeName,
 			fcn: fcn,
-			args: [JSON.stringify(args)],
+			args: args,
 			chainId: channelName,
 			txId: txId
 		};
