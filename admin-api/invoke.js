@@ -27,7 +27,7 @@ var invokeChaincode = async function(peerNames, channelName, chaincodeName, args
 	args = JSON.stringify(args);
 	args = args.replace('{"', '');
 	args = args.replace('":""}', '');
-	args = args.replace('\', '');
+	args = args.replace('\\', '');
 	logger.info('##### invokeChaincode - arguments %s', args);
 	var error_message = null;
 	var txIdAsString = null;
