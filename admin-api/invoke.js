@@ -25,9 +25,9 @@ var invokeChaincode = async function(peerNames, channelName, chaincodeName, args
 		chaincodeName, fcn, channelName, orgName));
 	logger.info('##### invokeChaincode - arguments %s', JSON.stringify(args));
 	args = JSON.stringify(args);
-	args = args.replace('{', '[');
-	args = args.replace('}', ']');
-	logger.info('##### invokeChaincode - arguments %s', JSON.stringify(args));
+	args = args.replace('{"', '');
+	args = args.replace('":""}', ']');
+	logger.info('##### invokeChaincode - arguments %s', args);
 	var error_message = null;
 	var txIdAsString = null;
 	try {
@@ -48,7 +48,7 @@ var invokeChaincode = async function(peerNames, channelName, chaincodeName, args
 			targets: peerNames,
 			chaincodeId: chaincodeName,
 			fcn: fcn,
-			args: JSON.stringify(args),
+			args: args,
 			chainId: channelName,
 			txId: txId
 		};
