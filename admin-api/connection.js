@@ -93,11 +93,5 @@ var getRegisteredUser = async function(args, isJson) {
 	}
 };
 
-var getLogger = function(moduleName) {
-	var logger = log4js.getLogger(moduleName);
-	return logger;
-};
-
 exports.getClientForOrg = getClientForOrg;
 exports.getRegisteredUser = getRegisteredUser;
-exports.getLogger = getLogger;

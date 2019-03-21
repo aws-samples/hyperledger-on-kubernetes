@@ -15,7 +15,8 @@
 
 var util = require('util');
 var helper = require('./connection.js');
-var logger = helper.getLogger('Query');
+const Client = require('fabric-client');
+const logger = Client.getLogger('query');
 
 var queryChaincode = async function(peers, channelName, chaincodeName, args, fcn, username, orgName) {
 	try {
