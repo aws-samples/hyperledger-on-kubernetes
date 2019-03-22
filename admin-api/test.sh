@@ -85,8 +85,13 @@ response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/fabric/start -H 'content-t
 echo $response
 
 ########################################################################################################################
-# Stop a new Fabric network. Stops everything started by /fabric/start.
+# Stop a new Fabric network. Stops everything started by /fabric/start. Removes all data in /opt/share
 # Stop your CLI container before running this, otherwise it will prevent the PV/PVC being deleted.
+# Make sure all pods and services are stopped, and the /opt/share directory is empty
+#
+# kubectl get po --all-namespaces
+# kubectl get svc --all-namespaces
+# ls -l /opt/share
 ########################################################################################################################
 response=$(curl -s -X POST http://${ENDPOINT}:${PORT}/fabric/stop -H 'content-type: application/json')
 echo $response

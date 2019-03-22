@@ -38,6 +38,7 @@ function main {
     startRCA $HOME $REPO
     startICA $HOME $REPO
     startRegisterOrgs $HOME $REPO
+    sleep 30
     startRegisterOrderers $HOME $REPO
     startRegisterPeers $HOME $REPO
     if [ $FABRIC_NETWORK_TYPE == "PROD" ]; then
