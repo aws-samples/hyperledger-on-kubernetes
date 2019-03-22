@@ -35,25 +35,25 @@ organizations:
 
 orderers:
   orderer2-org0.org0:
-    url: grpcs://a973694bc461111e98a5912c3d83c32b-90772da9551b2646.elb.us-east-1.amazonaws.com:7050
+    url: grpcs://add8f99fc4af211e9a8db0a7e6a08c30-c454ad959b0fc86d.elb.us-west-2.amazonaws.com:7050
     tlsCACerts:
       path: /opt/share/rca-data/org0-ca-chain.pem
 
 peers:
   peer1-org1.org1:
-    url: grpcs://aa430c021461111e98a5912c3d83c32b-d3323727d2efe7de.elb.us-east-1.amazonaws.com:7051
-    eventUrl: grpcs://aa430c021461111e98a5912c3d83c32b-d3323727d2efe7de.elb.us-east-1.amazonaws.com:7052
+    url: grpcs://aeae36c194af211e9a8db0a7e6a08c30-4b07f64b769e9db7.elb.us-west-2.amazonaws.com:7051
+    eventUrl: grpcs://aeae36c194af211e9a8db0a7e6a08c30-4b07f64b769e9db7.elb.us-west-2.amazonaws.com:7052
     tlsCACerts:
       path: /opt/share/rca-data/org1-ca-chain.pem
   peer1-org2.org2:
-    url: grpcs://aa4548d2e461111e9970d0a8c01b4fef-c698ed15f31fe234.elb.us-east-1.amazonaws.com:7051
-    eventUrl: grpcs://aa4548d2e461111e9970d0a8c01b4fef-c698ed15f31fe234.elb.us-east-1.amazonaws.com:7052
+    url: grpcs://aeb06529c4af211e9b6da067721000cf-dde1c1dc27a7cf65.elb.us-west-2.amazonaws.com:7051
+    eventUrl: grpcs://aeb06529c4af211e9b6da067721000cf-dde1c1dc27a7cf65.elb.us-west-2.amazonaws.com:7052
     tlsCACerts:
       path: /opt/share/rca-data/org2-ca-chain.pem
 
 certificateAuthorities:
   ca-org1:
-    url: https://a1f2605a346d111e98a5912c3d83c32b-64e4ffbc4b786081.elb.us-east-1.amazonaws.com:7054
+    url: https://a9652e7504b6a11e9a8db0a7e6a08c30-6674ce3a356ef727.elb.us-west-2.amazonaws.com:7054
     httpOptions:
       verify: false
     tlsCACerts:
@@ -63,7 +63,7 @@ certificateAuthorities:
         enrollSecret: admin-org1pw
     caName: ica-org1.org1
   ca-org2:
-    url: https://a1f4c24dd46d111e9970d0a8c01b4fef-42cc3bf7ea503e0b.elb.us-east-1.amazonaws.com:7054
+    url: https://a96836b0c4b6a11e9b6da067721000cf-892744a4c29326f8.elb.us-west-2.amazonaws.com:7054
     httpOptions:
       verify: false
     tlsCACerts:
