@@ -1,14 +1,7 @@
 # Hyperledger Fabric on Kubernetes - Part 1: Create the main Hyperledger Fabric orderer network
 
-This repo allows you to build two types of Hyperledger networks:
-
-* A POC network, consisting of an orderer organisation and two peer organisations, running in a single Kubernetes cluster
-in a single AWS account. This is suitable for POC's, or for testing/learning
-* A PROD network, consisting of an orderer organisation running in one Kubernetes cluster in one AWS account, and separate
-peer organisations running in separate AWS accounts. This resembles a production-ready Hyperledger network where remote
-peers from different organisations connect to the network
-
-Step 2 is where you will indicate whether you want to create a POC or PROD environment.
+This repo allows you to build a Hyperledger Fabric network running on Kubernetes. The Kubernetes cluster is an EKS cluster
+running on AWS, provisioned using 'eksctl', though there are instructions for using KOPS also.
 
 ## Getting Started
 
@@ -27,6 +20,9 @@ cd
 cd hyperledger-on-kubernetes/scripts
 vi env.sh
 ```
+
+* Set the FABRIC_TAG="1.4" to indicate which Fabric version you want to use. This tag must match the tag used by the
+Fabric Docker images in Docker Hub.
 
 * Set FABRIC_NETWORK_TYPE  to either "POC" or "PROD", depending on whether you want to build a POC or a PROD network.
     * A POC network, consisting of an orderer organisation and two peer organisations, running in a single Kubernetes cluster
