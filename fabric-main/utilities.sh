@@ -219,6 +219,9 @@ function stopICA {
     cd $HOME
     kubectl delete -f $REPO/k8s/fabric-deployment-ica-$ORG.yaml
     kubectl delete -f $REPO/k8s/fabric-deployment-ica-notls-$ORG.yaml
+    kubectl delete -f $REPO/k8s/fabric-nlb-ca-$ORG.yaml
+    kubectl delete -f $REPO/k8s/fabric-nlb-notls-ca-$ORG.yaml
+    kubectl delete -f $REPO/k8s/fabric-elb-ca-$ORG.yaml
     confirmDeploymentsStopped ica $ORG
 }
 
@@ -279,6 +282,7 @@ function stopPeers {
     local COUNT=1
     while [[ "$COUNT" -le $NUM_PEERS ]]; do
         kubectl delete -f $REPO/k8s/fabric-deployment-peer$COUNT-$ORG.yaml
+        kubectl delete -f $REPO/k8s/fabric-nlb-anchor-peer$COUNT-$ORG.yaml
         COUNT=$((COUNT+1))
     done
     confirmDeploymentsStopped peer $ORG
@@ -312,6 +316,7 @@ function stopOrderer {
       local COUNT=1
       while [[ "$COUNT" -le $NUM_ORDERERS ]]; do
          kubectl delete -f $REPO/k8s/fabric-deployment-orderer$COUNT-$ORG.yaml
+         kubectl delete -f $REPO/k8s/fabric-nlb-orderer$COUNT-$ORG.yaml
          COUNT=$((COUNT+1))
       done
     done
@@ -777,6 +782,7 @@ function stopRemotePeers {
     local COUNT=1
     while [[ "$COUNT" -le $NUM_PEERS ]]; do
         kubectl delete -f $REPO/k8s/fabric-deployment-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
+        kubectl delete -f $REPO/k8s/fabric-nlb-remote-peer-${PEER_PREFIX}${COUNT}-$ORG.yaml
         COUNT=$((COUNT+1))
     done
     confirmDeploymentsStopped remote-peer
