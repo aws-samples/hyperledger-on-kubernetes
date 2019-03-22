@@ -1,6 +1,8 @@
 # Hyperledger Fabric on Kubernetes
 
-This repo helps you to build a Hyperledger Fabric network on Kubernetes - either AWS EKS or standard Kubernetes installed on
+Supports Hyperledger Fabric v1.4.
+
+This repo helps you to build a Hyperledger Fabric network on Kubernetes - either Amazon EKS or standard Kubernetes installed on
 AWS using Kops or some other tool.
 
 The repo consists of different parts. You should navigate to the part that contains the task you want to implement and 
