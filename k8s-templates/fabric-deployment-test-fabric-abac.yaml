@@ -13,20 +13,13 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   namespace: %DOMAIN%
   name: test-fabric
 spec:
-  replicas: 1
-  strategy: {}
-  selector:
-    matchLabels:
-       app: hyperledger
-       role: client
-       org: %ORG%
-       name: test-fabric
+  backoffLimit: 3
   template:
     metadata:
       labels:
@@ -35,6 +28,7 @@ spec:
        org: %ORG%
        name: test-fabric
     spec:
+     restartPolicy: "Never"
      containers:
        - name: test-fabric
          image: hyperledger/fabric-tools:%FABRIC_TAG%
@@ -42,7 +36,7 @@ spec:
           - name: GOPATH
             value: /opt/gopath
          command: ["sh"]
-         args:  ["-c", "/scripts/test-fabric-abac.sh 2>&1; while true; do sleep 90; done;"]
+         args:  ["-c", "/scripts/test-fabric-abac.sh"]
          volumeMounts:
           - mountPath: /scripts
             name: rca-scripts
