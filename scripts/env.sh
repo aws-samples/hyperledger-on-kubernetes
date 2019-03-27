@@ -72,6 +72,9 @@ ADMINCERTS=true
 # 3) for client applications connecting to the orderer remotely, without TLS. An NLB is required that handles
 NUM_ORDERERS=3
 
+# Size of the volumes where orderers data is stored
+ORDERER_SIZE="200Gi"
+
 # The volume mount to share data between containers
 DATA=data
 
