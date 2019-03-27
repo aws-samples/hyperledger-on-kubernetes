@@ -215,7 +215,7 @@ function chaincodeQuery {
    while test "$(($(date +%s)-starttime))" -lt "$QUERY_TIMEOUT"; do
       sleep 1
       peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["query","a"]}' >& log-abac.txt
-      VALUE=$(cat log-abac.txt | awk '/Query Result/ {print $NF}')
+      VALUE=$(cat log-abac.txt | awk '{print $1}')
       if [ $? -eq 0 -a "$VALUE" = "$1" ]; then
          log "Query of channel '$CHANNEL_NAME' on peer '$PEER_HOST' was successful"
          set -e
