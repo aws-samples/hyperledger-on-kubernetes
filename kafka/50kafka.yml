@@ -10,7 +10,7 @@ spec:
     matchLabels:
       app: kafka
   serviceName: "broker"
-  replicas: 3
+  replicas: %KAFKA_REPLICAS%
   updateStrategy:
     type: OnDelete
   template:
@@ -111,4 +111,4 @@ spec:
       storageClassName: kafka-broker
       resources:
         requests:
-          storage: 200Gi
+          storage: %KAFKA_SIZE%
