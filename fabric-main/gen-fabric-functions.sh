@@ -435,9 +435,9 @@ function genPeers {
             log "Port assigned to peer: peer$COUNT-$ORG is $PORTCHAIN"
             # for the 1st peer we generate a peer with no client-side TLS, i.e. no mutual TLS
             if [ $COUNT -eq 1 ]; then
-                sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-peer-noclienttls.yaml > ${K8SYAML}/fabric-deployment-peer$COUNT-$ORG.yaml
+                sed -e "s/%PEER_SIZE%/${PEER_SIZE}/g" -e "s/%PEER_DB_SIZE%/${PEER_DB_SIZE}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-peer-noclienttls.yaml > ${K8SYAML}/fabric-deployment-peer$COUNT-$ORG.yaml
             else
-                sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-peer.yaml > ${K8SYAML}/fabric-deployment-peer$COUNT-$ORG.yaml
+                sed -e "s/%PEER_SIZE%/${PEER_SIZE}/g" -e "s/%PEER_DB_SIZE%/${PEER_DB_SIZE}/g" -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%NUM%/${COUNT}/g" -e "s/%PORTEND%/${PORTEND}/g" -e "s/%PORTCHAIN%/${PORTCHAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-peer.yaml > ${K8SYAML}/fabric-deployment-peer$COUNT-$ORG.yaml
             fi
             COUNT=$((COUNT+1))
         done

@@ -14,13 +14,13 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   namespace: %DOMAIN%
   name: peer%NUM%-%ORG%
 spec:
+  serviceName: peer%NUM%-%ORG%
   replicas: 1
-  strategy: {}
   selector:
     matchLabels:
        app: hyperledger
@@ -40,6 +40,9 @@ spec:
          image: hyperledger/fabric-couchdb:latest
          ports:
           - containerPort: 5984
+         volumeMounts:
+         - mountPath: /opt/couchdb/data
+           name: database
        - name: peer%NUM%-%ORG%
          image: hyperledger/fabric-peer:%FABRIC_TAG%
          env:
@@ -122,6 +125,8 @@ spec:
             name: rca-data
           - mountPath: /host/var/run/
             name: run
+          - mountPath: /var/hyperledger/production
+            name: production
      volumes:
        - name: rca-scripts
          persistentVolumeClaim:
@@ -132,6 +137,23 @@ spec:
        - name: run
          hostPath:
            path: /run
+  volumeClaimTemplates:
+  - metadata:
+      name: production
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: gp2
+      resources:
+        requests:
+          storage: %PEER_SIZE%
+  - metadata:
+      name: database
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: gp2
+      resources:
+        requests:
+          storage: %PEER_DB_SIZE%
 
 ---
 apiVersion: v1
