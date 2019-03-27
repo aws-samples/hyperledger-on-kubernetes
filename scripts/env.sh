@@ -72,6 +72,12 @@ ADMINCERTS=true
 # 3) for client applications connecting to the orderer remotely, without TLS. An NLB is required that handles
 NUM_ORDERERS=3
 
+# Number of kafka nodes
+KAFKA_REPLICAS=3
+
+# Size of the volumes where kafka data is stored
+KAFKA_SIZE="200Gi"
+
 # The volume mount to share data between containers
 DATA=data
 
