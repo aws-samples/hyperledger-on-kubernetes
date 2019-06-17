@@ -37,7 +37,7 @@ PEER_DOMAINS="org1 org2"
 PEER_PREFIX="peer"
 
 # Number of peers in each peer organization
-NUM_PEERS=2
+NUM_PEERS=1
 
 ##--END REPLACE CONTENTS--##
 #####################################################################################
