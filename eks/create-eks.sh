@@ -17,8 +17,8 @@
 
 region=us-west-1
 privateNodegroup=true # set to true if you want eksctl to create the EKS worker nodes in private subnets
-cluster_name=eks-fabric-1
-KEYS_REPO=private_keys     # Relative to ~
+export cluster_name="eks-fabric-1"
+export KEYS_REPO="private_keys"     # Relative to ~
 ${KEYS_REPO}/
 echo Download the kubectl and heptio-authenticator-aws binaries and save to ~/bin
 mkdir ~/bin

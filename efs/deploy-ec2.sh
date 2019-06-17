@@ -21,7 +21,7 @@ vpcid={VPCID}
 subneta={SUBNETA}
 subnetb={SUBNETB}
 subnetc={SUBNETC}
-keypairname=eks-c9-keypair
+keypairname=$KEYS_REPO/${cluster_name}-keypair
 volumename=dltefs
 mountpoint=opt/share
 
