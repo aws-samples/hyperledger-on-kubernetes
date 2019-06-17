@@ -43,9 +43,9 @@ else
 fi
 cd ~
 if [ $region == "us-east-1" ]; then
-    eksctl create cluster ${privateOption} --ssh-access --ssh-public-key ${KEYS_REPO}/${cluster_name}-keypair --name ${cluster_name} --region $region --node-type t2.medium --node-volume-size 200 --kubeconfig=./kubeconfig.eks-fabric.yaml --zones=us-east-1a,us-east-1b,us-east-1d
+    eksctl create cluster ${privateOption} --ssh-access --ssh-public-key ${cluster_name}-keypair --name ${cluster_name} --region $region --node-type t2.medium --node-volume-size 200 --kubeconfig=./kubeconfig.eks-fabric.yaml --zones=us-east-1a,us-east-1b,us-east-1d
 else
-    eksctl create cluster ${privateOption} --ssh-access --ssh-public-key ${KEYS_REPO}/${cluster_name}-keypair --name ${cluster_name} --region $region --node-type t2.medium --node-volume-size 200 --kubeconfig=./kubeconfig.eks-fabric.yaml
+    eksctl create cluster ${privateOption} --ssh-access --ssh-public-key ${cluster_name}-keypair --name ${cluster_name} --region $region --node-type t2.medium --node-volume-size 200 --kubeconfig=./kubeconfig.eks-fabric.yaml
 fi
 
 echo Check whether kubectl can access your Kubernetes cluster
