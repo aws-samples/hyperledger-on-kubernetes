@@ -15,7 +15,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-region=us-west-1
+region=us-west-2
 privateNodegroup=true # set to true if you want eksctl to create the EKS worker nodes in private subnets
 export cluster_name="eks-fabric-1"
 export KEYS_REPO="private_keys"     # Relative to ~
