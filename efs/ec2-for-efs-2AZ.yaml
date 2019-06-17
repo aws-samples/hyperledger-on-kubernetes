@@ -246,6 +246,8 @@ Mappings:
       PV64: ami-fa39abc3
       HVM64: ami-f239abcb
       HVMG2: NOT_SUPPORTED
+    ap-south-1:
+      HVM64: ami-a6d1bac9
 Resources:
   CloudWatchPutMetricsRole:
     Type: AWS::IAM::Role
