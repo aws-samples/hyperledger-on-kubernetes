@@ -114,8 +114,8 @@ function copyChannelGenesisToS3 {
 function copyChannelGenesisFromS3 {
     echo "Copying the Channel Genesis block from S3"
     if [[ $(aws configure list) && $? -eq 0 ]]; then
-        sudo chown ec2-user ${DATA}/mychannel.block
         aws s3api get-object --bucket $S3BucketNameOrderer --key org0/mychannel.block ${DATA}/mychannel.block
+        sudo chown ec2-user ${DATA}/mychannel.block
     else
         echo "AWS CLI is not configured on this node. To run this script install and configure the AWS CLI"
     fi
@@ -160,7 +160,7 @@ function createS3BucketForNewOrg {
     echo "Creating the S3 bucket complete"
 }
 
-DATADIR=/opt/share/
+DATADIR=/opt/share
 SCRIPTS=$DATADIR/rca-scripts
 DATA=$DATADIR/rca-data
 region=us-west-2
