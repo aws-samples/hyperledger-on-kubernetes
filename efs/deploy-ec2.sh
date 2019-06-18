@@ -25,7 +25,7 @@ keypairname=${cluster_name}-keypair
 volumename=dltefs
 mountpoint=opt/share
 
-aws cloudformation deploy --stack-name ${cluster_name}-ec2-cmd-client --template-file efs/ec2-for-efs-3AZ.yaml \
+aws cloudformation deploy --stack-name {cluster_name}-ec2-cmd-client --template-file efs/ec2-for-efs-3AZ.yaml \
 --capabilities CAPABILITY_NAMED_IAM \
 --parameter-overrides VPCId=$vpcid SubnetA=$subneta SubnetB=$subnetb SubnetC=$subnetc \
 KeyName=$keypairname VolumeName=$volumename MountPoint=$mountpoint \
