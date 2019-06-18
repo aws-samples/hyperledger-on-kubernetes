@@ -21,7 +21,7 @@ vpcid={VPCID}
 subneta={SUBNETA}
 subnetb={SUBNETB}
 subnetc={SUBNETC}
-keypairname=${cluster_name}-keypair
+keypairname={cluster_name}-keypair
 volumename=dltefs
 mountpoint=opt/share
 
