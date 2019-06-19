@@ -22,7 +22,7 @@ subneta={SUBNETA}
 subnetb={SUBNETB}
 subnetc={SUBNETC}
 keypairname={cluster_name}-keypair
-volumename=dltefs
+volumename={cluster_name}-dltefs
 mountpoint=opt/share
 
 
