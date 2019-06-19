@@ -44,13 +44,13 @@ else
 fi
 cd ~
 if [ $region == "us-east-1" ]; then
-    eksctl create cluster ${privateOption} --ssh-access --ssh-public-key ${cluster_name}-keypair --name ${cluster_name} --region $region --node-type t2.medium --node-volume-size 200 --kubeconfig=./kubeconfig.eks-fabric.yaml --zones=us-east-1a,us-east-1b,us-east-1d
+    eksctl create cluster ${privateOption} --ssh-access --ssh-public-key ${cluster_name}-keypair --name ${cluster_name} --region $region --node-type t2.medium --node-volume-size 200 --kubeconfig=./kubeconfig.eks-${cluster_name}.yaml --zones=us-east-1a,us-east-1b,us-east-1d
 else
-    eksctl create cluster ${privateOption} --ssh-access --ssh-public-key ${cluster_name}-keypair --name ${cluster_name} --region $region --node-type t2.medium --node-volume-size 200 --kubeconfig=./kubeconfig.eks-fabric.yaml
+    eksctl create cluster ${privateOption} --ssh-access --ssh-public-key ${cluster_name}-keypair --name ${cluster_name} --region $region --node-type t2.medium --node-volume-size 200 --kubeconfig=./kubeconfig.eks-${cluster_name}.yaml
 fi
 
 echo Check whether kubectl can access your Kubernetes cluster
-kubectl --kubeconfig=./kubeconfig.eks-fabric.yaml get nodes
+kubectl --kubeconfig=./kubeconfig.eks-${cluster_name}.yaml get nodes
 
 echo Create the EC2 bastion instance and the EFS that stores the Fabric cryptographic material
 echo These will be created in the same VPC as the EKS cluster
@@ -95,18 +95,19 @@ PublicDnsNameBastion=$(aws ec2 describe-instances --region $region --filters "Na
 echo public DNS of EC2 bastion host: $PublicDnsNameBastion
 
 if [ "$privateNodegroup" == "true" ]; then
-    PrivateDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-*-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PrivateDnsName' | tr -d '"')
+    PrivateDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-${cluster_name}-*-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PrivateDnsName' | tr -d '"')
     echo private DNS of EKS worker nodes, accessible from Bastion only since they are in a private subnet: $PrivateDnsNameEKSWorker
     cd ~
     # we need the keypair on the bastion, since we can only access the K8s worker nodes from the bastion
     scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -o stricthostkeychecking=no -q ~/${KEYS_REPO}/${cluster_name}-keypair.pem  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/${cluster_name}-keypair.pem
 else
-    PublicDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-*-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
+    PublicDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-${cluster_name}-*-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
     echo public DNS of EKS worker nodes: $PublicDnsNameEKSWorker
 fi
 
 echo Prepare the EC2 bastion for use by copying the kubeconfig and aws config and credentials files from Cloud9
 cd ~
+
 scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -o stricthostkeychecking=no -q ~/kubeconfig.eks-fabric.yaml  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/kubeconfig.eks-fabric.yaml
 scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -o stricthostkeychecking=no -q ~/.aws/config  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/config
 scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -o stricthostkeychecking=no -q ~/.aws/credentials  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/credentials
