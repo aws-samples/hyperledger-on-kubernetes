@@ -15,7 +15,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-EFSSERVER=fs-c9141a61.efs.us-west-2.amazonaws.com
+EFSSERVER=<EFS_SERVER_URL>
 REPO=hyperledger-on-kubernetes
 source $HOME/$REPO/fabric-main/gen-fabric-functions.sh
 DATA=/opt/share
