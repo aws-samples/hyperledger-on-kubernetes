@@ -25,7 +25,7 @@ keypairname={cluster_name}-keypair
 volumename={cluster_name}-dltefs
 mountpoint=opt/share
 
-sed -e "s/{cluster_name}/{cluster_name}/g"  -i ~/hyperledger-on-kubernetes/efs/ec2-for-efs-3AZ.yaml
+sed -e "s/<cluster_name>/{cluster_name}/g"  -i ~/hyperledger-on-kubernetes/efs/ec2-for-efs-3AZ.yaml
 
 aws cloudformation deploy --stack-name {cluster_name}-ec2-cmd-client --template-file efs/ec2-for-efs-3AZ.yaml \
 --capabilities CAPABILITY_NAMED_IAM \
