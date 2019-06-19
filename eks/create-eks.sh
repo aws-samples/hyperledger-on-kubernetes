@@ -19,15 +19,16 @@ region=us-west-2
 privateNodegroup=true # set to true if you want eksctl to create the EKS worker nodes in private subnets
 export cluster_name="eks-fabric-1"
 export KEYS_REPO="private_keys"     # Relative to ~
-${KEYS_REPO}/
-echo Download the kubectl and heptio-authenticator-aws binaries and save to ~/bin
-mkdir ~/bin
-wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/kubectl && chmod +x kubectl && mv kubectl ~/bin/
-wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws && chmod +x heptio-authenticator-aws && mv heptio-authenticator-aws ~/bin/
 
-echo Download eksctl from eksctl.io
-curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-sudo mv /tmp/eksctl /usr/local/bin
+# echo Download the kubectl and heptio-authenticator-aws binaries and save to ~/bin
+
+# mkdir ~/bin
+# wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/kubectl && chmod +x kubectl && mv kubectl ~/bin/
+# wget https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws && chmod +x heptio-authenticator-aws && mv heptio-authenticator-aws ~/bin/
+
+# echo Download eksctl from eksctl.io
+# curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+# sudo mv /tmp/eksctl /usr/local/bin
 
 echo Create a keypair
 cd ~
@@ -98,7 +99,7 @@ if [ "$privateNodegroup" == "true" ]; then
     echo private DNS of EKS worker nodes, accessible from Bastion only since they are in a private subnet: $PrivateDnsNameEKSWorker
     cd ~
     # we need the keypair on the bastion, since we can only access the K8s worker nodes from the bastion
-    scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -q ~/${KEYS_REPO}/${cluster_name}-keypair.pem  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/${cluster_name}-keypair.pem
+    scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -o stricthostkeychecking=no -q ~/${KEYS_REPO}/${cluster_name}-keypair.pem  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/${cluster_name}-keypair.pem
 else
     PublicDnsNameEKSWorker=$(aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=eks-fabric-*-Node" "Name=instance-state-name,Values=running" | jq '.Reservations | .[] | .Instances | .[] | .PublicDnsName' | tr -d '"')
     echo public DNS of EKS worker nodes: $PublicDnsNameEKSWorker
@@ -106,6 +107,6 @@ fi
 
 echo Prepare the EC2 bastion for use by copying the kubeconfig and aws config and credentials files from Cloud9
 cd ~
-scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -q ~/kubeconfig.eks-fabric.yaml  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/kubeconfig.eks-fabric.yaml
-scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -q ~/.aws/config  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/config
-scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -q ~/.aws/credentials  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/credentials
+scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -o stricthostkeychecking=no -q ~/kubeconfig.eks-fabric.yaml  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/kubeconfig.eks-fabric.yaml
+scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -o stricthostkeychecking=no -q ~/.aws/config  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/config
+scp -i ${KEYS_REPO}/${cluster_name}-keypair.pem -o stricthostkeychecking=no -q ~/.aws/credentials  ec2-user@${PublicDnsNameBastion}:/home/ec2-user/credentials
