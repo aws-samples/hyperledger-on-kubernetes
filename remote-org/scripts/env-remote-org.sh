@@ -36,9 +36,9 @@ ORDERER_DOMAINS="org0"
 ORDERER_TYPE="kafka"
 
 # Names of the peer organizations.
-PEER_ORGS="org7"
-PEER_DOMAINS="org7"
-PEER_PREFIX="michaelpeer"
+PEER_ORGS="<joiner_org>"
+PEER_DOMAINS="<joiner_org>"
+PEER_PREFIX="peer"
 
 # Number of peers in each peer organization
 NUM_PEERS=1
