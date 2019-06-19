@@ -499,7 +499,7 @@ Resources:
       DesiredCapacity: '1'
       Tags:
       - Key: Name
-        Value:{cluster_name} - EFS FileSystem Mounted Instance
+        Value:<cluster_name> - EFS FileSystem Mounted Instance
         PropagateAtLaunch: 'true'
 Outputs:
   MountTargetID:
