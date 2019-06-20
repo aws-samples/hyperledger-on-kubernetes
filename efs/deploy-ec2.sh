@@ -25,6 +25,8 @@ keypairname={cluster_name}-keypair
 volumename={cluster_name}-dltefs
 mountpoint=opt/share
 
+cd ~/hyperledger-on-kubernetes
+git checkout -- efs/ec2-for-efs-3AZ.yaml
 sed -e "s/<cluster_name>/{cluster_name}/g"  -i ~/hyperledger-on-kubernetes/efs/ec2-for-efs-3AZ.yaml
 
 aws cloudformation deploy --stack-name {cluster_name}-ec2-cmd-client --template-file efs/ec2-for-efs-3AZ.yaml \
