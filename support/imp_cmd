@@ -1,0 +1,98 @@
+export CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+export CORE_VM_DOCKER_ATTACHSTDOUT=true
+export CORE_PEER_TLS_CLIENTCERT_FILE=/data/tls/peer1-org2-client.crt
+export CORE_PEER_TLS_ROOTCERT_FILE=/data/org2-ca-chain.pem
+export CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+export CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/tls/server.key
+export CORE_PEER_GOSSIP_ORGLEADER=false
+export CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=localhost:5984
+export CORE_PEER_LOCALMSPID=org2MSP
+export CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+export CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/tls/server.crt
+export CORE_PEER_ADDRESSAUTODETECT=true
+export CORE_PEER_TLS_CLIENTROOTCAS_FILES=/data/org2-ca-chain.pem
+export CORE_PEER_TLS_CLIENTKEY_FILE=/data/tls/peer1-org2-client.key
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_TLS_CLIENTAUTHREQUIRED=false
+export CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/msp
+export CORE_PEER_ID=peer1-org2
+export CORE_PEER_GOSSIP_EXTERNALENDPOINT=a92b2292392b911e98dd80e2d4c73a05-49e984f2c940fa93.elb.us-west-2.amazonaws.com:7051
+export CORE_PEER_ADDRESS=a92b2292392b911e98dd80e2d4c73a05-49e984f2c940fa93.elb.us-west-2.amazonaws.com:7051
+export CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+export CORE_PEER_GOSSIP_USELEADERELECTION=true
+
+
+--tls --cafile /data/org0-ca-chain.pem --clientauth --keyfile /data/tls/peer1-org1-cli-client.key --certfile /data/tls/peer1-org1-cli-client.crt
+
+ Peer a928f1df492b911e984d50264ffd109f-14359201df1a48d5.elb.us-west-2.amazonaws.com is attempting to join channel 'mychannel'
+
+
+# steps to install chaincode. 
+
+export CORE_PEER_TLS_CLIENTCERT_FILE=/data/tls/peer1-org1-client.crt
+export CORE_PEER_TLS_ROOTCERT_FILE=/data/org1-ca-chain.pem
+export CORE_PEER_LOCALMSPID=org1MSP
+export CORE_PEER_TLS_CLIENTROOTCAS_FILES=/data/org1-ca-chain.pem
+export CORE_PEER_TLS_CLIENTKEY_FILE=/data/tls/peer1-org1-client.key
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_TLS_CLIENTAUTHREQUIRED=false
+export CORE_PEER_MSPCONFIGPATH=/data/orgs/org1/admin/msp
+export CORE_PEER_ID=peer1-org1
+export CORE_PEER_ADDRESS=a928f1df492b911e984d50264ffd109f-14359201df1a48d5.elb.us-west-2.amazonaws.com:7051
+
+
+in hyperledger folder
+git clone chaincode
+git clone fabric 
+
+ peer chaincode install --clientauth --certfile /data/tls/peer1-org1-client.crt --keyfile /data/tls/peer1-org1-client.key -n fabcar -v 1.0 -p github.com/fabcar2/go
+
+
+ peer chaincode install --clientauth --certfile /etc/hyperledger/fabric/artifacts/keyfiles/{{ peer.org }}/users/Admin@{{ peer.org }}/tls/client.crt --keyfile /etc/hyperledger/fabric/artifacts/keyfiles/{{ peer.org }}/users/Admin@{{ peer.org }}/tls/client.key {% endif %} -n fabcar -v 1.0 -p github.com/fabcar2/go
+
+
+
+export CORE_PEER_TLS_CLIENTCERT_FILE=/data/tls/peer1-org2-client.crt
+export CORE_PEER_TLS_ROOTCERT_FILE=/data/org2-ca-chain.pem
+export CORE_PEER_LOCALMSPID=org2MSP
+export CORE_PEER_TLS_CLIENTROOTCAS_FILES=/data/org2-ca-chain.pem
+export CORE_PEER_TLS_CLIENTKEY_FILE=/data/tls/peer1-org2-client.key
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_TLS_CLIENTAUTHREQUIRED=false
+export CORE_PEER_MSPCONFIGPATH=/data/orgs/org2/admin/msp
+export CORE_PEER_ID=peer1-org2
+export CORE_PEER_ADDRESS=a92b2292392b911e98dd80e2d4c73a05-49e984f2c940fa93.elb.us-west-2.amazonaws.com:7051
+
+peer chaincode install --clientauth --certfile /data/tls/peer1-org2-client.crt --keyfile /data/tls/peer1-org2-client.key -n fabcar -v 1.0 -p github.com/fabcar2/go
+
+
+
+# instantiate chain code on the peer
+peer chaincode instantiate -o a852a6ea892b911e984d50264ffd109f-73f6f53d40782ed4.elb.us-west-2.amazonaws.com:7050 --tls true \
+  --clientauth \
+  --certfile /data/tls/peer1-org2-client.crt \
+  --keyfile /data/tls/peer1-org2-client.key \
+  --cafile /data/org0-ca-chain.pem \
+  -C mychannel -n fabcar -v 1.0 -c '{"Args":[]}' -P "AND('org1.peer', 'org2.peer')"
+
+
+peer chaincode instantiate -o {{ cliorderer.name }}:7050 --tls true \
+{% if mutualtls %}
+  --clientauth \
+  --certfile /etc/hyperledger/fabric/artifacts/keyfiles/{{ peer.org }}/users/Admin@{{ peer.org }}/tls/client.crt \
+  --keyfile /etc/hyperledger/fabric/artifacts/keyfiles/{{ peer.org }}/users/Admin@{{ peer.org }}/tls/client.key \
+{% endif %}
+  --cafile /etc/hyperledger/allorgs/{{ cliorderer.org }}/orderers/{{ cliorderer.name }}.{{ cliorderer.org }}/msp/tlscacerts/tlsca.{{ cliorderer.org }}-cert.pem \
+  -C firstchannel -n fabcar -v 1.0 -c '{"Args":[]}' -P "AND('{{ fabric.orgs[0] }}.member', '{{ fabric.orgs[1] }}.member')"
+
+
+peer chaincode invoke -o a852a6ea892b911e984d50264ffd109f-73f6f53d40782ed4.elb.us-west-2.amazonaws.com:7050 \
+--clientauth --certfile /data/tls/peer1-org2-client.crt --keyfile /data/tls/peer1-org2-client.key \
+-C mychannel -n fabcar -c '{"Args":["getStateDetails"]}'
+
+
+peer chaincode query -C mychannel -n fabcar -c '{"function":"getStateDetails","Args":[]}'
+
+
+# debug logs:
+ kubectl logs  test-fabric-747d4694fd-22dq8 -n org1
