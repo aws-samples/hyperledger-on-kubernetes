@@ -88,34 +88,34 @@ function main {
    switchToAdminIdentity
    instantiateChaincode
 
-   # Query chaincode
-   switchToMarbleIdentity
-   sleep 5
-   chaincodeInit
-   sleep 5
-   chaincodeQuery
+#    # Query chaincode
+#    switchToMarbleIdentity
+#    sleep 5
+# #    chaincodeInit
+#    sleep 5
+#    chaincodeQuery
 
-   # Invoke chaincode
-   initPeerVars ${PORGS[0]} 1
-   switchToMarbleIdentity
-   transferMarble
+#    # Invoke chaincode
+#    initPeerVars ${PORGS[0]} 1
+#    switchToMarbleIdentity
+#    transferMarble
 
-   # Query chaincode
-   sleep 10
-   initPeerVars ${PORGS[0]} 1
-   switchToMarbleIdentity
-   chaincodeQuery
+#    # Query chaincode
+#    sleep 10
+#    initPeerVars ${PORGS[0]} 1
+#    switchToMarbleIdentity
+#    chaincodeQuery
 
-   # Invoke chaincode
-   initPeerVars ${PORGS[0]} 1
-   switchToMarbleIdentity
-   transferMarbleAgain
+#    # Invoke chaincode
+#    initPeerVars ${PORGS[0]} 1
+#    switchToMarbleIdentity
+#    transferMarbleAgain
 
-   # Query chaincode
-   sleep 10
-   initPeerVars ${PORGS[0]} 1
-   switchToMarbleIdentity
-   chaincodeQuery
+#    # Query chaincode
+#    sleep 10
+#    initPeerVars ${PORGS[0]} 1
+#    switchToMarbleIdentity
+#    chaincodeQuery
 
    log "Congratulations! $CHAINCODE_NAME chaincode tests ran successfully."
 
@@ -219,8 +219,8 @@ function chaincodeQuery {
    set +e
    log "Querying marbles chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_NAME' ..."
    cd /$DATA
-   peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["read_everything"]}' >& log-marbles.txt
-   cat log-marbles.txt
+   peer chaincode query -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["read_everything"]}' >& log-koinearth.txt
+   cat log-koinearth.txt
    log "Successfully queried marbles chaincode in the channel '$CHANNEL_NAME' on the peer '$PEER_NAME' ..."
 }
 
