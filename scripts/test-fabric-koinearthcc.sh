@@ -171,7 +171,7 @@ function joinChannel {
    while true; do
       log "Peer $PEER_NAME is attempting to join channel '$CHANNEL_NAME' (attempt #${COUNT}) ..."
     #   peer channel join -b $CHANNEL_NAME.block
-      peer channel join -b f$CHANNEL_NAME.block #\
+      peer channel join -b $CHANNEL_NAME.block #\
     #   --clientauth \
     #   --certfile /$DATA/tls/$PEER_HOST-client.crt \
     #   --keyfile /$DATA/tls/$PEER_HOST-client.key \
