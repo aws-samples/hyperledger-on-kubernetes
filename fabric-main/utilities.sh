@@ -830,7 +830,7 @@ function startKoinearthChaincode {
     local REPO=$2
     cd $HOME
     log "Starting Koinearth chaincode deployment"
-    kubectl apply -f $REPO/k8s/fabric-deployment-test-fabric-koinearth-chaincode.yaml
+    kubectl apply -f $REPO/k8s/fabric-deployment-test-koinearth-chaincode.yaml
 }
 
 function startTestMarbles {

@@ -36,6 +36,11 @@ PEER_ORGS="org1 org2"
 PEER_DOMAINS="org1 org2"
 PEER_PREFIX="peer"
 
+GITHUB_USERNAME='<gituser>'
+GITHUB_PASSWORD='<gitpass>'
+DOCKER_USER='<dockeruser>'
+DOCKER_PASS='<dockerpass>'
+
 # Number of peers in each peer organization
 NUM_PEERS=1
 
