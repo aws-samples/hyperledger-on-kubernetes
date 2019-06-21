@@ -599,6 +599,13 @@ function genFabricTestMarblesWorkshop {
     sed -e "s/%ORG%/${ADMINORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-test-fabric-marbles-workshop.yaml > ${K8SYAML}/fabric-deployment-test-fabric-marbles-workshop.yaml
 }
 
+function genKoinearthChaincodeYaml {
+    log "Generating Fabric Test Marbles Workshop K8s YAML files"
+    getAdminOrg
+    getDomain $ADMINORG
+    sed -e "s/%ORG%/${ADMINORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-test-koinearth-chaincode.yaml > ${K8SYAML}/fabric-deployment-test-koinearth-chaincode.yaml
+}
+
 function genInstallMarblesCC {
     log "Generating Install Marbles CC K8s YAML files"
     #get the first peer org. Setup only needs to run once, against the peer org

@@ -45,6 +45,7 @@ function main {
     genWorkshopRemotePeers
     genPeerJoinChannel
     genFabricTest
+    genKoinearthChaincodeYaml
     genFabricTestMarbles
     genInstallMarblesCC
     genLoadFabric
