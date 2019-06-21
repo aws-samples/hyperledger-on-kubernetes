@@ -60,6 +60,7 @@ function main {
     genFabricTestMarblesWorkshop
     genDeleteOrg
     genCLI
+    genBLDepl
     log "Creation of Hyperledger Fabric Kubernetes YAML files complete"
 }
 

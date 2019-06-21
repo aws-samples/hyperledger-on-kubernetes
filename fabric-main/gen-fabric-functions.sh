@@ -599,12 +599,20 @@ function genFabricTestMarblesWorkshop {
     sed -e "s/%ORG%/${ADMINORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-test-fabric-marbles-workshop.yaml > ${K8SYAML}/fabric-deployment-test-fabric-marbles-workshop.yaml
 }
 
+function genBLDepl {
+    for ORG in $PEER_ORGS; do
+        getDomain $ORG
+        sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e ${K8STEMPLATES}/blserver.yaml > ${K8SYAML}/blserver-$ORG.yaml
+    done
+}
+
 function genKoinearthChaincodeYaml {
     log "Generating Fabric Test Marbles Workshop K8s YAML files"
     getAdminOrg
     getDomain $ADMINORG
     sed -e "s/%ORG%/${ADMINORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e "s/%FABRIC_TAG%/${FABRIC_TAG}/g" ${K8STEMPLATES}/fabric-deployment-test-koinearth-chaincode.yaml > ${K8SYAML}/fabric-deployment-test-koinearth-chaincode.yaml
 }
+
 
 function genInstallMarblesCC {
     log "Generating Install Marbles CC K8s YAML files"

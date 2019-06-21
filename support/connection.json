@@ -1,0 +1,97 @@
+{
+  "name": "org1-network",
+  "x-type": "hlfv1",
+  "version": "1.0.0",
+  "client": {
+    "organization": "org1",
+    "connection": {
+      "timeout": {
+        "peer": { "endorser": "300", "eventHub": "300", "eventReg": "300"},
+        "orderer": "300"
+      }
+    }
+  },
+  "channels": {
+    "mychannel": {
+      "orderers": [
+        "orderer2-org0"
+      ],
+      "peers": {
+        "peer1-org1": {
+          "endorsingPeer": true, "chaincodeQuery": true, "eventSource": true
+        },
+        "peer1-org2": {
+          "endorsingPeer": true, "chaincodeQuery": true, "eventSource": true
+        }
+      }
+    }
+  },
+  "organizations": {
+    "org1": {
+      "mspid": "org1MSP",
+      "peers": [
+        "peer1-org1"
+      ],
+      "certificateAuthorities": [
+        "rca-org1"
+      ]
+    },
+    "org2": {
+      "mspid": "org2MSP",
+      "peers": [
+        "peer1-org2"
+      ],
+      "certificateAuthorities": [
+        "rca-org2"
+      ]
+    },
+    "org0": {
+      "mspid": "org0MSP",
+      "peers": [
+      ],
+      "certificateAuthorities": [
+        "rca-org0"
+      ]
+    }
+  },
+  "orderers": {
+    "orderer2-org0": {
+      "url": "grpcs://aff29e1ff940511e9958e06f20b98c66-51ed4777d472a84c.elb.us-west-2.amazonaws.com:7050",
+      "grpcOptions": {
+        "ssl-target-name-override": "orderer2nd-koinearthorderer"
+      },
+      "tlsCACerts": {
+        "pem": "/app/certificates/org0-ca-chain.pem"
+      }
+    }
+  },
+  "peers": {
+    "peer1-org1": {
+      "url": "grpcs://a0c63ec19940611e9958e06f20b98c66-deccb81e23dfb1b0.elb.us-west-2.amazonaws.com:7051",
+      "eventUrl": "grpc://peer1st-community:7053",
+      "grpcOptions": {
+        "ssl-target-name-override": "peer1-org1"
+      },
+      "tlsCACerts": {
+        "pem": "/app/certificates/tls/peer1-org1-client.crt"
+      }
+    },
+    "peer1-org2": {
+      "url": "grpcs://a0c94195d940611e998db0a8c1f134a9-265f9f10018ad7ec.elb.us-west-2.amazonaws.com:7051",
+      "eventUrl": "grpc://peer2nd-community:7053",
+      "grpcOptions": {
+        "ssl-target-name-override": "peer1-org2"
+      },
+      "tlsCACerts": {
+        "pem": "/app/certificates/tls/peer1-org2-client.crt"
+      }
+    }
+  },
+  "certificateAuthorities": {
+    "rca-org1": {
+      "url": "http://rca-org1.org1",
+      "caName": "rca-org1",
+      "httpOptions": {"verify": false}
+    }
+  }
+}

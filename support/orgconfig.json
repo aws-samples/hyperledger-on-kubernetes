@@ -1,0 +1,21 @@
+{
+    "name": "org1",
+    "x-type": "hlfv1",
+    "description": "Balance Transfer Network - client definition for Org1",
+    "version": "1.0",
+    "client": {
+        "organization": "org1",
+        "credentialStore": {
+            "endpoint": "https://test.koinearth.com:8200",
+            "token": "Amit",
+            "apiVersion": "v1",
+            "cryptoStore": {
+                "endpoint": "https://test.koinearth.com:8200",
+                "token": "Amit",
+                "apiVersion": "v1"
+            },
+            "wallet": "wallet-name"
+        }
+
+    }
+}

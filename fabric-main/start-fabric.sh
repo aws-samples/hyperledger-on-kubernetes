@@ -56,6 +56,7 @@ function main {
     echo "sleeping for 1 minute before starting next chaincode installation for Koinearth"
     sleep 60
     startKoinearthChaincode $HOME $REPO
+    deployBLServer $HOME $REPO
     whatsRunning
     echo "Setup of Hyperledger Fabric on Kubernetes complete"
 }

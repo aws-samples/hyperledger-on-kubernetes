@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: org1
+  name: identity-org1
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+       app: identity
+       role: client
+       org: org1
+       name: identity-org1
+  template:
+    metadata:
+      labels:
+       app: identity
+       role: client
+       org: org1
+       name: identity-org1
+    spec:
+     containers:
+       - name: identity-org1
+         image: koinearthindia/identity-server:0.0.1
+         env:
+         - name:  FABRIC_CA_SERVER_HOME
+           value: rca-org1
+         ports:
+          - containerPort: 8200
+         volumeMounts:
+          - mountPath: /app/certificates
+            name: rca-data
+          - mountPath: /app/config
+            name: rca-scripts
+     volumes:
+       - name: rca-data
+         persistentVolumeClaim:
+             claimName: rca-org1-pvc
+       - name: rca-scripts
+         persistentVolumeClaim:
+             claimName: rca-scripts-org1-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: org1
+  name: identity-org1
+spec:
+ selector:
+   app: identity
+   role: client
+   org: org1
+   name: identity-org1
+ type: NodePort
+ ports:
+   - name: endpoint
+     protocol: TCP
+     port: 8200
+     targetPort: 8200
