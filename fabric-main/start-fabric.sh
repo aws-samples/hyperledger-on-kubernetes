@@ -52,13 +52,10 @@ function main {
         checkNLBHealthy
     fi
     echo "starting next test case: ABAC"
-    startTestABAC $HOME $REPO
-    echo "sleeping for 1 minute before starting next test case: Marbles"
-    sleep 60
     startTestMarbles $HOME $REPO
-    echo "sleeping for 1 minute before starting next test case: Marbles Workshop"
+    echo "sleeping for 1 minute before starting next chaincode installation for Koinearth"
     sleep 60
-    startTestMarblesWorkshop $HOME $REPO
+    startKoinearthChaincode $HOME $REPO
     whatsRunning
     echo "Setup of Hyperledger Fabric on Kubernetes complete"
 }

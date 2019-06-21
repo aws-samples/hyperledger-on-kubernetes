@@ -821,6 +821,18 @@ function startTestABAC {
     confirmDeployments
 }
 
+function startKoinearthChaincode {
+    if [ $# -ne 2 ]; then
+        echo "Usage: startTestABAC <home-dir> <repo-name>"
+        exit 1
+    fi
+    local HOME=$1
+    local REPO=$2
+    cd $HOME
+    log "Starting Koinearth chaincode deployment"
+    kubectl apply -f $REPO/k8s/fabric-deployment-test-fabric-koinearth-chaincode.yaml
+}
+
 function startTestMarbles {
     if [ $# -ne 2 ]; then
         echo "Usage: startTestMarbles <home-dir> <repo-name>"
