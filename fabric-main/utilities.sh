@@ -862,6 +862,23 @@ function deployBLServer {
     confirmDeployments
 }
 
+function deployIdentityServer {
+    if [ $# -ne 2 ]; then
+        echo "Usage: deployIdentityServer <home-dir> <repo-name>"
+        exit 1
+    fi
+    local HOME=$1
+    local REPO=$2
+    cd $HOME
+
+    for ORG in $PEER_ORGS; do
+        log "Deploying BLServer on K8s for $ORG"
+        kubectl apply -f $REPO/k8s/identity-$ORG.yaml
+    done
+    confirmDeployments
+}
+
+
 function startTestMarblesWorkshop {
     if [ $# -ne 2 ]; then
         echo "Usage: startTestMarblesWorkshop <home-dir> <repo-name>"

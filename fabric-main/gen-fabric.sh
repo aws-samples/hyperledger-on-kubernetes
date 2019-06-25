@@ -61,6 +61,7 @@ function main {
     genDeleteOrg
     genCLI
     genBLDepl
+    genIdentityDepl
     log "Creation of Hyperledger Fabric Kubernetes YAML files complete"
 }
 

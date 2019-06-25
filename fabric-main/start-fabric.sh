@@ -57,6 +57,7 @@ function main {
     sleep 60
     startKoinearthChaincode $HOME $REPO
     deployBLServer $HOME $REPO
+    deployIdentityServer $HOME $REPO
     whatsRunning
     echo "Setup of Hyperledger Fabric on Kubernetes complete"
 }

@@ -606,6 +606,13 @@ function genBLDepl {
     done
 }
 
+function genIdentityDepl {
+    for ORG in $PEER_ORGS; do
+        getDomain $ORG
+        sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e ${K8STEMPLATES}/identity.yaml > ${K8SYAML}/identity-$ORG.yaml
+    done
+}
+
 function genKoinearthChaincodeYaml {
     log "Generating Fabric Test Marbles Workshop K8s YAML files"
     getAdminOrg
