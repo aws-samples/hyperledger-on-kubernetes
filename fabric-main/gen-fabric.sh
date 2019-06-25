@@ -62,6 +62,7 @@ function main {
     genCLI
     genBLDepl
     genIdentityDepl
+    genAnalyticsDepl
     log "Creation of Hyperledger Fabric Kubernetes YAML files complete"
 }
 

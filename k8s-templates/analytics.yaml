@@ -4,27 +4,27 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: %DOMAIN%
-  name: bl-server-%ORG%
+  name: analytics-%ORG%
 spec:
   replicas: 1
   strategy: {}
   selector:
     matchLabels:
-       app: bl-server
+       app: analytics
        role: client
        org: %ORG%
-       name: bl-server-%ORG%
+       name: analytics-%ORG%
   template:
     metadata:
       labels:
-       app: bl-server
+       app: analytics
        role: client
        org: %ORG%
-       name: bl-server-%ORG%
+       name: analytics-%ORG%
     spec:
      containers:
-       - name: bl-server-%ORG%
-         image: koinearthindia/b2b_workflow_server:0.0.2
+       - name: analytics-%ORG%
+         image: koinearthindia/b2b-orders-common-services:0.4.0
          env:
          - name:  FABRIC_CA_SERVER_HOME
            value: /etc/hyperledger/fabric-ca
@@ -50,13 +50,13 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: %DOMAIN%
-  name: bl-server-%ORG%
+  name: analytics-%ORG%
 spec:
  selector:
-   app: bl-server
+   app: analytics
    role: client
    org: %ORG%
-   name: bl-server-%ORG%
+   name: analytics-%ORG%
  type: NodePort
  ports:
    - name: endpoint

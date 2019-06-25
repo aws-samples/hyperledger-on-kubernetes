@@ -58,13 +58,14 @@ function main {
     startKoinearthChaincode $HOME $REPO
     deployBLServer $HOME $REPO
     deployIdentityServer $HOME $REPO
+    deployAnalyticsServer $HOME $REPO
     whatsRunning
     echo "Setup of Hyperledger Fabric on Kubernetes complete"
 }
 
 SDIR=$(dirname "$0")
 DATADIR=/opt/share/
-SCRIPTS=$DATADIR/rca-scripts
+SCRIPTS=$DATADIR/rca-scripts       
 REPO=hyperledger-on-kubernetes
 main
 
