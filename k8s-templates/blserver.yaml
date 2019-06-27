@@ -61,5 +61,5 @@ spec:
  ports:
    - name: endpoint
      protocol: TCP
-     port: 7054
-     targetPort: 7054
+     port: 3000
+     targetPort: 3000
