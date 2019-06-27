@@ -602,21 +602,21 @@ function genFabricTestMarblesWorkshop {
 function genBLDepl {
     for ORG in $PEER_ORGS; do
         getDomain $ORG
-        sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e ${K8STEMPLATES}/blserver.yaml > ${K8SYAML}/blserver-$ORG.yaml
+        sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/blserver.yaml > ${K8SYAML}/blserver-$ORG.yaml
     done
 }
 
 function genIdentityDepl {
     for ORG in $PEER_ORGS; do
         getDomain $ORG
-        sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e ${K8STEMPLATES}/identity.yaml > ${K8SYAML}/identity-$ORG.yaml
+        sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/identity.yaml > ${K8SYAML}/identity-$ORG.yaml
     done
 }
 
 function genAnalyticsDepl {
     for ORG in $PEER_ORGS; do
         getDomain $ORG
-        sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" -e ${K8STEMPLATES}/analytics.yaml > ${K8SYAML}/analytics-$ORG.yaml
+        sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/analytics.yaml > ${K8SYAML}/analytics-$ORG.yaml
     done
 }
 
