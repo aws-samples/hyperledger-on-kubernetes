@@ -17,8 +17,8 @@
 
 # these scripts add an org into the Fabric network. The org and its domain are captured in the
 # 2 ENV variables below.
-NEW_ORG="org7"
-NEW_DOMAIN="org7"
+NEW_ORG="<joiner_org>"
+NEW_DOMAIN="<joiner_org>"
 
 function main {
     log "Step3: Creating channel config for new org $NEW_ORG ..."

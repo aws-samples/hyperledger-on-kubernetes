@@ -17,7 +17,7 @@
 
 set +e
 
-NEW_ORG="org7"
+NEW_ORG="<joiner_org>"
 
 # copy the file env.sh from the Fabric orderer network to S3
 function copyEnvToS3 {
@@ -164,8 +164,8 @@ DATADIR=/opt/share
 SCRIPTS=$DATADIR/rca-scripts
 DATA=$DATADIR/rca-data
 region=us-west-2
-S3BucketNameOrderer=mcdg-blockchain-orderer
-S3BucketNameNewOrg=mcdg-blockchain-neworg
+S3BucketNameOrderer="<s3_orderer>"
+S3BucketNameNewOrg="<s3_joiner_org>"
 
 # This is a little hack I found here: https://stackoverflow.com/questions/8818119/how-can-i-run-a-function-from-a-script-in-command-line
 # that allows me to call this bash script and invoke a specific function from the command line
