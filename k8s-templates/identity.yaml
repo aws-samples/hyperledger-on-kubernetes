@@ -35,8 +35,6 @@ spec:
           - mountPath: /app/certificates
             name: rca-data
           - mountPath: /app/config
-            name: config
-          - mountPath: /scripts
             name: rca-scripts
      volumes:
        - name: rca-data
