@@ -846,53 +846,53 @@ function startTestMarbles {
     confirmDeployments
 }
 
-function deployBLServer {
-    if [ $# -ne 2 ]; then
-        echo "Usage: deployBLServer <home-dir> <repo-name>"
-        exit 1
-    fi
-    local HOME=$1
-    local REPO=$2
-    cd $HOME
+# function deployBLServer {
+#     if [ $# -ne 2 ]; then
+#         echo "Usage: deployBLServer <home-dir> <repo-name>"
+#         exit 1
+#     fi
+#     local HOME=$1
+#     local REPO=$2
+#     cd $HOME
 
-    for ORG in $PEER_ORGS; do
-        log "Deploying BLServer on K8s for $ORG"
-        kubectl apply -f $REPO/k8s/blserver-$ORG.yaml
-    done
-    confirmDeployments
-}
+#     for ORG in $PEER_ORGS; do
+#         log "Deploying BLServer on K8s for $ORG"
+#         kubectl apply -f $REPO/k8s/blserver-$ORG.yaml
+#     done
+#     confirmDeployments
+# }
 
-function deployIdentityServer {
-    if [ $# -ne 2 ]; then
-        echo "Usage: deployIdentityServer <home-dir> <repo-name>"
-        exit 1
-    fi
-    local HOME=$1
-    local REPO=$2
-    cd $HOME
+# function deployIdentityServer {
+#     if [ $# -ne 2 ]; then
+#         echo "Usage: deployIdentityServer <home-dir> <repo-name>"
+#         exit 1
+#     fi
+#     local HOME=$1
+#     local REPO=$2
+#     cd $HOME
 
-    for ORG in $PEER_ORGS; do
-        log "Deploying identity on K8s for $ORG"
-        kubectl apply -f $REPO/k8s/identity-$ORG.yaml
-    done
-    confirmDeployments
-}
+#     for ORG in $PEER_ORGS; do
+#         log "Deploying identity on K8s for $ORG"
+#         kubectl apply -f $REPO/k8s/identity-$ORG.yaml
+#     done
+#     confirmDeployments
+# }
 
-function deployAnalyticsServer {
-    if [ $# -ne 2 ]; then
-        echo "Usage: deployAnalyticsServer <home-dir> <repo-name>"
-        exit 1
-    fi
-    local HOME=$1
-    local REPO=$2
-    cd $HOME
+# function deployAnalyticsServer {
+#     if [ $# -ne 2 ]; then
+#         echo "Usage: deployAnalyticsServer <home-dir> <repo-name>"
+#         exit 1
+#     fi
+#     local HOME=$1
+#     local REPO=$2
+#     cd $HOME
 
-    for ORG in $PEER_ORGS; do
-        log "Deploying Analytics on K8s for $ORG"
-        kubectl apply -f $REPO/k8s/analytics-$ORG.yaml
-    done
-    confirmDeployments
-}
+#     for ORG in $PEER_ORGS; do
+#         log "Deploying Analytics on K8s for $ORG"
+#         kubectl apply -f $REPO/k8s/analytics-$ORG.yaml
+#     done
+#     confirmDeployments
+# }
 
 
 function startTestMarblesWorkshop {

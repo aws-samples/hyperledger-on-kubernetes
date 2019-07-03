@@ -1,3 +1,4 @@
 *.pem
 .idea
 k8s
+offchain-deployment/offchain_services/*

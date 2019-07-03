@@ -443,7 +443,6 @@ function getDomain {
    fi
    orgsarr=($ORGS)
    domainarr=($DOMAINS)
-
    for i in "${!orgsarr[@]}"; do
       if [[ "${orgsarr[$i]}" = "${1}" ]]; then
            DOMAIN=${domainarr[$i]}

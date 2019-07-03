@@ -2,8 +2,10 @@
 
 set -e
 OFFCHAINDEPLOYDIR=offchain_services
+K8STEMPLATES=../k8s-templates
 
 function genBLDepl {
+    
     for ORG in $PEER_ORGS; do
         getDomain $ORG
         sed -e "s/%ORG%/${ORG}/g" -e "s/%DOMAIN%/${DOMAIN}/g" ${K8STEMPLATES}/blserver.yaml > ${OFFCHAINDEPLOYDIR}/blserver-$ORG.yaml
@@ -26,7 +28,9 @@ function genAnalyticsDepl {
 
 function main {
     echo "Beginning deployment of offchain services on Kubernetes ..."
-    cd $HOME/$REPO
+    source ../scripts/env.sh
+
+    # cd $HOME/$REPO
     rm -rf $OFFCHAINDEPLOYDIR
     mkdir $OFFCHAINDEPLOYDIR
     genBLDepl
