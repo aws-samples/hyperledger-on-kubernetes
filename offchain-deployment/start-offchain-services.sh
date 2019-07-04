@@ -16,6 +16,11 @@ function confirmDeployments {
     done
 }
 
+function deploySecret {
+    # deploy imagepullsecret
+    kubectl apply -f k8s/generated_secret.yaml
+}
+
 function deployBLServer {
     # if [ $# -ne 1 ]; then
     #     echo "Usage: deployBLServer <home-dir>"
@@ -75,6 +80,7 @@ function whatsRunning {
 function main {
     echo "Beginning deployment of offchain services ..."
     # source ../fabric-main/utilities.sh
+    deploySecret
     echo "Deploying BL Server"
     deployBLServer $HOME $REPO
     echo "Deploying ID server"

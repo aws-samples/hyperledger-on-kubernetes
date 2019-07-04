@@ -43,6 +43,8 @@ spec:
        - name: rca-scripts
          persistentVolumeClaim:
              claimName: rca-scripts-%ORG%-pvc
+     imagePullSecrets:
+     - name: image-pull-secret
 
 ---
 apiVersion: v1
